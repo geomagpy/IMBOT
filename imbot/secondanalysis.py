@@ -703,6 +703,7 @@ def CheckDiffs2Minute(data, logdict, minutesource={}, obscode='',daterange=[],co
             print (" Creating backup of one second data...")
             secdata = data.copy()
             print (" ... done")
+            print (" Time range of one-seconddata: {}".format(secdata._find_t_limits()))
             mindatadict, issuedict, warningdict = compare_meta(mindata.header,secdata.header,mindatadict,issuedict, warningdict, debug=debug)
             highresfilt = secdata.filter(missingdata='iaga')
             if debug:
@@ -710,6 +711,15 @@ def CheckDiffs2Minute(data, logdict, minutesource={}, obscode='',daterange=[],co
             diff = subtractStreams(highresfilt,mindata,keys=['x','y','z'])
             if debug:
                 print ("  -> diff calculated")
+            # drop the first time step - quick and dirty - remove if filtering has been checked
+            drop = True
+            if drop:
+                if debug:
+                    print ("  -> diff length: {}".format(diff.length()[0]))
+                diff = diff.trim(starttime=diff.ndarray[0][0]+0.00069)
+                if debug:
+                    print ("  -> removed first insufficiently filtered timestep")
+                    print ("  -> diff length: {}".format(diff.length()[0]))
             xd, xdst = diff.mean('x',std=True)
             yd, ydst = diff.mean('y',std=True)
             zd, zdst = diff.mean('z',std=True)

@@ -798,11 +798,13 @@ def main(argv):
     ## 1.1 Get current directory structure of sources
     try:
         #  1.1.1 Access and transform step3 directory
-        #try:
-        if step3mounted:
-            if debug:
-                print ("Converting step3 definitive data from seismic to magnetic representation")
-            success = ConverTime2LocationDirectory(step3mounted, step3source, debug=False)
+        try:
+            if step3mounted:
+                if debug:
+                    print ("Converting step3 definitive data from seismic to magnetic representation")
+                success = ConverTime2LocationDirectory(step3mounted, step3source, debug=False)
+        except:
+            print (" -> mounting remote step3 data failed - using only local memory of step3 data")
         if step3source:
             step3, ld3 = GetGINDirectoryInformation(step3source, checkrange=0, obslist=obslist,excludeobs=excludeobs)
             try:
@@ -814,6 +816,8 @@ def main(argv):
     except:
         print ("Failure in step 1.1.1")
         step3 = {}
+    # eventually load local step2 source
+    #step2local = load()
     try:
         #  1.1.2 Access step2 directory
         if step2source:
@@ -827,6 +831,8 @@ def main(argv):
     except:
         print ("Failure in step 1.1.1")
         step2 = {}
+    #merge local and remote(mounted) step2 lists and save it locally
+    #step2 = merge_steplist(step2local, step2, savepath="")
     try:
         #  1.1.3 Access step1 directory
         step1, logdict = GetGINDirectoryInformation(source, checkrange=checkrange,obslist=obslist,excludeobs=excludeobs)
