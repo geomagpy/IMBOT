@@ -2,11 +2,17 @@
 # An automatic data checker for one second data.
 -------------------------------------------------
 
-####<1.0.6>, <2023-01-xx> --
+####<1.0.7>, <2023-01-23> --
 
-1.0.6 additions:
+1.0.7 additions:
+    none
 
-1.0.6 fixes:
+1.0.7 fixes:
+    + first sample in month (insufficient filtering) treatment
+    + use local memory in case step3 folder at nrcan can not be mounted
+      (previously an error was thrown and step3 was empty)
+    + more than one file needs to be present to extract step1,step2,step3 info
+      (nrcan sometimes already contains JAN IAF definitive data although not yet accepted)
 
 ####<1.0.5>, <2022-09-30> --
 

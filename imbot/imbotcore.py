@@ -179,7 +179,7 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
                         moddict[f] = mtime
                     except:
                         logdict[obscode] = "Failed to extract mtimes"
-                if len(timelist) > 0:
+                if len(timelist) > 1: # requires more than one file (nrcan step3 contains eventualy single definitive files)
                     youngest = max(timelist)
                     if debug:
                         #print ("  -> youngest file: {}".format(youngest))
