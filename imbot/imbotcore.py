@@ -501,6 +501,8 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
             mem = ma.ReadMemory('/home/leon/Tmp/Mag2020/mem.json')
             new, note = GetNewInputs(mem,storage)
         """
+		print ("   --------------------------------")
+		print ("   Getting new/modified submissions")
         if not newdict:
             print ("Empty new obs dictionary - returning empty dict")
             return {},notification
@@ -512,15 +514,18 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
         mod = {}
         for key, value in newdict.items():
             if not key in memory:
+				print ("    Found new data for {}".format(key))
                 newlist.append(key)
                 out[key] = value
             elif value != memory[key] and not simple:
+				print ("    Found differences to memory for {}".format(key))
                 memval = memory[key].get('moddict')
                 moddict = value.get('moddict')
                 #for k,v in moddict.items():
                 #    print ("k", memval.get(k,'Not found'))
                 #    print ("v", v)
                 changed = {k:v for k,v in moddict.items() if v != memval.get(k,'Not found')}
+				print ("    Changed files: {}".format(changed))
                 updatelist.append(key)
                 mod[key] = changed
                 out[key] = value
@@ -534,7 +539,7 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
             notification[notificationkey] = valuelist
 
         if debug:
-            print ("Out dictionary:", out)
+            print ("Returning dictionary:", out)
             print ("Notification:", notification)
 
         return out,notification
