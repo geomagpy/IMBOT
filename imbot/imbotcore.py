@@ -522,7 +522,7 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 memval = memory[key].get('moddict')
                 moddict = value.get('moddict')
 				# Do comparison of memory and new submissions only on daily accuracy
-                nmemval, nmoddcit = {},{}
+                nmemval, nmoddict = {},{}
                 for nk in memval:
                     dt = datetime.fromtimestamp(memval[nk])
                     nmemval[nk]=datetime.strftime(dt,"%Y%m%d")
