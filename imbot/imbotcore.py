@@ -517,11 +517,13 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
             nd = {}
             for key in md:
                 dt = datetime.fromtimestamp(md[key])
-                nd[nk]=datetime.strftime(dt,"%Y%m%d")
+                nd[key]=datetime.strftime(dt,"%Y%m%d")
+            lmdt = datetime.fromtimestamp(d.get('lastmodified'))
+            d['lastmodified'] = datetime.strftime(lmdt,"%Y%m%d")
             d['moddict'] = nd
 
         for key, value in newdict.items():
-			# Do comparison of memory and new submissions only on daily accuracy
+            # Do comparison of memory and new submissions only on daily accuracy
             change_time(value)
             change_time(memory[key])
             if not key in memory:
@@ -532,12 +534,12 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 print ("   Found differences to memory for {}".format(key))
                 memval = memory[key].get('moddict')
                 moddict = value.get('moddict')
-                print ("memory:", memval)
-                print ("new:", moddict)
+                #print ("memory:", memory[key])
+                #print ("new:", value)
                 #for k,v in moddict.items():
                 #    print ("k", memval.get(k,'Not found'))
                 #    print ("v", v)
-                changed = {k:v for k,v in nmoddict.items() if v != nmemval.get(k,'Not found')}
+                changed = {k:v for k,v in moddict.items() if v != memval.get(k,'Not found')}
                 print ("   Changed files: {}".format(changed))
                 updatelist.append(key)
                 mod[key] = changed
