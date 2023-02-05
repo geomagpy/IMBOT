@@ -525,7 +525,8 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
         for key, value in newdict.items():
             # Do comparison of memory and new submissions only on daily accuracy
             change_time(value)
-            change_time(memory[key])
+            if memory.get(key,False):
+                change_time(memory[key])
             if not key in memory:
                 print ("   Found new data for {}".format(key))
                 newlist.append(key)
