@@ -244,7 +244,7 @@ def GetMonths(sourcepath, addinfo="/tmp", repdict={}):
         return datelist, repdict
 
 
-def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optionalheads=['StationWebInfo', 'DataTerms', 'DataReferences'], debug=False):
+def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optionalheads=['StationWebInfo', 'DataTerms', 'DataReferences'], latestleapsecond="20170101",debug=False):
         """
         DESCRIPTION:
             reading one month of data and checking contents
@@ -311,6 +311,8 @@ def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optiona
             logdict['Datalimits'] = [st,et]
             logdict['N'] = data.length()[0]
             logdict['Leap second update'] = data.header.get('DataLeapSecondUpdated')
+            if not latestleapsecond == data.header.get('DataLeapSecondUpdated'):
+                warningdict['Leap second'] = 'Leap second table seems to be outdated - please check'
             logdict['Filled gaps'] = cntafter-cntbefore
             logdict['Difference to expected amount'] = expectedcount-cntafter
             logdict['Level'] = 2
@@ -458,6 +460,8 @@ def CheckStandardLevel(data, logdict={}, partialcheck=partialcheck_v1):
             table with (list) with partial standard description and whether these points are met/considered
             logdict with an updated Issue subdictionary
         """
+        warningdict = {}
+        warningdict=logdict.get('Warnings',{})
         issuedict = {}
         issuedict=logdict.get('Issues',{})
         tablelist = []
@@ -470,10 +474,10 @@ def CheckStandardLevel(data, logdict={}, partialcheck=partialcheck_v1):
                 tableline.append(partialcheck.get(key))
                 if key in ['IMOS41','IMOS-41'] and (logdict.get('F') in ['None',''] or logdict.get('F').startswith('found no')):
                     tableline.append('confirmed but invalid')
-                    issuedict['StandardLevel - IMOS-41'] = 'criteria not met'
+                    warningdict['StandardLevel - IMOS-41'] = 'IMOS41 confirmed but no F-values provided'
                 elif key in ['IMOS42','IMOS-42'] and logdict.get('T') in ['None','']:
                     tableline.append('confirmed but invalid')
-                    issuedict['StandardLevel - IMOS-42'] = 'criteria not met'
+                    warningdict['StandardLevel - IMOS-42'] = 'IMOS42 confirmed but no temperature values provided'
                 else:
                     tableline.append('validity confirmed by submitter')
                 tablelist.append(tableline)
@@ -506,11 +510,13 @@ def CheckStandardLevel(data, logdict={}, partialcheck=partialcheck_v1):
                         print ("Found the key in partialvals")
                         tableline.append('validity confirmed by submitter')
                         if key == 'IMOS-41' and (logdict.get('F') in ['None',''] or logdict.get('F').startswith('found no')):
+                            print ("HERE: F values missing although IMOS41")
                             tableline.append('confirmed but invalid')
-                            issuedict['StandardLevel - IMOS41'] = 'criteria not met'
+                            warningdict['StandardLevel - IMOS41'] = 'IMOS41 confirmed but no F values found'
                         elif key == 'IMOS-42' and logdict.get('T') in ['None','']:
+                            print ("HERE: temperature values missing although IMOS42")
                             tableline.append('confirmed but invalid')
-                            issuedict['StandardLevel - IMOS42'] = 'criteria not met'
+                            warningdict['StandardLevel - IMOS42'] = 'IMOS42 confirmed but no temperature values found'
                     else:
                         tableline.append('not met as confirmed by submitter')
                 except:
@@ -528,6 +534,7 @@ def CheckStandardLevel(data, logdict={}, partialcheck=partialcheck_v1):
                 tablelist.append(tableline)
 
         logdict['Issues'] = issuedict
+        logdict['Warnings'] = warningdict
 
         return tablelist, logdict
 
@@ -1072,7 +1079,13 @@ def WriteReport(destinationpath, parameterdict={}, reportdict={}, logdict={}, ta
         for key in parameterdict:
             # if not key a dictionary
             if not isinstance(parameterdict[key],dict):
-                text.append("* {}  :  {}\n".format(key,parameterdict[key]))
+                if not key == "lastmodified":
+                    text.append("* {}  :  {}\n".format(key,parameterdict[key]))
+                else:
+                    try:
+                        text.append("* {}  :  {}\n".format(key,datetime.fromtimestamp(float(parameterdict[key]))))
+                    except:
+                        text.append("* {}  :  {}\n".format(key,parameterdict[key]))
 
         for key in generaldict:
             # if not key a dictionary
@@ -1303,9 +1316,8 @@ def CreateSecondMail(level, obscode, stationname='', year=2016, nameofdatachecke
 
         return maintext
 
-
 # Read files, anaylse them and write to IMAGCDF
-def CheckOneSecond(pathsdict, tmpdir="/tmp", destination="/tmp", logdict={}, selecteddayslist=[], testobslist=[], mailcfg='', pathemails='', notification=None, contactdict={}, debug=False):
+def CheckOneSecond(pathsdict, tmpdir="/tmp", destination="/tmp", logdict={}, selecteddayslist=[], testobslist=[], mailcfg='', pathemails='', notification=None, contactdict={}, latestleapsecond="20170101", debug=False):
         """
         DESCRIPTION
             method to perfom data conversion and call the check methods
@@ -1381,7 +1393,7 @@ def CheckOneSecond(pathsdict, tmpdir="/tmp", destination="/tmp", logdict={}, sel
                     # - read a month of data (including meta info and completeness check)
                     # -----------
                     # - each month gets an dictionary with level suggestions
-                    mdata, loggingdict = ReadMonth(sourcepath,dates[0],dates[1],updateinfo=updatedictionary,debug=debug)
+                    mdata, loggingdict = ReadMonth(sourcepath,dates[0],dates[1],updateinfo=updatedictionary,latestleapsecond=latestleapsecond,debug=debug)
                     # - perform level test (delta f)
                     # -----------
                     if debug:
@@ -1592,6 +1604,7 @@ def main(argv):
     pathemails = ''
     tele = ''
     year = 1971
+    latestleapsecond = "20170101"
     logpath = '/var/log/magpy'
     mailcfg = '/etc/martas'
     quietdaylist = ['2016-01-25','2016-01-29','2016-02-22','2016-03-13','2016-04-01','2016-08-28','2016-10-21','2016-11-05','2016-11-17','2016-11-19','2016-11-30','2016-12-01','2016-12-03','2016-12-04']
@@ -1756,7 +1769,7 @@ def main(argv):
     print ("Running conversion and data check:")
     contactdict = {}
     # 3. Convert Data includes validity tests, report creation and exporting of data
-    fullreport = CheckOneSecond(newdict, tmpdir=tmpdir, destination=destination, logdict=logdict,selecteddayslist=quietdaylist,testobslist=testobslist,mailcfg=mailcfg,pathemails=pathemails, notification=notification,contactdict=contactdict,debug=debug)
+    fullreport = CheckOneSecond(newdict, tmpdir=tmpdir, destination=destination, logdict=logdict,selecteddayslist=quietdaylist,testobslist=testobslist,mailcfg=mailcfg,pathemails=pathemails, notification=notification,contactdict=contactdict,latestleapsecond=latestleapsecond,debug=debug)
 
     print ("---------------------------")
     # 4. if successfully analyzed create new memory

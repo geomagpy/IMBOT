@@ -501,8 +501,10 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
             mem = ma.ReadMemory('/home/leon/Tmp/Mag2020/mem.json')
             new, note = GetNewInputs(mem,storage)
         """
+        print ("   --------------------------------")
+        print ("   Getting new/modified submissions")
         if not newdict:
-            print ("Empty new obs dictionary - returning empty dict")
+            print ("   !Empty new obs dictionary - returning empty dict")
             return {},notification
         # newly uploaded
         newlist = []
@@ -510,17 +512,35 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
         valuelist = []
         out = {}
         mod = {}
+        def change_time(d):
+            md = d.get('moddict')
+            nd = {}
+            for key in md:
+                dt = datetime.fromtimestamp(md[key])
+                nd[key]=datetime.strftime(dt,"%Y%m%d")
+            lmdt = datetime.fromtimestamp(d.get('lastmodified'))
+            d['lastmodified'] = datetime.strftime(lmdt,"%Y%m%d")
+            d['moddict'] = nd
+
         for key, value in newdict.items():
+            # Do comparison of memory and new submissions only on daily accuracy
+            change_time(value)
+            change_time(memory[key])
             if not key in memory:
+                print ("   Found new data for {}".format(key))
                 newlist.append(key)
                 out[key] = value
             elif value != memory[key] and not simple:
+                print ("   Found differences to memory for {}".format(key))
                 memval = memory[key].get('moddict')
                 moddict = value.get('moddict')
+                #print ("memory:", memory[key])
+                #print ("new:", value)
                 #for k,v in moddict.items():
                 #    print ("k", memval.get(k,'Not found'))
                 #    print ("v", v)
                 changed = {k:v for k,v in moddict.items() if v != memval.get(k,'Not found')}
+                print ("   Changed files: {}".format(changed))
                 updatelist.append(key)
                 mod[key] = changed
                 out[key] = value
@@ -534,8 +554,8 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
             notification[notificationkey] = valuelist
 
         if debug:
-            print ("Out dictionary:", out)
-            print ("Notification:", notification)
+            print ("  Returning dictionary:", out)
+            print ("  Notification:", notification)
 
         return out,notification
 

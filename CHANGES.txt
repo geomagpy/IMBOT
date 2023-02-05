@@ -5,7 +5,10 @@
 ####<1.0.7>, <2023-01-23> --
 
 1.0.7 additions:
-    none
+    + corrected warning messages for IMOS41 and IMOS42 (no issues and more)
+    + datetime of last filename change
+    + check of leap second
+    + process overview in README appendix
 
 1.0.7 fixes:
     + first sample in month (insufficient filtering) treatment
