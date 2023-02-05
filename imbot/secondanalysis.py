@@ -723,7 +723,8 @@ def CheckDiffs2Minute(data, logdict, minutesource={}, obscode='',daterange=[],co
             if drop:
                 if debug:
                     print ("  -> diff length: {}".format(diff.length()[0]))
-                diff = diff.trim(starttime=diff.ndarray[0][0]+0.00069)
+                if diff.length()[0]>0:
+                    diff = diff.trim(starttime=diff.ndarray[0][0]+0.00069)
                 if debug:
                     print ("  -> removed first insufficiently filtered timestep")
                     print ("  -> diff length: {}".format(diff.length()[0]))
