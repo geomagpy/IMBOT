@@ -67,12 +67,12 @@ def GetConf(path):
        key   :    subkey1:value1;subkey2:value2               # extracted as { key: {subkey1:value1,subkey2:value2} }
        key   :    subkey1:value1;subkey2:item1,item2,item3    # extracted as { key: {subkey1:value1,subkey2:[item1...]} }
     """
+    confdict={}
     ok = True
     if ok:
         #try:
         config = open(path,'r')
         confs = config.readlines()
-        confdict = {}
         for conf in confs:
             conflst = conf.split(':')
             if conf.startswith('#'):
