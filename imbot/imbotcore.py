@@ -143,8 +143,8 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
         TEST:
             $ mount sorcedict
             $ python3
-            >>> import minuteanalysis as ma
-            >>> storage, log = ma.GetGINDirectoryInformation(sourcepath,checkrange=2,obslist=obslist,excludeobs=[],debug=True)
+            >> import minuteanalysis as ma
+            >> storage, log = ma.GetGINDirectoryInformation(sourcepath,checkrange=2,obslist=obslist,excludeobs=[],debug=True)
         """
         print (" Running directory information analysis")
         if debug:
@@ -179,7 +179,12 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
                         moddict[f] = mtime
                     except:
                         logdict[obscode] = "Failed to extract mtimes"
-                if len(timelist) > 1: # requires more than one file (nrcan step3 contains eventualy single definitive files)
+                arch = False
+                if len(extlist) == 1:
+                    exttest = extlist[0].lower()
+                    if exttest.endswith('tar') or exttest.endswith('gz') or exttest.endswith('zip') or exttest.endswith('bz2'):
+                        arch = True
+                if len(timelist) > 1 or arch: # requires more than one file (nrcan step3 contains eventualy single definitive files) --- Problem with single files on second
                     youngest = max(timelist)
                     if debug:
                         #print ("  -> youngest file: {}".format(youngest))
