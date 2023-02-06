@@ -180,10 +180,11 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
                     except:
                         logdict[obscode] = "Failed to extract mtimes"
                 arch = False
-                if len(extlist) == 1:
-                    exttest = extlist[0].lower()
-                    if exttest.endswith('tar') or exttest.endswith('gz') or exttest.endswith('zip') or exttest.endswith('bz2'):
-                        arch = True
+                if len(extlist) > 0:
+                    for extl in extlist:
+                        exttest = extl.lower()
+                        if exttest.endswith('tar') or exttest.endswith('gz') or exttest.endswith('zip') or exttest.endswith('bz2'):
+                            arch = True
                 if len(timelist) > 1 or arch: # requires more than one file (nrcan step3 contains eventualy single definitive files) --- Problem with single files on second
                     youngest = max(timelist)
                     if debug:
