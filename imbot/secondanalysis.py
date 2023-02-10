@@ -1760,8 +1760,8 @@ def main(argv):
 
     ## 1.2 Determine publication state and paths for minute data
     currentdirectory = add_minute_state(currentdirectory,minstep1dir,minstep2dir,minstep3dir, obslist=obslist)
-
     print ("Previous uploads: ", [key for key in memdict])
+    sys.exit()
     ## 1.3 Subtract the two directories - only new files remain
     newdict, notification = GetNewInputs(memdict,currentdirectory)
 
