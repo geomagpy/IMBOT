@@ -1731,7 +1731,7 @@ def main(argv):
         # ################################################
         ## New Logging features
         from martas import martaslog as ml
-        # tele needs to provide logpath, and config path ('/home/cobs/SCRIPTS/telegram_notify.conf')
+        # tele needs to provide logpath, and config path ('/etc/martas/telegram_notify.conf')
         telelogpath = os.path.join(logpath,"secondanalysis","telegram.log")
 
     if source == '':
@@ -1742,7 +1742,7 @@ def main(argv):
         memdict = ReadMemory(memory)
 
     if not os.path.exists(tmpdir):
-        print ('Specify a valid path to to temporarly save converted files:')
+        print ('Specify a valid path to to temporarily save converted files:')
         print ('-- check secondanalysis.py -h for more options and requirements')
         sys.exit()
 
