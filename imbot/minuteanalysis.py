@@ -694,7 +694,7 @@ def main(argv):
             print ('-i            : basic directory for step2 minute data (IAF files)')
             print ('-j            : basic directory for step3 minute data (IAF files)')
             print ('-k            : mounted NRCAN definitive directory (IAF files)')
-            print ('-e            : path to a local email repository - names: mailinglist.cfg, refereelist.cfg')
+            print ('-e            : path to a local email repository - names: mailinglist.cfg, refereelist_minute.cfg')
             print ('-n            : path for telegram configuration file for notifications')
             print ('-y            : year of analysis')
             print ('-c            : path for mail configuration file "mail.cfg" - default is /etc/martas')

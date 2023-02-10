@@ -218,7 +218,7 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
         return storage, logdict
 
 
-def GetDataChecker(obscode, path="/path/to/refereelist.cfg"):
+def GetDataChecker(obscode, path="/path/to/refereelist_minute.cfg"):
         """
         DESCRIPTION
             determine a data checker for the Observatory defined by obscode.
@@ -254,7 +254,7 @@ def GetDataChecker(obscode, path="/path/to/refereelist.cfg"):
         else:
             return fallback, fallbackmail
 
-def GetObsListFromChecker(obslist=[],path="/path/to/refereelist.cfg"):
+def GetObsListFromChecker(obslist=[],path="/path/to/refereelist_minute.cfg"):
         """
         DESCRIPTION
             determine a data checker for the Observatory defined by obscode.
