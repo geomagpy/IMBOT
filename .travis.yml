@@ -13,3 +13,4 @@ script:
   - python imbot/martas.py
   - python imbot/secondanalysis.py -D
   - python imbot/minuteanalysis.py -D
+  - python3 imbot/secondanalysis.py -s test/second/ -d /tmp -t /tmp -q 2021-05-15,2021-05-16 -n /etc/martas/telegram_imbot.cfg -o REFEREE -i test/minute1/ -j test/minute2/ -k test/minute3/ -e config/ -l /tmp -c /etc/martas/mail.cfg -p KOU -y 2021 -w 0 -D

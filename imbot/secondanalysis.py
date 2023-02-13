@@ -98,6 +98,8 @@ def add_minute_state(cd,step1dir,step2dir,step3dir,obslist=[],excludeobs=[],debu
             val['minute'] = {'step1':step1dir}
         else:
             val['minute'] = {'step0':''}
+        if debug:
+            print (" add_minute_state: obtained {}".format(val.get('minute')))
     return cd
 
 
@@ -198,6 +200,7 @@ def GetMonths(sourcepath, addinfo="/tmp", repdict={}):
             addinfo contains a link to additional meta information (e.g. provided on GITHUB, webpage, file, etc)
         """
         datelist = []
+        mon = 1
         # test whether sourcepath exists
         if not os.path.exists(sourcepath):
             print ("Path {} not existing".format(sourcepath))
@@ -229,6 +232,7 @@ def GetMonths(sourcepath, addinfo="/tmp", repdict={}):
             repdict["Readability"] = "Found wrong sampling rate of {}".format(sr)
         if data.length()[0] > 0:
             st, et = data._find_t_limits()
+            mon = (st + (et-st)/2).month
             year = et.year
             repdict["Year"] = year
             s = datetime(year,1,1)
@@ -241,10 +245,10 @@ def GetMonths(sourcepath, addinfo="/tmp", repdict={}):
         else:
             repdict["Readability"] = "Obtained empty DataStream structure"
 
-        return datelist, repdict
+        return datelist, repdict, mon
 
 
-def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optionalheads=['StationWebInfo', 'DataTerms', 'DataReferences'], latestleapsecond="20170101",debug=False):
+def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optionalheads=['StationWebInfo', 'DataTerms', 'DataReferences'], latestleapsecond="20170101", droptemperature=True, debug=False):
         """
         DESCRIPTION:
             reading one month of data and checking contents
@@ -260,7 +264,6 @@ def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optiona
         et = datetime.strptime(endtime,'%Y-%m-%d')-timedelta(days=1)
         days = int(date2num(et) - date2num(st))
         expectedcount = int(days*24.*3600.)
-        #print ("Exporting data from {} to {}".format(st,et))
         try:
             data = read(os.path.join(sourcepath,'*'),starttime=starttime, endtime=endtime)
         except:
@@ -268,25 +271,34 @@ def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optiona
         data = data.trim(starttime=st,endtime=et)
         newmeta = ReadMetaData(sourcepath)
         if data.length()[0] > 1:
-            print (" -> second data: {}".format(data.length()[0]))
+            print (" -> got {} values for {}".format(data.length()[0],data._get_key_headers()))
             # drop flagged data
             data = data.remove_flagged()
-            # drop temperature anad other columns
+            # eventually drop temperature and other columns
             temp1 = data._get_column('t1')
             temp2 = data._get_column('t2')
             var = data._get_column('var1')
             if len(temp1) > 0:
-                print (" Found temperature column")
                 data = data._drop_column('t1')
-                try:
-                    txt = "{}+/-{} degC".format(np.nanmean(temp1),np.nanstd(temp1))
-                    logdict['Temperature1 record contained'] = data.header.get('DataLeapSecondUpdated')
-                except:
-                    pass
+                #try:
+                txt = "{:.2f}+/-{:.2f} degC".format(np.nanmean(temp1),np.nanstd(temp1))
+                logdict['Temperature1 record'] = "Temperature1: {}".format(txt)
+                print (" Temperature1: {}".format(txt))
+                #except:
+                #    pass
             if len(temp2) > 0:
-                data = data._drop_column('t2')
+                txt = "{:.2f}+/-{:.2f} degC".format(np.nanmean(temp2),np.nanstd(temp2))
+                logdict['Temperature2 record'] = "Temperature2: {}".format(txt)
+                print (" Temperature2: {}".format(txt))
             if len(var) > 0:
+                print (" Additional optional record found - dropping this as this is not ")
                 data = data._drop_column('var')
+            if droptemperature:
+                print (" Dropping temperature recordings ...")
+                if len(temp1) > 0:
+                    data = data._drop_column('t1')
+                if len(temp2) > 0:
+                    data = data._drop_column('t2')
             cntbefore = data.length()[0]
             data = data.get_gaps()
             cntafter = int(data.length()[0])
@@ -297,6 +309,7 @@ def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optiona
             ### Try to load any additional meta information provided in file meta_obscode.txt
             if len(newmeta) > 0:
                 print ("Observatory provided additional meta information: {}".format(newmeta))
+                warningdict['Additional Meta Information'] = "The observatory provided additional meta information using a meta file template: included only into step2 data files"
                 for key in newmeta:
                    nkey = key
                    print ("Appending new meta info for {}".format(key))
@@ -311,7 +324,7 @@ def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optiona
             logdict['Datalimits'] = [st,et]
             logdict['N'] = data.length()[0]
             logdict['Leap second update'] = data.header.get('DataLeapSecondUpdated')
-            if not latestleapsecond == data.header.get('DataLeapSecondUpdated'):
+            if not str(latestleapsecond) == str(data.header.get('DataLeapSecondUpdated')):
                 warningdict['Leap second'] = 'Leap second table seems to be outdated - please check'
             logdict['Filled gaps'] = cntafter-cntbefore
             logdict['Difference to expected amount'] = expectedcount-cntafter
@@ -361,10 +374,12 @@ def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optiona
         logdict['Warnings'] = warningdict
         logdict['Improvements'] = improvements
 
+        if debug:
+            print (" Obtained level {} for this month after checking data contents, data coverage and meta information".format(logdict.get('Level')))
         return data, logdict
 
 
-def DeltaFTest(data, logdict):
+def DeltaFTest(data, logdict, debug=False):
         """
         DESCRIPTION
             reading F values in file, analyzing independency and delta F variaton
@@ -382,6 +397,8 @@ def DeltaFTest(data, logdict):
             logdict['F'] = "None"
             logdict['delta F'] = "None"
         else:
+            if debug:
+                print ( " found F/S or G column in data file")
             f1text = 'found f-col - problem -'
             scal=''
             if len(fcol) > 0:
@@ -402,8 +419,12 @@ def DeltaFTest(data, logdict):
             # variometer data, then please provide it as S. G can be easily calculated
             #quick workaround -> exclude large negative  values
             ftest = ftest.extract('df',-15000,'>')
-
             fmean, fstd = ftest.mean('df',std=True)
+            if isnan(fmean):
+                warningdict['F'] = 'mean delta F could not be determined - please check F/S/G values in cdf'
+                print (" Significant amount of F values could not be extracted - only NAN contained?")
+            if debug:
+                print (" mean delta F of {:.3f} with a std of {:.3f}".format(fmean,fstd))
             logdict['delta F'] = "mean delta F of {:.3f} with a std of {:.3f}".format(fmean,fstd)
             if np.abs(fmean) >= 1.0:
                 warningdict['F'] = 'mean delta F exceeds 1 nT'
@@ -549,6 +570,9 @@ def compare_meta(minhead,sechead,mindatadict,issuedict, warningdict, debug=False
         print ("Second data header: {}".format(sechead))
 
     diffcnt=0
+    keyname=''
+    refvalue=''
+    compvalue1=''
     excludelist = ['DataFormat','SensorID','DataComponents','DataSamplingRate','DataPublicationDate','DataSamplingFilter','DataDigitalSampling','StationInstitution']
     floatlist = {'DataElevation':0,'DataAcquisitionLongitude':2,'DataAcquisitionLatitude':2}
     if minhead and sechead:
@@ -655,6 +679,7 @@ def CheckDiffs2Minute(data, logdict, minutesource={}, obscode='',daterange=[],co
         # get the pathname
         def pathname(minutesource, obscode, typ='data'):
             path = ''
+            thepath = ''
             readme = ''
             rlst = []
             ext = ".bin"
@@ -697,6 +722,7 @@ def CheckDiffs2Minute(data, logdict, minutesource={}, obscode='',daterange=[],co
         contactdict[obscode] = mails
         logdict['Contact'] = mails
 
+        mindata = DataStream()
         if minpath:
             try:
                 print ("Loading minute data: ", pathname(minpath,obscode), daterange[0], daterange[1])
@@ -804,6 +830,7 @@ def GetDayPSD(stream, comp):
 
 def UpdateTable(tablelist, readdict):
         # get noiselevel
+        monthdict = {}
         lower95noiselevelbound = (float(readdict.get('Noiselevel')) - 2 * float(readdict.get('NoiselevelStdDeviation')))*1000.
         try:
             monthdict = readdict.get('1')
@@ -1318,7 +1345,7 @@ def CreateSecondMail(level, obscode, stationname='', year=2016, nameofdatachecke
         return maintext
 
 # Read files, anaylse them and write to IMAGCDF
-def CheckOneSecond(pathsdict, tmpdir="/tmp", destination="/tmp", logdict={}, selecteddayslist=[], testobslist=[], mailcfg='', pathemails='', notification=None, contactdict={}, latestleapsecond="20170101", debug=False):
+def CheckOneSecond(pathsdict, tmpdir="/tmp", destination="/tmp", logdict={}, selecteddayslist=[], testobslist=[], mailcfg='', pathemails='', notification=None, contactdict={}, latestleapsecond="20170101", droptemperature=True, debug=False):
         """
         DESCRIPTION
             method to perfom data conversion and call the check methods
@@ -1363,7 +1390,7 @@ def CheckOneSecond(pathsdict, tmpdir="/tmp", destination="/tmp", logdict={}, sel
                 if debug:
                     print ("--------------------------------------")
                     print (" CheckOneSecond - 1: get months")
-                datelist, readdict = GetMonths(sourcepath,readdict)  # here we already know whether data is readable
+                datelist, readdict, mon = GetMonths(sourcepath,readdict)  # here we already know whether data is readable
                 if debug:
                     print ("GetMonth done for {}: {}, {}".format(obscode, datelist, readdict))
                 # - eventually read dictionary with meta information update (should be contained in pathsdict)
@@ -1384,8 +1411,10 @@ def CheckOneSecond(pathsdict, tmpdir="/tmp", destination="/tmp", logdict={}, sel
                     print (" Starting analysis:")
                 updatedictionary = {} #GetMetaUpdates()
                 if debug:
-                    print ("!! DEBUG SELECTED: only analyzing first month !!")
-                    datelist = datelist[:1]
+                    print ("!! DEBUG SELECTED: only analyzing month of readability test file!!")
+                    datelist = datelist[:mon]
+                    datelist = datelist[-1:]
+                    print("   datelist = ", datelist)
                 for i, dates in enumerate(datelist): #enumerate(datelist[:1]): # enumerate(datelist):
                     loggingdict = {}
                     if debug:
@@ -1394,7 +1423,7 @@ def CheckOneSecond(pathsdict, tmpdir="/tmp", destination="/tmp", logdict={}, sel
                     # - read a month of data (including meta info and completeness check)
                     # -----------
                     # - each month gets an dictionary with level suggestions
-                    mdata, loggingdict = ReadMonth(sourcepath,dates[0],dates[1],updateinfo=updatedictionary,latestleapsecond=latestleapsecond,debug=debug)
+                    mdata, loggingdict = ReadMonth(sourcepath,dates[0],dates[1],updateinfo=updatedictionary,latestleapsecond=latestleapsecond,droptemperature=droptemperature,debug=debug)
                     # - perform level test (delta f)
                     # -----------
                     if debug:
@@ -1404,7 +1433,7 @@ def CheckOneSecond(pathsdict, tmpdir="/tmp", destination="/tmp", logdict={}, sel
 
                         if debug:
                             print ("  Running delta F test ...")
-                        loggingdict = DeltaFTest(mdata, loggingdict)
+                        loggingdict = DeltaFTest(mdata, loggingdict, debug=debug)
 
                         # - perform level test (standard descriptions)
                         # -----------
@@ -1712,7 +1741,7 @@ def main(argv):
             debug = True
 
     if 'REFEREE' in obslist:
-        pathreferee = check_path_year(os.path.join(pathemails,"refereelist_second.cfg"),year)
+        pathreferee = check_path_year(os.path.join(pathemails,"refereelist_second.cfg"),year,debug=debug)
         if debug:
             print ("Loading referees from {}".format(pathreferee))
         obslist = GetObsListFromChecker(obslist, pathreferee)
@@ -1750,8 +1779,9 @@ def main(argv):
     """
     Main Prog
     """
-
     print ("Running IMBOT version {}".format(imbotversion))
+    print (" making use of MagPy {}".format(magpyversion))
+
     # 1. got to source directory and locate files, check memory and whether file dates agree with criterion
 
     ## 1.1 Get current directory structure of source
@@ -1759,24 +1789,26 @@ def main(argv):
     print ("Obtained Step1 directory: {}".format([key for key in currentdirectory]))
 
     ## 1.2 Determine publication state and paths for minute data
-    currentdirectory = add_minute_state(currentdirectory,minstep1dir,minstep2dir,minstep3dir, obslist=obslist)
+    currentdirectory = add_minute_state(currentdirectory,minstep1dir,minstep2dir,minstep3dir, obslist=obslist,debug=debug)
     print ("Previous uploads: ", [key for key in memdict])
-    sys.exit()
-    ## 1.3 Subtract the two directories - only new files remain
-    newdict, notification = GetNewInputs(memdict,currentdirectory)
 
+    ## 1.3 Subtract the two directories - only new files remain
+    newdict, notification = GetNewInputs(memdict,currentdirectory,debug=debug)
     print ("Got New uploads:", [key for key in newdict])
+
     # 2. For each new input --- copy files to a temporary local directory (unzip if necessary)
     logdict = CopyTemporary(newdict, tmpdir=tmpdir, logdict=logdict)
+    print ("Files copied to temporary directory")
 
     print ("Running conversion and data check:")
     contactdict = {}
     # 3. Convert Data includes validity tests, report creation and exporting of data
-    fullreport = CheckOneSecond(newdict, tmpdir=tmpdir, destination=destination, logdict=logdict,selecteddayslist=quietdaylist,testobslist=testobslist,mailcfg=mailcfg,pathemails=pathemails, notification=notification,contactdict=contactdict,latestleapsecond=latestleapsecond,debug=debug)
+    fullreport = CheckOneSecond(newdict, tmpdir=tmpdir, destination=destination, logdict=logdict,selecteddayslist=quietdaylist,testobslist=testobslist,mailcfg=mailcfg,pathemails=pathemails, notification=notification,contactdict=contactdict,latestleapsecond=latestleapsecond,droptemperature=False,debug=debug)
 
     print ("---------------------------")
-    # 4. if successfully analyzed create new memory
+    print (" one second check method finished")
 
+    # 4. if successfully analyzed create new memory
     # 4.1 write/check contact addresses
     addsuccess = update_contacts(contactdict, os.path.join(destination,"localmailrep.json"))
 
@@ -1817,7 +1849,7 @@ def main(argv):
         martaslog.msg(notification)
 
     print ("-> ONESECOND DATA ANALYSIS SUCCESSFULLY FINISHED")
-
+    sys.exit(0)
 
 if __name__ == "__main__":
    main(sys.argv[1:])

@@ -298,10 +298,11 @@ before secondanalysis:
 - create a telegram note if mounting was successful (keep in memory - only change if failing)
 
 run secondanalysis:
-- get gin DIRECTORIES
-- determine state of one-minute submissions
+- get gin DIRECTORIES for one second
+- determine state of one-minute submissions and get the highest available step
 - determine new 1sec submissions
 - copy new 1sec submissions to temporary local directory
+- read an randomly selected file of all available data files (if debug is selected only this month will be analyzed)
 - 
 
 after secondanalysis:
@@ -311,3 +312,19 @@ after secondanalysis:
 (POSSIBLE ISSUE: if a records had level2 and after updates only reaches level1. New update is not considered.)
 - mount 1sec-step2
 - upload data with local level2 reports based on rsync
+
+## Appendix 2: Defining Referee and Observatory mailing lists
+
+Referee mailing lists should be named as follows: refereelist_second.cfg
+Alternatively a year can be used as well: refereelist_second_2021.cfg
+Lists with year are primarily used for the analysis of a specific data set of this year. If no yearly list is found then the standard refereelist_second is used.
+Rename old refereelists if you want to keep to keep but dont use them, i.e. refereelist_second_2020old.cfg
+
+Mailing adresses for the observatories are obtained in the following order:
+
+1. mailinglist.cfg
+2. localmailrep.json
+3. mail addresses extracted from the one-minute submissions (readme file)
+
+Mailing addresses extracted from the one-minute submissions are also stored locally in a json file called localmailrep.json.
+This is important as step3 one-minute data has no readme files any more.  

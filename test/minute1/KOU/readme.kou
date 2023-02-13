@@ -1,0 +1,136 @@
+                          KOU
+              KOUROU OBSERVATORY INFORMATION 2021
+
+ACKNOWLEDGEM.: Users of KOU-data should acknowledge the
+               Institut de physique du globe de Paris
+
+DOI CITATION : http://dx.doi.org/10.18715/BCMT.MAG.DEF
+
+CONDITION OF 
+USE          : License: CC BY-NC 4.0
+               http://creativecommons.org/licenses/
+               by-nc/4.0/
+              
+STATION ID   : KOU
+LOCATION     : KOUROU,  French Guiana
+
+ORGANIZATION : INSTITUT DE PHYSIQUE DU GLOBE DE PARIS
+
+WEB-ADDRESS  : http://www.bcmt.fr
+
+CO-LATITUDE  : 084.790 Deg.
+LONGITUDE    : 307.269 Deg. E
+ELEVATION    : 10 meters
+
+ABSOLUTE
+INSTRUMENTS  : - Portable Declinometer-Inclinometer
+               ZEISS 010 + BARTINGTON mag-01H.
+               - Portable Proton magnetometer GEOMETRICS
+               G856ax.
+
+RECORDING 
+VARIOMETER   : - Three-components homocentric fluxgate
+               variometer IPGP VM391.
+               - Overhauser effect proton
+               magnetometer GEOMAG SM90R.
+
+ORIENTATION  : HDZ
+DYNAMIC RANGE: +/- 6500 nT
+RESOLUTION   : 0.1 nT
+SAMPLING RATE: 0.2 sec. 
+
+FILTER TYPE  : 5 Hz reduced by a 15 point Gaussian filter 
+               to 1-second data;
+               INTERMAGNET 91 point Gaussian filter for 
+               the production of 1-minute data from 
+               1-second data.
+BACKUP
+VARIOMETER   : None
+
+K-NUMBERS    : FMI - method
+K9-limit     : 250 nT
+
+GIN          : Paris
+SATELLITE    : None
+
+OBSERVERS    : Xavier DELLIERE, Ronny MARKOUR
+
+CONTACT      : headquarters
+               Institut de Physique du Globe de Paris
+               Observatoires magnetiques
+               Bureau 114
+               1, Rue Jussieu
+               75238 PARIS CEDEX O5
+               FRANCE
+               TEL   : +33 (0)2 38 33 95 01
+               email : bcmt@ipgp.fr
+
+REFERENCE    :
+Detailed description of the instrumentation and the method
+of data reduction are given in the annual bulletin
+"Observations Magnetiques" edited by the Bureau Central
+de Magnetisme Terrestre (BCMT, Paris).
+
+HISTORY      :
+The Kourou magnetic observatory is located on the site
+of the Guiana Space Center (CSG, also known as
+Europe's Spaceport), near the Ariane launch complex.
+It is run by IPGP in cooperation with the CSG, and is
+partly funded by the Centre National d'Etudes Spatiales
+(CNES). The equipments are installed and maintained by
+IPGP. The GSC provides operational support for the
+absolute measurements and observatory routines.
+
+The first magnetic station in Kourou was installed in
+1992, and continuous magnetic observations meeting the
+INTERMAGNET requirements started in 1995. The Kourou
+observatory was the first INTERMAGNET magnetic
+observatory in South America. Following some instrument
+failures, the equipments were fully upgraded in 1999.
+A few more defects were fixed in 2000. The GEOMAG M390
+vector magnetometer was replaced with a IPGP VM391 in
+August 2007. 
+The 29th of March 2012, the observatory was upgraded     
+to one-second acquisition.
+
+One-second values are processed by IPGP.
+
+ABSOLUTE 
+MEASUREMENTS :
+Double absolute measurements are taken weekly.
+Some measures missing in September as the theodolite 
+needed maintenance (done in October 2021).
+
+FAILURES     : 
+All gaps are from deleted disturbances.
+
+MISSING DATA :
+Percentage of missing minutes values per month
+
+Time range   X        Y        Z        F        Fv
+Jan 2021    0.04%    0.04%    0.04%    0.05%    0.04%
+Feb 2021    0.05%    0.05%    0.05%    0.07%    0.05%
+Mar 2021    0.11%    0.11%    0.11%    0.13%    0.11%
+Apr 2021    0.00%    0.00%    0.00%    0.01%    0.00%
+May 2021    0.06%    0.06%    0.06%    0.05%    0.06%
+Jun 2021    0.06%    0.06%    0.06%    0.06%    0.06%
+Jul 2021    0.06%    0.06%    0.06%    0.06%    0.06%
+Aug 2021    0.12%    0.12%    0.12%    0.13%    0.12%
+Sep 2021    0.05%    0.05%    0.05%    0.05%    0.05%
+Oct 2021    0.06%    0.06%    0.06%    0.06%    0.06%
+Nov 2021    0.00%    0.00%    0.00%    0.05%    0.00%
+Dec 2021    0.02%    0.02%    0.02%    0.02%    0.02%
+ 
+percentage of missing minutes values per year
+2021        0.05%    0.05%    0.05%    0.06%    0.05%
+
+BASELINE     : 
+
+Double absolute measurements are performed once a week.
+Number of absolute measurements used: 83
+The baseline is obtained by:
+- manual review, removal of abnormal observations
+- spline interpolation (Matlab)
+- automatic removal of observations which differ
+  by twice or more from the standard deviation
+- run again spline interpolation to get final result

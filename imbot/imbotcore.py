@@ -8,14 +8,12 @@ from martas import sendmail as sm
 
 import os
 import glob
-import getopt
-import pwd
 import zipfile
 import tarfile
 from shutil import copyfile
 import filecmp
-from dateutil.relativedelta import relativedelta
-import gc
+#from dateutil.relativedelta import relativedelta
+#import gc
 import time
 
 partialcheck_v1 = {
@@ -148,7 +146,7 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
         """
         print (" Running directory information analysis")
         if debug:
-            print (" for observatories: {}".format(obslist))
+            print ("  for observatories: {}".format(obslist))
         if not sourcepath or not os.path.exists(sourcepath):
             print (" GetGINDirectoryInformation: could not access sourcepath {}".format(sourcepath))
             return {},{}
@@ -387,21 +385,35 @@ def ObtainEmailReceivers(logdict, obscode, mailinglist, referee, localmailinglis
 
         return email, managermail
 
-def check_path_year(path,year):
+def check_path_year(path,year,debug=False):
     """
     if pathname xxx.cfg exists with year (i.e. xxx2020.cfg)
     then return the name with year
     """
+    if debug:
+        print (" Entered check_path_year")
     dirname = os.path.dirname(path)
     basename = os.path.basename(path)
     blist = basename.split(".")
     blist.insert(-1,year)
     blist.insert(-1,".")
     blist = [str(el) for el in blist]
-    newpath = os.path.join(dirname,"".join(blist))
-    if os.path.isfile(newpath):
-        return newpath
+    newpath1 = os.path.join(dirname,"".join(blist))
+    blist.insert(-3,"_")
+    newpath2 = os.path.join(dirname,"".join(blist))
+    if debug:
+        print(" Checking whether path {} or {} exist".format(newpath1,newpath2))
+    if os.path.isfile(newpath1):
+        if debug:
+            print ("   .... success")
+        return newpath1
+    elif os.path.isfile(newpath2):
+        if debug:
+            print("   .... success")
+        return newpath2
     else:
+        if debug:
+            print ("   .... failure")
         return path
 
 def ExtractEMails(path):
@@ -518,20 +530,27 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
         valuelist = []
         out = {}
         mod = {}
+        key = None
         def change_time(d):
+            # If unixtimestamg is used for time - convert to a date string (day)
             md = d.get('moddict')
             nd = {}
             for key in md:
-                dt = datetime.fromtimestamp(md[key])
-                nd[key]=datetime.strftime(dt,"%Y%m%d")
-            lmdt = datetime.fromtimestamp(d.get('lastmodified'))
-            d['lastmodified'] = datetime.strftime(lmdt,"%Y%m%d")
+                if isinstance(md[key],float):
+                    dt = datetime.fromtimestamp(md[key])
+                    nd[key]=datetime.strftime(dt,"%Y%m%d")
+            if isinstance(d.get('lastmodified'), float):
+                lmdt = datetime.fromtimestamp(d.get('lastmodified'))
+                d['lastmodified'] = datetime.strftime(lmdt,"%Y%m%d")
             d['moddict'] = nd
 
         for key, value in newdict.items():
             # Do comparison of memory and new submissions only on daily accuracy
+            print("  Checking data for {}".format(key))
             change_time(value)
+            print ("Val", value)
             if memory.get(key,False):
+                print ("Mem", memory[key])
                 change_time(memory[key])
             if not key in memory:
                 print ("   Found new data for {}".format(key))
@@ -543,9 +562,6 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 moddict = value.get('moddict')
                 #print ("memory:", memory[key])
                 #print ("new:", value)
-                #for k,v in moddict.items():
-                #    print ("k", memval.get(k,'Not found'))
-                #    print ("v", v)
                 changed = {k:v for k,v in moddict.items() if v != memval.get(k,'Not found')}
                 print ("   Changed files: {}".format(changed))
                 updatelist.append(key)
@@ -561,7 +577,7 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
             notification[notificationkey] = valuelist
 
         if debug:
-            print ("  Returning dictionary:", out)
+            #print ("  Returning dictionary:", out)
             print ("  Notification:", notification)
 
         return out,notification
