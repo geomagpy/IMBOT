@@ -539,6 +539,8 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 if isinstance(md[key],float):
                     dt = datetime.fromtimestamp(md[key])
                     nd[key]=datetime.strftime(dt,"%Y%m%d")
+                else:
+                    nd[key] = md[key]
             if isinstance(d.get('lastmodified'), float):
                 lmdt = datetime.fromtimestamp(d.get('lastmodified'))
                 d['lastmodified'] = datetime.strftime(lmdt,"%Y%m%d")
@@ -546,11 +548,9 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
 
         for key, value in newdict.items():
             # Do comparison of memory and new submissions only on daily accuracy
-            print("  Checking data for {}".format(key))
+            print("  Comparing memory with data for {}".format(key))
             change_time(value)
-            print ("Val", value)
             if memory.get(key,False):
-                print ("Mem", memory[key])
                 change_time(memory[key])
             if not key in memory:
                 print ("   Found new data for {}".format(key))

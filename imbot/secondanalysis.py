@@ -279,17 +279,19 @@ def ReadMonth(sourcepath, starttime, endtime, logdict={}, updateinfo={}, optiona
             temp2 = data._get_column('t2')
             var = data._get_column('var1')
             if len(temp1) > 0:
-                data = data._drop_column('t1')
-                #try:
-                txt = "{:.2f}+/-{:.2f} degC".format(np.nanmean(temp1),np.nanstd(temp1))
-                logdict['Temperature1 record'] = "Temperature1: {}".format(txt)
-                print (" Temperature1: {}".format(txt))
-                #except:
-                #    pass
+                try:
+                    txt = "{:.2f}+/-{:.2f} degC".format(np.nanmean(temp1),np.nanstd(temp1))
+                    logdict['Temperature1 record'] = "Temperature1: {}".format(txt)
+                    print (" Temperature1: {}".format(txt))
+                except:
+                    pass
             if len(temp2) > 0:
-                txt = "{:.2f}+/-{:.2f} degC".format(np.nanmean(temp2),np.nanstd(temp2))
-                logdict['Temperature2 record'] = "Temperature2: {}".format(txt)
-                print (" Temperature2: {}".format(txt))
+                try:
+                    txt = "{:.2f}+/-{:.2f} degC".format(np.nanmean(temp2),np.nanstd(temp2))
+                    logdict['Temperature2 record'] = "Temperature2: {}".format(txt)
+                    print (" Temperature2: {}".format(txt))
+                except:
+                    pass
             if len(var) > 0:
                 print (" Additional optional record found - dropping this as this is not ")
                 data = data._drop_column('var')
@@ -912,6 +914,7 @@ def ExportMonth(destinationpath, data, logdict={}):
         """
         success = True
         print ("Writing IMAGCDF file")
+        print (" - Structure:", data.length())
         try:
             success = data.write(destinationpath,coverage='month',format_type='IMAGCDF')
             del data
