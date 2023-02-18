@@ -849,13 +849,13 @@ def main(argv):
     if ok:
         #  1.2.1 Remove CODES already existing in step3 (and put to notification list)
         st1new,noti = GetNewInputs(step3, step1, simple=True, notification={}, notificationkey='Reached step3', debug=False)
-        print ("1", noti)
+        print ("Get step1 data which did not reach step3 already:", noti)
         #  1.2.2 Put CODES already existing in step2 to notification list
         stforget,noti = GetNewInputs(step2, st1new, simple=True, notification=noti, notificationkey='Reached step2', debug=False)
-        print ("2", noti)
+        print ("From new step1 data select only those which did not reach step2:", noti)
         #  1.2.3 Get changed records
-        print (memdict)
-        print (st1new)
+        #print (memdict)
+        #print (st1new)
         newdict, notification = GetNewInputs(memdict, st1new, simple=False, notification=noti)
         print (" -> removed all obscodes which have been moved/copied to step3")
         print ("    result: {}".format(notification))

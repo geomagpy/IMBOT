@@ -2,7 +2,7 @@
 # coding=utf-8
 
 from magpy.stream import *
-
+matplotlib.use('Agg')
 from martas import martaslog as ml
 from martas import sendmail as sm
 
@@ -181,6 +181,7 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
                 if len(extlist) > 0:
                     for extl in extlist:
                         exttest = extl.lower()
+                        print ("Extension test", exttest)
                         if exttest.endswith('tar') or exttest.endswith('gz') or exttest.endswith('zip') or exttest.endswith('bz2'):
                             arch = True
                 if len(timelist) > 1 or arch: # requires more than one file (nrcan step3 contains eventualy single definitive files) --- Problem with single files on second
@@ -522,7 +523,7 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
         print ("   --------------------------------")
         print ("   Getting new/modified submissions")
         if not newdict:
-            print ("   !Empty new obs dictionary - returning empty dict")
+            print ("   Empty dictionary for new observatories (newdict, second input) - returning empty dictionary")
             return {},notification
         # newly uploaded
         newlist = []
