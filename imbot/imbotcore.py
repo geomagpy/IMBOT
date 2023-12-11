@@ -153,8 +153,12 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
         storage = {}
         logdict = {}
         obscode = 'None'
+        # This function is incredibly slow - check - leon 2023-12-11
         for root, dirs, files in os.walk(sourcepath):
           level = root.replace(sourcepath, '').count(os.sep)
+          t1 = datetime.utcnow()
+          if debug:
+              print ("checking source and root", sourcepath, root)
           if (len(obslist) > 0 and root.replace(sourcepath, '')[1:4] in obslist) or len(obslist) == 0:
             if (len(excludeobs) > 0 and not root.replace(sourcepath, '')[1:4] in excludeobs) or len(excludeobs) == 0:
               if level == 1:
@@ -213,6 +217,9 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
                         logdict[obscode] = "Uploaded recently - eventually not finished"
               elif level > 1:
                 logdict[obscode] = "Found subdirectories - ignoring this folder"
+          t2 = datetime.utcnow()
+          if debug:
+            print ("Needed ", (t2-t1).total_seconds())
 
         return storage, logdict
 
