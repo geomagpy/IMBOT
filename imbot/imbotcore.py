@@ -558,10 +558,15 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 newlist.append(key)
                 out[key] = value
             elif value != memory[key] and not simple:
-                print ("   Found differences to memory for {}".format(key))
+                print ("   Found differences: memory={} vs new value = {}".format(memory[key],value))
                 memval = memory[key].get('moddict')
                 moddict = value.get('moddict')
                 #print ("memory:", memory[key])
+                try:
+                    changedkey = {k:v for k,v in value.items() if v != memory[key].get(k,'Not found')}
+                    print("   Changed keys: {}".format(changedkey))
+                except:
+                    pass
                 #print ("new:", value)
                 changed = {k:v for k,v in moddict.items() if v != memval.get(k,'Not found')}
                 print ("   Changed files: {}".format(changed))
