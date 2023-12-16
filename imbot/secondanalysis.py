@@ -1788,10 +1788,14 @@ def main(argv):
     # 1. got to source directory and locate files, check memory and whether file dates agree with criterion
 
     ## 1.1 Get current directory structure of source
+    if debug:
+        print ("Get current directory structure of source")
     currentdirectory, logdict = GetGINDirectoryInformation(source, checkrange=checkrange,obslist=obslist,excludeobs=excludeobs,debug=debug)
     print ("Obtained Step1 directory: {}".format([key for key in currentdirectory]))
 
     ## 1.2 Determine publication state and paths for minute data
+    if debug:
+        print ("Determine publication state and paths for minute data")
     currentdirectory = add_minute_state(currentdirectory,minstep1dir,minstep2dir,minstep3dir, obslist=obslist,debug=debug)
     print ("Previous uploads: ", [key for key in memdict])
 
