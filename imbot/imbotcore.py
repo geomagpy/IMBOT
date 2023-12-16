@@ -170,6 +170,14 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
                 obscode = root.replace(sourcepath, '')[1:4]
                 obscode = obscode.upper()
                 moddict = {}
+                # drop exclude-files from the filelist
+                def find_exclude(filename, exludelist=['.listing', 'cln.zip']):
+                    for ex in excludelist:
+                        if f.find(ex) > -1:
+                            return True
+                    return False
+
+                files = [f for f in files if not find_exclude(f)]
                 for f in files:
                     try:
                         stat=os.stat(os.path.join(root, f))
