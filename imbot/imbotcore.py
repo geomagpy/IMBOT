@@ -562,9 +562,11 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 d['lastmodified'] = datetime.strftime(lmdt,"%Y%m%d")
             d['moddict'] = nd
 
+        ignorelist = ['rootdir']
         for key, value in newdict.items():
             # Do comparison of memory and new submissions only on daily accuracy
             print("  Comparing memory with data for {}".format(key))
+            ignore = False
             change_time(value)
             if memory.get(key,False):
                 change_time(memory[key])
@@ -572,7 +574,7 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 print ("   Found new data for {}".format(key))
                 newlist.append(key)
                 out[key] = value
-            elif value != memory[key] and not simple and not key == 'rootdir': # exclude rootdir as this changes with new mounted/local folders
+            elif value != memory[key] and not simple: # exclude rootdir as this changes with new mounted/local folders
                 print ("   Found differences: memory={} vs new value = {}".format(memory[key],value))
                 memval = memory[key].get('moddict')
                 moddict = value.get('moddict')
@@ -580,14 +582,20 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 try:
                     changedkey = {k:v for k,v in value.items() if v != memory[key].get(k,'Not found')}
                     print("   Changed keys: {}".format(changedkey))
+                    ks = [mykey for mykey in changedkey]
+                    tli = [True if k in ignorelist else False for k in ks]
+                    if all(tli):
+                        print ("    but will be ignored")
+                        ignore = True
                 except:
                     pass
                 #print ("new:", value)
                 changed = {k:v for k,v in moddict.items() if v != memval.get(k,'Not found')}
                 print ("   Changed files: {}".format(changed))
-                updatelist.append(key)
-                mod[key] = changed
-                out[key] = value
+                if not ignore:
+                    updatelist.append(key)
+                    mod[key] = changed
+                    out[key] = value
             else:
                 valuelist.append(key)
         if not simple:
