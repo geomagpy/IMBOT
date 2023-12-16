@@ -572,7 +572,7 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 print ("   Found new data for {}".format(key))
                 newlist.append(key)
                 out[key] = value
-            elif value != memory[key] and not simple:
+            elif value != memory[key] and not simple and not key == 'rootdir': # exclude rootdir as this changes with new mounted/local folders
                 print ("   Found differences: memory={} vs new value = {}".format(memory[key],value))
                 memval = memory[key].get('moddict')
                 moddict = value.get('moddict')
