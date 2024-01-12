@@ -634,6 +634,18 @@ def GetNewInputs(memory,newdict, notification={}):
 
         return C, notification
 """
+def _change_subdirectory(maindir):
+    subdirs = list(set([os.path.dirname(p) for p in glob.glob(maindir + "/*/*")]))
+    if subdirs:
+        print ("Found subdirectories after decompession")
+        for subd in subdirs:
+            #print (subd)
+            for zroot, zdirs, zfiles in os.walk(subd):  # repla>
+                for zfile in zfiles:
+                    print ("Reducing directory level for {} to {}".format(zfile, maindir))
+                    path_file = os.path.join(zroot,zfile)
+                    shutil.copy2(path_file,maindir)
+            shutil.rmtree(subd)
 
 def CopyTemporary(pathsdict, tmpdir="/tmp", logdict={}):
         """
@@ -658,6 +670,7 @@ def CopyTemporary(pathsdict, tmpdir="/tmp", logdict={}):
                 dst = os.path.join(newdir,fname)
                 print ("Copying {} to temporary folder {}".format(fname,dst))
                 if fname.endswith('.zip') or fname.endswith('.ZIP'):
+                  if not fname.endswith("cln.zip"):
                     try:
                         with zipfile.ZipFile(src, 'r') as zip_ref:
                             zip_ref.extractall(newdir)
@@ -672,6 +685,7 @@ def CopyTemporary(pathsdict, tmpdir="/tmp", logdict={}):
                         except:
                             logdict[obscode] = "Problem with zip file {}".format(fname)
                             print ("endless ZIP file problem")
+                    _change_subdirectory(newdir)
                 elif fname.endswith(".tar.gz") or fname.endswith(".TAR.GZ") or fname.endswith(".tgz") or fname.endswith(".TGZ"):
                     with tarfile.open(src, "r:gz") as tar:
                         tar.extractall(newdir)
