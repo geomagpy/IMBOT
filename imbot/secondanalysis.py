@@ -1624,6 +1624,46 @@ def CheckOneSecond(pathsdict, tmpdir="/tmp", destination="/tmp", logdict={}, sel
 
         return reportdict
 
+def limit_obs(newdict, notification, limit=3, debug=False):
+    """
+    DESCRIPTION
+        method to reduce the number of treated observatories
+        to a given limit. This is helpful to get rid of memory and duration
+        issues if too many data has been uploaded a the same time. Only
+        a limited amount is treated and the rest is dealed with during a
+        future run
+    TEST
+        provide a dummy dict and dummy notification
+        and then run unittest
+    APPLICATION
+        nd, no = limit_obs(newdict, notification, limit=3, debug=True)
+    """
+    #limited obslist
+    obscodes = [key for key in newdict]
+    limitedobs = obscodes[:limit]
+    if len(obscodes) != len(limitedobs):
+        #limited new observatory data dict
+        limitednewdict = {key: newdict[key] for key in limitedobs}
+        #limited notification dict
+        nnoti = {}
+        for key in notification:
+            cont =  notification[key]
+            if isinstance(cont, (list,tuple)):
+                ncont = [el for el in cont if el in nobs]
+                nnoti[key] = ncont
+            if isinstance(cont, (dict)):
+                ncont = {key: cont.get(key) for key in nobs if cont.get(key)}
+                nnoti[key] = ncont
+        if debug:
+            print("limit_obs: dealing only with {} from originally provided {}".format(limitedobs,obscodes))
+    else:
+        if debug:
+            print("limit_obs: Nothing to be done - dealing with {}".format(obscodes))
+        limitednewdict = newdict
+        nnoti = notification
+
+    return limitednewdict, nnoti
+
 
 def main(argv):
     checkrange = 3 # 3 hours
@@ -1802,6 +1842,8 @@ def main(argv):
     ## 1.3 Subtract the two directories - only new files remain
     newdict, notification = GetNewInputs(memdict,currentdirectory,debug=debug)
     print ("Got New uploads:", [key for key in newdict])
+    # If more than three new uploads then limit newdict and notification to three uploads for memory issues
+    newdict, notification = limit_obs(newdict, notification, debug=True)
 
     # 2. For each new input --- copy files to a temporary local directory (unzip if necessary)
     logdict = CopyTemporary(newdict, tmpdir=tmpdir, logdict=logdict)
