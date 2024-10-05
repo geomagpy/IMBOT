@@ -1649,10 +1649,10 @@ def limit_obs(newdict, notification, limit=3, debug=False):
         for key in notification:
             cont =  notification[key]
             if isinstance(cont, (list,tuple)):
-                ncont = [el for el in cont if el in nobs]
+                ncont = [el for el in cont if el in limitedobs]
                 nnoti[key] = ncont
             if isinstance(cont, (dict)):
-                ncont = {key: cont.get(key) for key in nobs if cont.get(key)}
+                ncont = {key: cont.get(key) for key in limitedobs if cont.get(key)}
                 nnoti[key] = ncont
         if debug:
             print("limit_obs: dealing only with {} from originally provided {}".format(limitedobs,obscodes))
