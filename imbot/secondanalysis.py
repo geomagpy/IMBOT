@@ -1650,9 +1650,9 @@ def main(argv):
     testrun = False
 
     try:
-        opts, args = getopt.getopt(argv,"hs:d:t:q:m:r:n:o:i:j:k:e:l:c:p:y:w:TD",["source=", "destination=", "temporary=", "quietdaylist=","memory=","report=","notify=","observatories=","minutestep1=","minutestep2=","minutestep3=","emails=","logpath=","mailcfg=","testobslist=","year=","waitingtime=","testrun=","debug=",])
+        opts, args = getopt.getopt(argv,"hs:d:t:q:m:r:n:o:i:j:k:e:l:c:p:x:y:w:TD",["source=", "destination=", "temporary=", "quietdaylist=","memory=","report=","notify=","observatories=","minutestep1=","minutestep2=","minutestep3=","emails=","logpath=","mailcfg=","testobslist=","year=","waitingtime=","testrun=","debug=",])
     except getopt.GetoptError:
-        print ('secondanalysis.py -s <source> -d <destination> -t <temporary> -q quietdaylist -n <notify> -o <observatories> -i <minutestep1> -j <minutestep2> -k <minutestep3> -e <emails> -l <logpath> -c <mailcfg> -p <testobslist> -y <year> -w <waitingtime>')
+        print ('secondanalysis.py -s <source> -d <destination> -t <temporary> -q quietdaylist -n <notify> -o <observatories> -i <minutestep1> -j <minutestep2> -k <minutestep3> -e <emails> -l <logpath> -c <mailcfg> -p <testobslist> -x <excludeobs> -y <year> -w <waitingtime>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
