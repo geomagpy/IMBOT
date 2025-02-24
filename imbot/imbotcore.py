@@ -170,6 +170,14 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
                 obscode = root.replace(sourcepath, '')[1:4]
                 obscode = obscode.upper()
                 moddict = {}
+                # drop exclude-files from the filelist
+                def find_exclude(filename, excludelist=['.listing', 'cln.zip']):
+                    for ex in excludelist:
+                        if filename.find(ex) > -1:
+                            return True
+                    return False
+
+                files = [f for f in files if not find_exclude(f)]
                 for f in files:
                     try:
                         stat=os.stat(os.path.join(root, f))
@@ -185,7 +193,7 @@ def GetGINDirectoryInformation(sourcepath, flag=None, checkrange=2, obslist=[],e
                 if len(extlist) > 0:
                     for extl in extlist:
                         exttest = extl.lower()
-                        print ("Extension test", exttest)
+                        #print ("Extension test", exttest)
                         if exttest.endswith('tar') or exttest.endswith('gz') or exttest.endswith('zip') or exttest.endswith('bz2'):
                             arch = True
                 if len(timelist) > 1 or arch: # requires more than one file (nrcan step3 contains eventualy single definitive files) --- Problem with single files on second
@@ -554,9 +562,11 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 d['lastmodified'] = datetime.strftime(lmdt,"%Y%m%d")
             d['moddict'] = nd
 
+        ignorelist = ['rootdir']
         for key, value in newdict.items():
             # Do comparison of memory and new submissions only on daily accuracy
             print("  Comparing memory with data for {}".format(key))
+            ignore = False
             change_time(value)
             if memory.get(key,False):
                 change_time(memory[key])
@@ -564,7 +574,7 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 print ("   Found new data for {}".format(key))
                 newlist.append(key)
                 out[key] = value
-            elif value != memory[key] and not simple:
+            elif value != memory[key] and not simple: # exclude rootdir as this changes with new mounted/local folders
                 print ("   Found differences: memory={} vs new value = {}".format(memory[key],value))
                 memval = memory[key].get('moddict')
                 moddict = value.get('moddict')
@@ -572,14 +582,20 @@ def GetNewInputs(memory, newdict, simple=False, notification={}, notificationkey
                 try:
                     changedkey = {k:v for k,v in value.items() if v != memory[key].get(k,'Not found')}
                     print("   Changed keys: {}".format(changedkey))
+                    ks = [mykey for mykey in changedkey]
+                    tli = [True if k in ignorelist else False for k in ks]
+                    if all(tli):
+                        print ("    but will be ignored")
+                        ignore = True
                 except:
                     pass
                 #print ("new:", value)
                 changed = {k:v for k,v in moddict.items() if v != memval.get(k,'Not found')}
                 print ("   Changed files: {}".format(changed))
-                updatelist.append(key)
-                mod[key] = changed
-                out[key] = value
+                if not ignore:
+                    updatelist.append(key)
+                    mod[key] = changed
+                    out[key] = value
             else:
                 valuelist.append(key)
         if not simple:
@@ -618,6 +634,18 @@ def GetNewInputs(memory,newdict, notification={}):
 
         return C, notification
 """
+def _change_subdirectory(maindir):
+    subdirs = list(set([os.path.dirname(p) for p in glob.glob(maindir + "/*/*")]))
+    if subdirs:
+        print ("Found subdirectories after decompession")
+        for subd in subdirs:
+            #print (subd)
+            for zroot, zdirs, zfiles in os.walk(subd):  # repla>
+                for zfile in zfiles:
+                    print ("Reducing directory level for {} to {}".format(zfile, maindir))
+                    path_file = os.path.join(zroot,zfile)
+                    shutil.copy2(path_file,maindir)
+            shutil.rmtree(subd)
 
 def CopyTemporary(pathsdict, tmpdir="/tmp", logdict={}):
         """
@@ -642,6 +670,7 @@ def CopyTemporary(pathsdict, tmpdir="/tmp", logdict={}):
                 dst = os.path.join(newdir,fname)
                 print ("Copying {} to temporary folder {}".format(fname,dst))
                 if fname.endswith('.zip') or fname.endswith('.ZIP'):
+                  if not fname.endswith("cln.zip"):
                     try:
                         with zipfile.ZipFile(src, 'r') as zip_ref:
                             zip_ref.extractall(newdir)
@@ -656,6 +685,7 @@ def CopyTemporary(pathsdict, tmpdir="/tmp", logdict={}):
                         except:
                             logdict[obscode] = "Problem with zip file {}".format(fname)
                             print ("endless ZIP file problem")
+                    _change_subdirectory(newdir)
                 elif fname.endswith(".tar.gz") or fname.endswith(".TAR.GZ") or fname.endswith(".tgz") or fname.endswith(".TGZ"):
                     with tarfile.open(src, "r:gz") as tar:
                         tar.extractall(newdir)
