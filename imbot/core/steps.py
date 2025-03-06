@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+sys.path.insert(1,'/home/leon/Software/IMBOT/') # should be magpy2
 
 from imbot.core import methods
 import os
@@ -7,6 +9,9 @@ import pathlib
 import re
 import hashlib
 from datetime import datetime, timedelta, timezone
+import unittest
+import shutil
+
 
 class botstatus(object):
     """
@@ -40,18 +45,19 @@ class botstatus(object):
 | ---------------- |  --------------  | ---------- | ------------- | ----------  | ------- | --------- |
 |  **core**        |                  |            |               |             |         |           |
 |  imbot_steps     |  __init__        |      2.0.0 |      yes      |             |         |           |
-|  imbot_steps     |  analyse_source  |      2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  _find_exclude   |      2.0.0 |      yes      |             |         | _get_step1_information |
 |  imbot_steps     |  _get_step1_information | 2.0.0 |    yes      |             |         |           |
 |  imbot_steps     |  _get_step_information | 2.0.0 |     yes      |             |         |           |
+|  imbot_steps     |  add_minute_state |     2.0.0 |      yes      |             |         |           |
+|  imbot_steps     |  analyse_source  |      2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  get_contact_mails |    2.0.0 |      yes      |             |         | set_contacts |
 |  imbot_steps     |  get_data_checker |     2.0.0 |      yes      |             |         | set_contacts |
 |  imbot_steps     |  get_imo         |      2.0.0 |      yes      |             |         |           |
-|  imbot_steps     |  get_modified    |      2.0.0 |               |             |         |           |
+|  imbot_steps     |  get_modified    |      2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  set_contacts    |      2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  set_modification |     2.0.0 |      yes      |             |         |           |
+|  imbot_steps     |  update_level    |      2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  update_validity |      2.0.0 |      yes      |             |         |           |
-
 
     """
 
@@ -117,8 +123,8 @@ class botstatus(object):
                 # append root, and ctime of youngest file in directory
                 timelist = []
                 extlist = []
-                obscode = root.replace(sourcepath, '')[1:4]
-                obscode = obscode.upper()
+                if not obscode:
+                    obscode = sourcepath[-3:].upper()
                 filedict = {}
                 # drop exclude-files from the filelist
                 files = [f for f in files if not self._find_exclude(f)]
@@ -130,7 +136,7 @@ class botstatus(object):
                         ext = os.path.splitext(f)[1]
                         timelist.append(mtime)
                         extlist.append(ext)
-                        filedict[f] = datetime.utcfromtimestamp(mtime).strftime("%Y%m%d")
+                        filedict[f] = datetime.fromtimestamp(mtime, timezone.utc).strftime("%Y%m%d")
                     except:
                         self.report.append(" step1_directory: Failed to extract creation times for {}".format(imolayer))
                 arch = False
@@ -146,9 +152,9 @@ class botstatus(object):
                     if debug:
                         # print ("  -> youngest file: {}".format(youngest))
                         print("  -> last modified : {} ; checking data older than {}".format(
-                            datetime.utcfromtimestamp(youngest), datetime.now(timezone.utc) - timedelta(hours=checkrange)))
+                            datetime.fromtimestamp(youngest, timezone.utc), datetime.now(timezone.utc) - timedelta(hours=checkrange)))
                     # only if latest file is at least "checkrange" hours old
-                    if datetime.utcfromtimestamp(youngest) < datetime.now(timezone.utc) - timedelta(hours=checkrange):
+                    if datetime.fromtimestamp(youngest, timezone.utc) < datetime.now(timezone.utc) - timedelta(hours=checkrange):
                         # check file extensions ... and amount of files (zipped, cdf, sec)
                         # firstly remove txt, par and md from list (meta.txt contain updated parameters)
                         if debug:
@@ -159,7 +165,7 @@ class botstatus(object):
                             typ = max(extlist, key=extlist.count)
                             if typ in acceptabletypes:
                                 imolayer['filetype'] = typ
-                                imolayer['lastmodified'] = datetime.utcfromtimestamp(np.round(youngest, 0)).strftime(
+                                imolayer['lastmodified'] = datetime.fromtimestamp(np.round(youngest, 0), timezone.utc).strftime(
                                     "%Y-%m-%dT%H:%M:%S")
                                 if not imolayer.get('maximum_minute_step', ''):
                                     imolayer['maximum_minute_step'] = 'step1'
@@ -175,7 +181,8 @@ class botstatus(object):
                                 imolayer['files'] = filedict
                                 imolayer['exclude'] = False
                                 imolayer['statusid'] = statusid
-                                print(filedict)
+                                if debug:
+                                    print("File dictionary", filedict)
                                 if not oldstatusid == statusid:
                                     if debug:
                                         print(" Found changes for {}".format(obscode))
@@ -186,8 +193,13 @@ class botstatus(object):
                                         # fill moddict with changes and add report textNEW data set
                                         self.report.append("Updated/modified data set for {}".format(obscode))
                                         imolayer['modification'] = 'updated'
-                                        print("Comparison", oldfiledict, filedict)
+                                        if debug:
+                                            print("Comparison", oldfiledict, filedict)
                                         imolayer['modfiles'] = methods.dictdiff(oldfiledict, filedict)
+                                    if imolayer.get('step2') or imolayer.get('step3'):
+                                        self.report.append(
+                                                " step1 data was changed although step2 or step3 are already existing")
+                                        imolayer['modification'] = 'updated already accepted'
                             else:
                                 self.report.append(" step1_directory: Found unexpected data type '{}'".format(typ))
                         else:
@@ -231,7 +243,7 @@ class botstatus(object):
                     print(" Found level 0 directory: {}".format(root))
                 if debug:
                     print("checking source and root", sourcepath, root)
-                print([f for f in files])
+                #print([f for f in files])
                 # identify any eventually existing review file
                 obscode = root.replace(sourcepath, '')[1:4]
                 obscode = obscode.upper()
@@ -260,6 +272,31 @@ class botstatus(object):
                 print("Needed ", (t2 - t1).total_seconds())
 
         return imolayer
+
+
+    def add_minute_state(self, modlist, debug=False):
+        """
+        DESCRIPTION:
+            Get current state of one-minute analysis and add this info plus path to one second items
+        RETURNS:
+            modification list with minutepath and step added
+        """
+
+        for obsdict in modlist:
+            year = obsdict.get('year')
+            obscode = obsdict.get('obscode')
+            resolution = obsdict.get('resolution')
+            if resolution == 'second':
+                minres = self.get_imo(year=year, resolution='minute', obscode=obscode)
+                if debug:
+                    print("Found corresponding minute data", minres)
+                maxstep = minres.get('maximum_minute_step', '')
+                extension = minres.get('filetype')
+                obsdict['minutestep'] = maxstep
+                obsdict['minutepath'] = os.path.join(minres.get(maxstep, ''), "*{}".format(extension))
+
+        return modlist
+
 
     def analyse_source(self, sourcepath, step=1, type='second', year=None, debug=False):
         """
@@ -329,6 +366,7 @@ class botstatus(object):
             print("Needed ", (t2 - t1).total_seconds())
         self.result = result
         return self
+
 
     def get_contact_mails(self, obscode='xxx', year=str(1777), debug=False):
         """
@@ -441,13 +479,14 @@ class botstatus(object):
         else:
             return fallback
 
+
     def get_imo(self, year=None, resolution=None, obscode='ZYX'):
         """
         DESCRIPTION:
-            Get dict for specfic obs
+            Get dict for specific obs
         RETURN:
             data dictionary
-        APPLICTAION:
+        APPLICATION:
 
         """
         year = str(year)
@@ -459,6 +498,7 @@ class botstatus(object):
                     imo = rsd.get(obscode)
                     return imo
         return {}
+
 
     def get_step(self, step=1, year=None, resolution='minute'):
         """
@@ -486,15 +526,17 @@ class botstatus(object):
                     obslist.append(el)
         return obslist
 
+
     def get_modified(self, year=None, resolution=None, obscode=None):
         """
         DESCRIPTION:
             Get all modified or new paths
         RETURN:
-            data dictionary
+            list of dictionaries with year, IMO, resolution and modification
         APPLICTAION:
 
         """
+        output = []
         if year:
             if isinstance(year, (list, tuple)):
                 years = [str(y) for y in year]
@@ -508,18 +550,29 @@ class botstatus(object):
             else:
                 res = ['minute', 'second']
             for r in res:
+                imo = []
                 if obscode:
                     if isinstance(obscode, (list, tuple)):
                         imo = obscode
                     else:
                         imo = [obscode]
                 else:
-                    imo = [im for im in self.result.get(ye).get(r)]
+                    if self.result.get(ye).get(r):
+                        imo = [im for im in self.result.get(ye).get(r)]
                 if len(imo) > 0:
                     for im in imo:
                         obsd = self.result.get(ye).get(r).get(im)
-                        mod = obsd.get('modification')
-                        print(mod)
+                        if obsd:
+                            mod = obsd.get('modification','')
+                            if mod:
+                                content = { 'obscode' : im ,
+                                            'year' : ye,
+                                            'resolution' : r ,
+                                            'step1path' : obsd.get('step1','') ,
+                                            'modification' : mod }
+                                output.append(content)
+        return output
+
 
     def set_contacts(self, year=None, resolution=None, obscode='ZYX', debug=False):
         """
@@ -541,6 +594,7 @@ class botstatus(object):
                     imo['referee'] = self.get_data_checker(obscode=obscode, year=year, resolution=resolution,
                                                            debug=debug)
         return self
+
 
     def set_modification(self, set='', year=None, resolution=None, obscode='ZYX'):
         """
@@ -565,6 +619,37 @@ class botstatus(object):
                     if not set:
                         imo['modfiles'] = []
         return self
+
+
+    def update_level(self, level=None, year=None, resolution='second', obscode='ZYX'):
+        """
+        DESCRIPTION:
+            Set the analysis grade/level, currently supported for second data.
+            The level defines the grade the data set obtained while testing
+            level 0 : significant errors
+            level 1 : minor errors in data or missing meta information
+            level 2 : all tests satisfied
+        VARIABLES:
+            level : string : needs to be string or None, '0','1' or '2'
+        RETURN:
+            data dictionary with new level flag
+        APPLICTAION:
+            Called after secondanalysis
+        """
+        year = str(year)
+        if not level in [None,'0','1','2']:
+            print("Invalid level provided")
+            return self
+        if year and resolution and obscode:
+            yeard = self.result.get(year)
+            if yeard:
+                rsd = yeard.get(resolution)
+                if rsd:
+                    imo = rsd.get(obscode)
+                    levelname = "{}level".format(resolution)
+                    imo[levelname] = level
+        return self
+
 
     def update_validity(self, year=None, resolution=None, includeobs=None, excludeobs=None):
         """
@@ -592,3 +677,140 @@ class botstatus(object):
                     imolayer['exclude'] = False
         return self
 
+
+class TestImbotStep(unittest.TestCase):
+
+    def test_runtime(self):
+        # also tests idf and hdz tools
+        config = {}
+
+        referenced1 = {'kou21may.bin': '20231205', 'KOU2021_report.txt': '20231205', 'kou21apr.bin': '20231205', 'kou21feb.bin': '20231205', 'kou21jun.bin': '20231205', 'readme.kou': '20231205', 'kou21oct.bin': '20231205', 'kou21sep.bin': '20231205', 'kou2021.blv': '20231205', 'kou21mar.bin': '20231205', 'kou21nov.bin': '20231205', 'kou21dec.bin': '20231205', 'kou21jul.bin': '20231205', 'kou21jan.bin': '20231205', 'kou21aug.bin': '20231205', 'yearmean.kou': '20231205'}
+        # Create test environment in temporary directory
+        basepath = "/home/leon/Software/IMBOT/"  # replace with __file__
+        os.makedirs(os.path.dirname("/tmp/imbottest"), exist_ok=True)
+        os.makedirs(os.path.dirname("/tmp/imbottest/step1"), exist_ok=True)
+        os.makedirs(os.path.dirname("/tmp/imbottest/step2"), exist_ok=True)
+        os.makedirs(os.path.dirname("/tmp/imbottest/step3"), exist_ok=True)
+        if os.path.exists("/tmp/imbottest/step1"):
+            shutil.rmtree("/tmp/imbottest/step1")
+        if os.path.exists("/tmp/imbottest/step2"):
+            shutil.rmtree("/tmp/imbottest/step2")
+        if os.path.exists("/tmp/imbottest/step3"):
+            shutil.rmtree("/tmp/imbottest/step3")
+        shutil.copytree(os.path.join(basepath, 'test', 'step1'), "/tmp/imbottest/step1")
+        shutil.copytree(os.path.join(basepath, 'test', 'step1'), "/tmp/imbottest/step2")
+        os.makedirs(os.path.dirname("/tmp/imbottest/conf"), exist_ok=True)
+        if os.path.exists("/tmp/imbottest/conf"):
+            shutil.rmtree("/tmp/imbottest/conf")
+        shutil.copytree(os.path.join(basepath, 'config'), "/tmp/imbottest/conf")
+        if os.path.exists("/tmp/imbottest/memory"):
+            shutil.rmtree("/tmp/imbottest/memory")
+
+        imostatus = botstatus(config=config)  # allow for testrun which does not update operative imostatus
+        sourcepath = "/tmp/imbottest/step1"
+        step2path = "/tmp/imbottest/step2"
+        # Create am initial result memory including only paths
+        imostatus = imostatus.analyse_source(sourcepath, step=1, type='minute', debug=False)
+        res1 = imostatus.result.get('2021').get('minute').get('KOU').get('step1')
+        self.assertEqual(res1[-3:], 'KOU')
+
+        empty = imostatus.get_contact_mails(obscode='KOU', year=2021, debug=False)
+        self.assertEqual(empty, [])
+        dc = imostatus.get_data_checker(year=2021, resolution='minute', obscode='KOU', debug=False)
+        refname = [key for key in dc][0]
+        self.assertEqual(refname, 'Maxi Musti')
+
+        # Analyze step1 directory and update contents with current directory and reviewing iunformation
+        yearlist = [el for el in imostatus.result]
+        for year in yearlist:
+            for restype in ['minute']:
+                obsdata = imostatus.result.get(year).get(restype)
+                obslist = [el for el in obsdata]
+                for obs in obslist:
+                    imolayer = obsdata.get(obs)
+                    imostatus.report.append("Analyzing {} {} data from {}".format(obs, restype, year))
+                    imolayer = imostatus._get_step1_information(imolayer, obscode=obs, debug=False)
+                    #print ("assertexitsting key files exists and contains dict", imostatus.result.get('2021').get('minute').get('KOU').get('files'))
+                    self.assertDictEqual(referenced1, imostatus.result.get('2021').get('minute').get('KOU').get('files'))
+                    imostatus = imostatus.set_contacts(year=year, resolution=restype, obscode=obs)
+                    self.assertEqual(['bcmt@ipgp.fr'], imostatus.result.get('2021').get('minute').get('KOU').get('contacts'))
+
+        obsres = imostatus.get_imo(year=2021, resolution='minute', obscode='KOU')
+        self.assertEqual(10, len([e for e in obsres]))
+        modres = imostatus.get_modified(year=2021, resolution='minute')
+        self.assertEqual(1, len(modres))
+
+        imostatus = imostatus.update_validity(year=2021, resolution='minute', excludeobs=['KOU'])
+        self.assertTrue(imostatus.result.get('2021').get('minute').get('KOU').get('exclude'))
+        res2 = imostatus.result.get('2021').get('minute').get('KOU').get('modification')
+        self.assertEqual(res2, 'new')
+        imostatus = imostatus.set_modification(set='', year=2021, resolution='minute', obscode='KOU')
+        res3 = imostatus.result.get('2021').get('minute').get('KOU').get('modification')
+        self.assertEqual(res3, '')
+        methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'),debug=True)
+        print ("PHASE 1 done") #, imostatus.result)
+
+        # Testing step1 again and step2
+        imostatus = imostatus.analyse_source(sourcepath, step=1, type='minute', debug=False)
+        imostatus = imostatus.analyse_source(step2path, step=2, type='minute', debug=False)
+        yearlist = [el for el in imostatus.result]
+        for year in yearlist:
+            for restype in ['minute']:
+                obsdata = imostatus.result.get(year).get(restype)
+                obslist = [el for el in obsdata]
+                for obs in obslist:
+                    imolayer = obsdata.get(obs)
+                    imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=False)
+                    imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=False)
+                    imolayer = imostatus._get_step1_information(imolayer, obscode=obs, debug=False)
+                    imostatus = imostatus.set_contacts(year=year, resolution=restype, obscode=obs)
+
+        modres = imostatus.get_modified(year=2021, resolution='minute')
+        self.assertEqual('added to step2', modres[0].get('modification'))
+        print ("PHASE 2 done") #, imostatus.result)
+        imostatus = imostatus.set_modification(set='', year=2021, resolution='minute', obscode='KOU')
+
+        # now add meta_IMO.txt, remove blv file and modify README
+        shutil.copy(os.path.join(basepath,'examples','meta_OBSCODE.txt'), "/tmp/imbottest/step1/Mag2021/KOU/meta_KOU.txt")
+        from pathlib import Path
+        for p in Path("/tmp/imbottest/step1/Mag2021/KOU").glob("*.blv"):
+            p.unlink()
+        for p in Path("/tmp/imbottest/step1/Mag2021/KOU").glob("*.BLV"):
+            p.unlink()
+        with open('/tmp/imbottest/step1/Mag2021/KOU/readme.kou', 'a') as file:
+            file.write('Added a note')
+        # Testing step1 again
+        imostatus = imostatus.analyse_source(sourcepath, step=1, type='minute', debug=False)
+        imostatus = imostatus.analyse_source(step2path, step=2, type='minute', debug=False)
+        yearlist = [el for el in imostatus.result]
+        for year in yearlist:
+            for restype in ['minute']:
+                obsdata = imostatus.result.get(year).get(restype)
+                obslist = [el for el in obsdata]
+                for obs in obslist:
+                    imolayer = obsdata.get(obs)
+                    imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=False)
+                    imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=False)
+                    imolayer = imostatus._get_step1_information(imolayer, obscode=obs, debug=False)
+                    imostatus = imostatus.set_contacts(year=year, resolution=restype, obscode=obs)
+
+        res4 = imostatus.result.get('2021').get('minute').get('KOU').get('modfiles')
+        key_a = [el for el in res4.get('added')][0]
+        self.assertEqual('meta_KOU.txt', key_a)
+        self.assertDictEqual({'kou2021.blv': '20231205'}, res4.get('removed'))
+        key_b = [el for el in res4.get('value_diffs')][0]
+        self.assertEqual('readme.kou', key_b)
+        imostatus = imostatus.update_level(level='1', year=2021, obscode='KOU')
+        print ("PHASE 3 done") #, imostatus.result)
+        print (imostatus.report)
+
+    def test_preparation(self):
+        # also tests idf and hdz tools
+        config = {}
+        imostatus = botstatus(config=config)  # allow for testrun which does not update operative imostatus
+        modificationlist = imostatus.get_modified()
+        modificationlist = imostatus.add_minute_state(modificationlist, debug=False)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

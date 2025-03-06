@@ -6,9 +6,11 @@ methods contain all methods which do not fit to a magpy specific class
 |class | method | since version |  runtime test | result verification | manual | *tested by |
 |----- | ------ | ------------- |  ------------ | ------------------- | ------ | ---------- |
 |**core.methods** |    |        |               |              |  | |
-|    | get_conf        |  2.0.0 |  yes          | yes          |        | |
-|    | extract_mails   |  2.0.0 |  yes          | yes          |        | |
+|    | copy_temporary  |  2.0.0 |  yes          | yes          |        | |
 |    | dictdiff        |  2.0.0 |  yes          | yes          |        | |
+|    | extract_mails   |  2.0.0 |  yes          | yes          |        | |
+|    | get_conf        |  2.0.0 |  yes          | yes          |        | |
+|    | limit_second_obs | 2.0.0 |  yes          | yes          |        | |
 |    | read_memory     |  2.0.0 |  yes          | yes          |        | |
 |    | write_memory    |  2.0.0 |  yes          | yes          |        | |
 
@@ -18,6 +20,65 @@ import os
 import pathlib
 import json
 from datetime import datetime, timezone
+import glob
+import shutil
+import zipfile
+import tarfile
+import filecmp
+import time
+import random
+
+
+partialcheck_v1 = {
+		'IMOS-01' : 'Time-stamp accuracy (centred on the UTC second): 0.01s',
+		'IMOS-02' : 'Phase response: Maximum group delay: ±0.01s',
+		'IMOS-03' : 'Maximum filter width: 25 seconds',
+		'IMOS-04' : 'Instrument amplitude range: ≥±4000nT High Lat., ≥±3000nT Mid/Equatorial Lat.',
+		'IMOS-05' : 'Data resolution: 1pT',
+		'IMOS-06' : 'Pass band: DC to 0.2Hz',
+		'IMOS-11' : 'Noise level: ≤100pT RMS',
+		'IMOS-12' : 'Maximum offset error (cumulative error between absolute observations): ±2. 5 nT',
+		'IMOS-13' : 'Maximum component scaling plus linearity error: 0.25%',
+		'IMOS-14' : 'Maximum component orthogonality error: 2mrad',
+		'IMOS-15' : 'Maximum Z-component verticality error: 2mrad',
+		'IMOS-21' : 'Noise level: ≤10pT/√Hz at 0.1 Hz',
+		'IMOS-22' : 'Maximum gain/attenuation: 3dB',
+		'IMOS-31' : 'Minimum attenuation in the stop band (≥ 0.5Hz): 50dB',
+		'IMOS-41' : 'Compulsory full-scale scalar magnetometer measurements with a data resolution of 0.01nT at a minimum sample period of 30 seconds',
+		'IMOS-42' : 'Compulsory vector magnetometer temperature measurements with a resolution of 0.1°C at a minimum sample period of one minute'
+		}
+
+IMAGCDFKEYDICT = {     'FormatDescription':'DataFormat',
+                       'IagaCode':'StationID',
+                       'ElementsRecorded':'DataComponents',
+                       'ObservatoryName':'StationName',
+                       'Latitude':'DataAcquisitionLatitude',
+                       'Longitude':'DataAcquisitionLongitude',
+                       'Institution':'StationInstitution',
+                       'VectorSensOrient':'DataSensorOrientation',
+                       'TermsOfUse':'DataTerms',
+                       'UniqueIdentifier':'DataID',
+                       'ParentIdentifiers':'SensorID',
+                       'ReferenceLinks':'StationWebInfo',
+                       'FlagRulesetType':'FlagRulesetType',
+                       'FlagRulesetVersion':'FlagRulesetVersion',
+                       'StandardLevel':'DataStandardLevel',
+                      }
+
+
+def _change_subdirectory(maindir):
+    subdirs = list(set([os.path.dirname(p) for p in glob.glob(maindir + "/*/*")]))
+    if subdirs:
+        print ("Found subdirectories after decompression")
+        for subd in subdirs:
+            #print (subd)
+            for zroot, zdirs, zfiles in os.walk(subd):  # repla>
+                for zfile in zfiles:
+                    print ("Reducing directory level for {} to {}".format(zfile, maindir))
+                    path_file = os.path.join(zroot,zfile)
+                    shutil.copy2(path_file,maindir)
+            shutil.rmtree(subd)
+
 
 def get_conf(path):
     """
@@ -32,10 +93,9 @@ def get_conf(path):
        key   :    subkey1:value1;subkey2:item1,item2,item3    # extracted as { key: {subkey1:value1,subkey2:[item1...]} }
     """
     confdict={}
-    ok = True
-    if ok:
+    with open(path, 'r') as config:
         #try:
-        config = open(path,'r')
+        #config = open(path,'r')
         confs = config.readlines()
         for conf in confs:
             conflst = conf.split(':')
@@ -138,13 +198,13 @@ def read_memory(memorypath, debug=False):
     memdict = {}
     if memorypath and os.path.isfile(memorypath):
         if debug:
-            print("Reading memory: {}".format(memorypath))
+            print(" reading memory: {}".format(memorypath))
         with open(memorypath, 'r') as file:
             memdict = json.load(file)
     else:
-        print("Memory path not found - please check (first run?)")
+        print(" memory path not found - please check (first run?)")
     if debug and memdict:
-        print("Found in Memory: {}".format([el for el in memdict]))
+        print(" found in Memory: {}".format([el for el in memdict]))
     return memdict
 
 
@@ -156,18 +216,167 @@ def write_memory(mydict, path=None, debug=False):
     if not path:
         return False
     if debug:
-        print("imbot_prep: writing memory files to {}".format(path))
+        print(" writing memory files to {}".format(path))
     try:
         dirpath = pathlib.Path(path).parent.absolute()
         pathlib.Path(dirpath).mkdir(parents=True, exist_ok=True)
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(mydict, f, ensure_ascii=False, indent=4)
     except:
-        print("imbot_prep: writing memory files {} failed".format(path))
+        print(" writing memory files {} failed".format(path))
         return False
     return True
 
 
+def copy_temporary(modificationlist, tmpdir="/tmp/imbottest", debug=False):
+    """
+    DESCRIPTION:
+        copy files to temporary directory
+        zipped files and tar archives will be extracted
+    VARIABLES:
+        modifictaionlist :
+          [{'obscode': 'KOU', 'year': '2021', 'resolution': 'minute', 'step1path': '/tmp/imbottest/step1/Mag2021/KOU',
+          'modification': 'updated'}, {'obscode': 'CNB', 'year': '2022', 'resolution': 'minute',
+          'step1path': '/home/leon/Tmp/GIN/step1minute/Mag2022/CNB', 'modification': 'new'}]
+    RETURN:
+        An updated version of modificationlist with temporary directories added
+    """
+
+    for obsdict in modificationlist:
+        obscode = obsdict.get('obscode')
+        year = obsdict.get('year')
+        path = obsdict.get('step1path')
+        resolution = obsdict.get('resolution')
+        modification = obsdict.get('modification')
+        if modification in ['new', 'updated']:
+            # Copy only new or updated data sets to temporary folder
+            condict = {}
+            newdir = os.path.join(tmpdir, 'unpacked', year, resolution, obscode)
+            if not os.path.exists(newdir):
+                os.makedirs(newdir)
+
+            print("Copying {} data from {},{} to temporary folder {}".format(resolution, obscode, year, newdir))
+            for fname in os.listdir(path):
+                src = os.path.join(path, fname)
+                dst = os.path.join(newdir, fname)
+                if fname.endswith('.zip') or fname.endswith('.ZIP'):
+                    if not fname.endswith("cln.zip"):
+                        try:
+                            with zipfile.ZipFile(src, 'r') as zip_ref:
+                                zip_ref.extractall(newdir)
+                            if debug:
+                                print("  unzipped {}".format(fname))
+                        except:
+                            if debug:
+                                print("  ZIP file problem - trying 7z")
+                            try:
+                                unzip = "7z x {} -y -o{}".format(src, newdir)
+                                if debug:
+                                    print("  Running: {}".format(unzip))
+                                os.system(unzip)
+                                if debug:
+                                    print("  unzipped {}".format(fname))
+                            except:
+                                print("  significant ZIP file problem")
+                                # Create error message
+                                # newdir remains empty
+                                break
+                        _change_subdirectory(newdir)
+                elif fname.endswith(".tar.gz") or fname.endswith(".TAR.GZ") or fname.endswith(
+                        ".tgz") or fname.endswith(".TGZ"):
+                    with tarfile.open(src, "r:gz") as tar:
+                        tar.extractall(newdir)
+                    if debug:
+                        print("  unzipped and tar extracted")
+                elif fname.endswith(".tar") or fname.endswith(".TAR"):
+                    with tarfile.open(src, "r:") as tar:
+                        tar.extractall(newdir)
+                    if debug:
+                        print("  tar extracted")
+                else:
+                    # print (" -> copying individual files...")
+                    if not os.path.isdir(src):
+                        # eventually use a filter method here like "if not fname in []"
+                        # try:
+                        ok = True
+                        if ok:
+                            # print (" -> source is not directory - OK ...")
+                            if not os.path.exists(dst):
+                                if debug:
+                                    print("   -> copying new file ...")
+                                try:
+                                    shutil.copyfile(src, dst)
+                                except:
+                                    # for some unkown reason Jan.bin files sometimes cannot be cópied
+                                    # not reproducible... i have no idea why ... workaround below
+                                    if debug:
+                                        print(" -> failed ... retrying")
+                                    for i in range(10):
+                                        time.sleep(5)
+                                        try:
+                                            shutil.copyfile(src, dst)
+                                        except:
+                                            if debug:
+                                                print("Retry {} of {} failed".format(i + 1, 10))
+                                if debug:
+                                    print("file {} copied".format(fname))
+                            elif not filecmp.cmp(src, dst):
+                                if debug:
+                                    print("   -> replacing existing temporary file ...")
+                                shutil.copyfile(src, dst)
+                                if debug:
+                                    print("file {} copied".format(fname))
+                            else:
+                                if debug:
+                                    print("   -> identical file already exists ...")
+                        # except:
+                        #    print (" -> Failed ...")
+                        #    condict[fname] = "copying file failed"
+            print(" -> Done ...")
+
+            obsdict['temporaryfolder'] = newdir
+
+    return modificationlist
+
+
+def limit_second_obs(modlist, limit=3, debug=False):
+    """
+    DESCRIPTION
+        method to reduce the number of treated observatories
+        to a given limit. This is helpful to get rid of memory and duration
+        issues if too many data has been uploaded a the same time. Only
+        a limited amount is treated and the rest is dealed with during a
+        future run
+        Limit_obs will also randomly change the order of dicts in modlist.
+        If a single obs is prodicing a critical system error, other data is analyzed.
+    TEST
+        provide a dummy dict and dummy notification
+        and then run unittest
+    APPLICATION
+        modlist = limit_obs(modlist, limit=3, debug=True)
+    """
+    #limited obslist
+    newmodlist = []
+    secondlist = []
+    for obsdict in modlist:
+        resolution = obsdict.get('resolution')
+        if resolution == 'second':
+            secondlist.append(obsdict)
+        else:
+            newmodlist.append(obsdict)
+    if len(secondlist) > 1:
+        random.shuffle(secondlist)
+    if len(secondlist) > limit:
+        orglength = len(secondlist)
+        if debug:
+            print("limit_second_obs: dropping the following item(s) for this analysis: {}".format(secondlist[limit:]))
+        secondlist = secondlist[:limit]
+        print ("limit_second_obs: Reduced the amount of second data for current analysis from {} to {}".format(orglength, limit))
+    else:
+        if debug:
+            print("limit_second_obs: Nothing to be done")
+    newmodlist.extend(secondlist)
+    return newmodlist
 
 if __name__ == '__main__':
 
@@ -182,6 +391,25 @@ if __name__ == '__main__':
     print()
     # tested elswhere:
     # - func_to_file and func_from_file in stream together with functiontools
+    testlist1 = [
+        {'obscode': 'KOU', 'year': '2021', 'resolution': 'minute', 'step1path': '/tmp/imbottest/step1/Mag2021/KOU',
+         'modification': 'updated', 'temporaryfolder': '/tmp/imbottest/unpacked/2021/minute/KOU'},
+        {'obscode': 'CNB', 'year': '2022', 'resolution': 'minute',
+         'step1path': '/home/leon/Tmp/GIN/step1minute/Mag2022/CNB', 'modification': 'new',
+         'temporaryfolder': '/tmp/imbottest/unpacked/2022/minute/CNB'},
+        {'obscode': 'ZYX', 'year': '2022', 'resolution': 'second'},
+        {'obscode': 'CNB', 'year': '2022', 'resolution': 'second'},
+        {'obscode': 'XYZ', 'year': '2022', 'resolution': 'second'},
+        {'obscode': 'BBA', 'year': '2022', 'resolution': 'second'},
+        {'obscode': 'ABB', 'year': '2022', 'resolution': 'second'}]
+    testlist2 = [
+        {'obscode': 'KOU', 'year': '2021', 'resolution': 'minute', 'step1path': '/tmp/imbottest/step1/Mag2021/KOU',
+         'modification': 'updated', 'temporaryfolder': '/tmp/imbottest/unpacked/2021/minute/KOU'},
+        {'obscode': 'CNB', 'year': '2022', 'resolution': 'minute',
+         'step1path': '/home/leon/Tmp/GIN/step1minute/Mag2022/CNB', 'modification': 'new',
+         'temporaryfolder': '/tmp/imbottest/unpacked/2022/minute/CNB'},
+        {'obscode': 'ZYX', 'year': '2022', 'resolution': 'second'},
+        {'obscode': 'CNB', 'year': '2022', 'resolution': 'second'}]
 
     errors = {}
     try:
@@ -213,6 +441,19 @@ if __name__ == '__main__':
     except Exception as excep:
         errors['read_write'] = str(excep)
         print(datetime.now(timezone.utc).replace(tzinfo=None), "--- ERROR read_write.")
+    try:
+        modlist = [{'obscode': 'KOU', 'year': '2021', 'resolution': 'minute', 'step1path': '/tmp/imbottest/step1/Mag2021/KOU', 'modification': 'updated'}]
+        modificationlist = copy_temporary(modlist, debug=False)
+        print (modificationlist) # should contain an input with temporaryfolder
+    except Exception as excep:
+        errors['copy_temporary'] = str(excep)
+        print(datetime.now(timezone.utc).replace(tzinfo=None), "--- ERROR copy_temporary.")
+    try:
+        modificationlist = limit_second_obs(testlist1, limit=3, debug=True)
+        modificationlist = limit_second_obs(testlist2, limit=3, debug=True)
+    except Exception as excep:
+        errors['limit_second_obs'] = str(excep)
+        print(datetime.now(timezone.utc).replace(tzinfo=None), "--- ERROR limit_second_obs.")
 
     print()
     print("----------------------------------------------------------")
