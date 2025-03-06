@@ -13,11 +13,11 @@ from matplotlib import mlab
 from imbot.core import methods
 import glob
 import fnmatch
-from magpy.stream import DataStream, read, subtract_streams
+from magpy.stream import DataStream, read, subtract_streams, magpyversion
 from magpy.core.methods import nearestPow2
 from magpy.lib.format_imagcdf import HEADTRANSLATE
 from magpy.lib.magpy_formats import IMAGCDFMETA
-
+import unittest
 
 class second_definitive(object):
     """
@@ -151,13 +151,15 @@ class second_definitive(object):
                                     pass
         return newhead
 
-    def read_month(self, dates, updateinfo={}, optionalheads=['StationWebInfo', 'DataTerms', 'DataReferences'],
+    def read_month(self, dates, optionalheads=None,
                    debug=False):
         """
         DESCRIPTION:
             reading one month of data and checking contents
         """
         sourcepath = self.input.get('temporaryfolder')
+        if not optionalheads:
+            optionalheads = ['StationWebInfo', 'DataTerms', 'DataReferences']
         metainfo = {}
         issues = {}
         improvements = {}
@@ -166,8 +168,7 @@ class second_definitive(object):
         scalardict = {}
         allcontents = []
         logdict = {}
-        if debug:
-            t1 = datetime.now()
+        t1 = datetime.now()
 
         IMAGCDFKEYDICT = methods.IMAGCDFKEYDICT
         starttime = dates[0]
@@ -235,6 +236,8 @@ class second_definitive(object):
                     if timecol.find('Scalar') >= 0 and timelen < maxlen:
                         scalardata = read(os.path.join(sourcepath, '*'), starttime=starttime, endtime=endtime,
                                           select=timecol)
+                        f2text = "Found F differing in sampling period ({} sec) from vector data. No delta F test conducted\n".format(scalardata.samplingrate())
+                        logdict['F'] = f2text
                         scalardict = {cont[1]: scalardata}
                         allcontents.append(scalardict)
             cntbefore = len(data)
@@ -340,8 +343,9 @@ class second_definitive(object):
         fmean = 99
         fstd = 99
         if len(fcol) == 0 and len(dfcol) == 0:
-            print("  No F or dF values found")
-            logdict['F'] = "None"
+            print("  No F or dF values found in main data set")
+            if not logdict.get('F',''): # if F with different time column is contained than keep the information
+                logdict['F'] = "None"
             logdict['delta F'] = "None"
         else:
             if debug:
@@ -575,7 +579,7 @@ class second_definitive(object):
                         # mindatadict['meta-info diff'] = "{}: {} (sec) vs {} (min)".format(keyname, refvalue, compvalue1)
             if diffcnt == 0:
                 mindatadict[
-                    'meta-info diff'] = "meta information corresponds to contents of minute data (note: location data compared at accuracy of 2 digits)".format(
+                    'meta-info diff'] = "meta information agrees with contents of minute data (note: location data compared at accuracy of 2 digits)".format(
                     keyname, refvalue, compvalue1)
             else:
                 issuedict['meta-info minute vs second data'] = "differences observed - see below"
@@ -589,7 +593,7 @@ class second_definitive(object):
 
         return mindatadict
 
-    def check_diff_to_minute(self, data, daterange=[], debug=False):
+    def check_diff_to_minute(self, data, daterange=None, debug=False):
         """
         DESCRIPTION
             Compares the definitive one second data product to one minute
@@ -624,6 +628,8 @@ class second_definitive(object):
         """
 
         mindatadict = {}
+        if not daterange:
+            daterange = []
         month = (data.start() + timedelta(days=10)).strftime("%m (%b)")
         logdict = self.logdict.get(month)
         issuedict = logdict.get('Issues', {})
@@ -894,7 +900,7 @@ class second_definitive(object):
 
         return
 
-    def write_report(self, tablelist=[], debug=False):
+    def write_report(self, tablelist=None, debug=False):
         """
         DESCRIPTION
             Write a data report with basic information on submitted data set and possible issues
@@ -906,6 +912,8 @@ class second_definitive(object):
         RETURN
             will return the determined level
         """
+        if not tablelist:
+            tablelist = []
         obscode = self.input.get('obscode')
         year = int(self.input.get('year'))
         monthlist = [datetime(year, month, 10).strftime("%m (%b)") for month in range(1, 13)]
@@ -1047,7 +1055,7 @@ class second_definitive(object):
             text.append("\nNone\n")
 
         text.append("\n\n### Basic analysis information\n\n")
-        text.append("* Current one-minute step  :  {}\n".format(self.self.input.get('minutestep')))
+        text.append("* Current one-minute step  :  {}\n".format(self.input.get('minutestep')))
 
         """
         for key in parameterdict:
@@ -1090,7 +1098,8 @@ class second_definitive(object):
             except:
                 pass
 
-        print(text)
+        if debug:
+            print(text)
 
         # delete any previous level description
         def removeFilesByMatchingPattern(dirPath, pattern):
@@ -1117,15 +1126,16 @@ class second_definitive(object):
         # Now also construct an update file for new meta information
         issuesum = {}
         for month in monthlist:
-            issuedict = self.logdict.get(month).get("Issues")
+            issuedict = self.logdict.get(month,{}).get("Issues",{})
             issuesum = _merge_dicts(issuesum, issuedict)
         if debug:
             print("issue sum", issuesum)
         if len(issuesum) > 0:
-            self._write_meta_update_file(os.path.join(destinationpath, "meta_{}.txt".format(obscode)), issuesum, debug=debug)
+            self._write_meta_update_file(issuesum, debug=debug)
 
         print("... write_report finished")
         return level
+
 
     def _write_meta_update_file(self, dictionary, debug=False):
         """
@@ -1136,7 +1146,9 @@ class second_definitive(object):
         if debug:
             print("WRITING correction sheet")
 
-        destination = self.step2folder
+        destinationpath = self.step2folder
+        obscode = self.input.get('obscode')
+        destination = os.path.join(destinationpath, "meta_{}.txt".format(obscode)),
 
         def _key_convert(magpykey):
             try:
@@ -1180,3 +1192,38 @@ class second_definitive(object):
             return False
         return True
 
+
+class TestImbotSecond(unittest.TestCase):
+
+    def test_runtime(self):
+        # also tests idf and hdz tools
+        config = {}
+        dataset = {'obscode': 'CNB', 'year': '2022', 'resolution': 'second', 'lastmodified': '2025-02-25T20:17:03', 'step1path': '/home/leon/Tmp/GIN/step1second/2022_step1/CNB', 'modification': 'new', 'temporaryfolder': '/tmp/imbottest/unpacked/2022/second/CNB', 'minutestep': 'step1', 'minutepath': '/home/leon/Tmp/GIN/step1minute/Mag2022/CNB/*.bin'}
+        # for dataset in modificationlist:
+        secana = second_definitive(input=dataset)
+        datelist = secana.get_months()
+        datelist = datelist[:1]
+        daystreams = []
+        for i, dates in enumerate(datelist):
+            data, allcontents = secana.read_month(dates, debug=False)
+            month = (data.start() + timedelta(days=10)).strftime("%m (%b)")
+            secana.delta_f_test(data)
+            mtable = secana.check_standard_level(data, partialcheck=methods.partialcheck_v1, debug=False)
+            secana.check_diff_to_minute(data, daterange=datelist[0], debug=False)
+            daystreams.extend(
+                secana.extract_selected_days(data, datelist[0], selecteddays=['2022-01-21', '2022-01-22', '2022-01-23'],
+                                             dayformat='text', debug=False))
+            secana.export_month(data, allcontents, debug=False)
+        # select day checks
+        if len(daystreams) > 0:
+            secana.psd_analysis(daystreams)
+            tablelist = secana.update_table(mtable, month)
+
+        secana.write_report(tablelist=mtable, debug=True)
+        #self.assertEqual(res3, '')
+        #self.assertEqual('meta_KOU.txt', key_a)
+        #self.assertDictEqual({'kou2021.blv': '20231205'}, res4.get('removed'))
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

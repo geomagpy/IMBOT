@@ -1,0 +1,66 @@
+Instructions to update files and meta information for re-evaluation of your data:
+
+1. Do NOT edit any file in the submitting step1 directories as long as you are NOT ready to submit a revised version
+
+2. Check the report you received by mail for issues and suggested improvements
+   The report is a text file in markdown language. You can read it in any text editor
+   or you might choose a special markdown editor (e.g. https://dillinger.io/)
+
+   2.1. The report is titled "level0_underreview"
+
+        There are general problems with file structure, data files, or
+        readability of your files. Eventually a file got corrupted during upload. Please
+        check the submitted files and convert them either to IAGA-2002 and or IMAGCDF.
+        Data which can be read by MagPy can usually also be analyzed. Please upload
+        corrected files into the step1 directory of the GIN.
+
+   2.2. The report is titled "level1_underreview"
+
+        Your data is almost acceptable by INTERMAGNET.
+        There are, however, minor issues. Mostly some meta information, which is required for
+        INTERMAGNET archiving is missing. Please follow the instructions in section 3 of these
+        instructions on how to obtain a level 2 clearance.
+
+   2.3. The report is titled "level2_underreview"
+
+        Your data set meets all criteria of the automatic data check and is ready for final evaluation.
+        Nevertheless, please check the report for suggested improvements and follow the steps
+        outlined in section 3 if you want to consider them for the final data product (not obligatory).
+        A reviewer will automatically be assigned abd contacted as soon as your one-minute
+        product has been formally accepted.
+        Please note:
+        Data checkers do all reviews and evaluation beside their usual duties. Depending on their workload
+        it might need a while.
+        Usually, a final data check summary is obtained within three months after level 2 submission.
+
+        The final manual evaluation contains a data quality check of your one second data product.
+        Failing this evaluation has no consequence for your INTERMAGNET status which is
+        related to one-minute data. Anyway, please analyze any upcoming issues carefully:
+        it might be useful to check your data preparation
+        routines and might trigger improvements of instrumentation,
+        powering systems and, eventually, instruments location.
+
+3. You are ready to perform updates to your submission
+
+   3.1 Prepare you updates locally and upload them altogether.
+
+   3.2 Upload new files and information sheets into the
+       step1 directory of the GIN.
+
+   3.3 For meta information updates:
+       Please use the "meta_OBSCODE.txt" template attached to this mail or download it
+       from the GIN within directory year/OBSCODE.
+       Please add the requested meta data into this file.
+
+   3.4 For data file updates:
+       Upload the new/corrected files and replace/delete old files within
+       the step1 directory of the GIN. If you are uploading packed/zipped
+       archives, then make sure that data is located within the primary level
+       of this archive.
+
+   3.6 Within 24 hours after you finished your uploads
+       an automatic (re)evaluation will be triggered.
+
+4. Problems
+
+    If you have problems or questions please contact the IMBOT manager.

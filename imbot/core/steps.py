@@ -568,6 +568,7 @@ class botstatus(object):
                                 content = { 'obscode' : im ,
                                             'year' : ye,
                                             'resolution' : r ,
+                                            'lastmodified' : obsd.get('lastmodified','') ,
                                             'step1path' : obsd.get('step1','') ,
                                             'modification' : mod }
                                 output.append(content)

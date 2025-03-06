@@ -239,8 +239,9 @@ def copy_temporary(modificationlist, tmpdir="/tmp/imbottest", debug=False):
           'modification': 'updated'}, {'obscode': 'CNB', 'year': '2022', 'resolution': 'minute',
           'step1path': '/home/leon/Tmp/GIN/step1minute/Mag2022/CNB', 'modification': 'new'}]
     RETURN:
-        An updated version of modificationlist with temporary directories added
+        A new version of modificationlist only with new/update flags and with temporary directories added
     """
+    newmodificationlist = []
 
     for obsdict in modificationlist:
         obscode = obsdict.get('obscode')
@@ -335,8 +336,9 @@ def copy_temporary(modificationlist, tmpdir="/tmp/imbottest", debug=False):
             print(" -> Done ...")
 
             obsdict['temporaryfolder'] = newdir
+            newmodificationlist.append(obsdict)
 
-    return modificationlist
+    return newmodificationlist
 
 
 def limit_second_obs(modlist, limit=3, debug=False):
