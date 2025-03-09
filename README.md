@@ -328,3 +328,25 @@ Mailing adresses for the observatories are obtained in the following order:
 
 Mailing addresses extracted from the one-minute submissions are also stored locally in a json file called localmailrep.json.
 This is important as step3 one-minute data has no readme files any more.  
+
+## Appendix 3: imbot2.0 general workflow
+
+Scheduled jobs in the following order:
+
+1. download/sync data sources to local harddrive
+   - scheduled jon of download_min and download_sec which are both making use of wget
+   - step1, step2 minute; step1 second are copied to the harddisk
+   - TODO step3 minute
+   - TODO step2 second requires an rsync process as new data is uploaded and referee reports are downloaded
+   - TODO monitor these jobs
+2. scan.py is called to update local memory basaed on download folders
+   - creates a local memory file with all step and analysis information for all data sets
+   - TODO require a backup of the memory (weekly)
+   - TODO monitor
+3. analysis.py is called to extract modified data from memory and run min/sec analysis
+   - run the jobs and create mails
+   - TODO send mails to receivers
+   - TODO create reports and send via messenger and mail
+
+
+

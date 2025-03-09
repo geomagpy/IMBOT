@@ -19,6 +19,7 @@ from magpy.lib.format_imagcdf import HEADTRANSLATE
 from magpy.lib.magpy_formats import IMAGCDFMETA
 import unittest
 
+
 class second_definitive(object):
     """
     DESCRIPTION
@@ -55,7 +56,7 @@ class second_definitive(object):
 |  second_analysis |  psd_analysis    |      2.0.0 |            |             |         |           |
 |  second_analysis |  write_report    |      2.0.0 |            |             |         |           |
 |  second_analysis |  _write_meta_update_file | 2.0.0 |         |             |         | write_report |
-
+|  second_analysis |  second_mail_text |     2.0.0 |            |             |         |           |
 
     """
 
@@ -198,6 +199,7 @@ class second_definitive(object):
 
         if len(data) > 1:
             print("  -> got {} values for {}".format(len(data), data._get_key_headers()))
+            self.logdict['Stationname'] = data.header.get('StationName')
             # drop flagged data
             if data.header.get('DataFlags'):
                 print("Found flagging information - dropping")
@@ -1192,6 +1194,90 @@ class second_definitive(object):
             return False
         return True
 
+
+    def second_mail_text(self, level, imodict=None, debug=False):
+        """
+        DESCRIPTION
+            creates mail contents for one-second reports
+        VARIBALES
+            level   : int : the obtained readiness level of final analysis
+            dataset : dict : the current dictionary of the modificationlist
+            imo_dict : dict : the imo dictionary as obtained by imostatus.get_imo
+        RETURN
+            a dictionary with subject, text, from, to, attachments
+        """
+        level = 0
+        maildict = {}
+        if not imodict:
+            imodict = {}
+        obscode = self.input.get('obscode')
+        resolution = self.input.get('resolution')
+        year = int(self.input.get('year'))
+        minutestate = self.input.get('minutestep')
+        mod = self.input.get('modification')
+        stationname = self.logdict.get('Stationname', '')
+        admin = self.config.get('sysadmin')
+        referee = imodict.get('referee')
+        contacts = imodict.get('contacts', [])
+        imbotmanagers = imodict.get('manager', [])
+        destinationpath = self.step2folder
+
+        attachfilelist = glob.glob(os.path.join(destinationpath, "*.txt"))
+        receivers = contacts
+        nameofreferee = [n for n in referee][0]
+        if mod == 'update':
+            mod = 'updated'
+
+        maildict['subject'] = 'IMBOT data check of {} one-{} submission from {}, {}'.format(mod, resolution, obscode,
+                                                                                            year)
+        maildict['from'] = 'IMBOT'
+
+        maintext = "Dear data provider,\n\nyou receive the following information as your e-mail address is connected to submissions of geomagnetic data products from {} {} observatory.\nYour one-second data submission from {} has been automatically evaluated by IMBOT, an automatic data checker of INTERMAGNET.\n\nThe evaluation process resulted in\n\n".format(
+            stationname, obscode, year)
+        maintext += "LEVEL {}\n\n".format(level)
+        if minutestate in ['', 'step0', 'step1', 'step2', None]:
+            maintext += "!! Please note: this is just a preliminary evaluation result as your obligatory one-minute data product has not yet been finally accepted. "
+            if minutestate in ['', 'step0', None]:
+                maintext += "Currently there is no one-minute data available. "
+            else:
+                maintext += "Your one-minute data is currently on {}. ".format(minutestate)
+            maintext += "You will receive an update of your evaluation report whenever your one-minute data reaches the next step. If corrections to your one-second product are suggested in the following, please perform those already now in order to speed up the final acceptance process.\n\n"
+            time = 'will be'
+            last = ' as soon as your one-minute data is finally accepted.'
+        else:
+            time = 'has been'
+            last = ". Your data checker is {}.\nPlease note that INTERMAGNET data checkers perform all check on voluntary basis beside their usual duties. So please be patient. The data checker will contact you if questions arise".format(
+                nameofreferee)
+            if level > 0:
+                receivers.append(referee.get(nameofreferee))
+        level0 = "Level 0 means that your data did not pass the automatic reading and conversion test. Please update your data submission.\nOften a level 0 report is connected to corrupted files.\nPlease read the attached report and instructions before re-submission.\n\n"
+        level1 = "Level 1 indicates that your data is almost ready for final reviews. In order to continue the evaluation process some issues need to be clarified. Please read the attached report and follow the instructions. In most cases obligatory meta-information is missing. You can easily provide that by filling out and uploading the attached meta_{}.txt file.\n\n".format(
+            obscode)
+        level2 = "Congratulations! Your data fulfills all requirements of the automatic checking process. A level 2 data product is an excellent source for high resolution magnetic information. Your data set {} assigned to an INTERMAGNET data checker for final decision{}\n\n".format(
+            time, last)
+        if int(level) == 0:
+            maintext += level0
+        elif int(level) == 1:
+            maintext += level1
+        elif int(level) == 2:
+            maintext += level2
+        maintext += "The attached report makes use of markdown syntax and can be viewed in a formatted way i.e. using https://dillinger.io/. If you have any questions regarding the evaluation process please check out the general instructions (https://github.com/INTERMAGNET/IMBOT/blob/master/README.md - currently only available online for IM definitive data committee) or contact the IMBOT manager and request a pdf.\n\n"
+        maintext += "\nSincerely,\n       IMBOT\n\n"
+
+        if int(level) < 2:
+            if debug:
+                print("Loading instructions and adding them to attachments")
+            path = os.path.abspath("../lib/second_instructions.txt")
+            attachfilelist.append(path)
+
+        receivers.extend(imbotmanagers)
+        receivers = list(dict.fromkeys(receivers))
+
+        maildict['to'] = receivers
+        maildict['text'] = maintext
+        maildict['attachement'] = attachfilelist
+
+        return maildict
 
 class TestImbotSecond(unittest.TestCase):
 

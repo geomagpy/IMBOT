@@ -18,20 +18,11 @@ if local:
     import sys
     sys.path.insert(1,'/home/leon/Software/magpy/')
 
-from magpy.stream import *
-
-from martas import martaslog as ml
-from martas import sendmail as sm
-
 import telegram_send
 
-import os
-import glob
 import getopt
-import pwd
-import re
 
-from imbotcore import *
+from imbot.imbotcore import *
 
 
 def markdown_table(head,body):
@@ -203,7 +194,7 @@ def main(argv):
         #          Telegram Logging
         # ################################################
         ## New Logging features
-        from martas import martaslog as ml
+        from imbot.martas import martaslog as ml
         # tele needs to provide logpath, and config path ('/home/cobs/SCRIPTS/telegram_notify.conf')
         telelogpath = os.path.join(logpath,analysistype,"telegram.log")
 

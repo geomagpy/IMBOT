@@ -1,9 +1,7 @@
 from magpy.stream import *
 
-from martas import martaslog as ml
-from martas import sendmail as sm
+from imbot.martas import martaslog as ml
 
-import telegram_send
 import os
 import getopt
 

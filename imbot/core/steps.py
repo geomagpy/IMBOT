@@ -8,6 +8,7 @@ import numpy as np
 import pathlib
 import re
 import hashlib
+from magpy.core.methods import testtime
 from datetime import datetime, timedelta, timezone
 import unittest
 import shutil
@@ -48,8 +49,10 @@ class botstatus(object):
 |  imbot_steps     |  _find_exclude   |      2.0.0 |      yes      |             |         | _get_step1_information |
 |  imbot_steps     |  _get_step1_information | 2.0.0 |    yes      |             |         |           |
 |  imbot_steps     |  _get_step_information | 2.0.0 |     yes      |             |         |           |
+|  imbot_steps     |  add_contents    |      2.0.0 |               |             |         |           |
 |  imbot_steps     |  add_minute_state |     2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  analyse_source  |      2.0.0 |      yes      |             |         |           |
+|  imbot_steps     |  get_manager_mails |    2.0.0 |      yes      |             |         | set_contacts |
 |  imbot_steps     |  get_contact_mails |    2.0.0 |      yes      |             |         | set_contacts |
 |  imbot_steps     |  get_data_checker |     2.0.0 |      yes      |             |         | set_contacts |
 |  imbot_steps     |  get_imo         |      2.0.0 |      yes      |             |         |           |
@@ -273,6 +276,22 @@ class botstatus(object):
 
         return imolayer
 
+    def add_content(self, year=None, resolution=None, obscode=None, name='maildict', content=None):
+        """
+        DESCRIPTION:
+            Add contents to imostatus
+        APPLICTAION:
+            add the maildictionary to imostatus (in case mails need to be resend at a later stage)
+        """
+        year = str(year)
+        if year and resolution and obscode:
+            yeard = self.result.get(year)
+            if yeard:
+                rsd = yeard.get(resolution)
+                if rsd:
+                    imo = rsd.get(obscode)
+                    imo[name] = content
+        return self
 
     def add_minute_state(self, modlist, debug=False):
         """
@@ -368,6 +387,25 @@ class botstatus(object):
         return self
 
 
+    def get_manager_mails(self, debug=False):
+        """
+        DESCRIPTION
+            Obtain manager e-mails.
+        PARAMETER:
+            results : which contains file path of README.IMO
+            config : which contains links to local mail dictionary (obtained from README) and localmaillist
+        CALLED BY:
+            set_contacts
+        RETURNS:
+            list with e-mails
+        """
+
+        config = self.config
+        obsdict = methods.get_conf(config.get('mailinglist'))
+        managers = obsdict.get('managers', [])
+        return managers
+
+
     def get_contact_mails(self, obscode='xxx', year=str(1777), debug=False):
         """
         DESCRIPTION
@@ -392,6 +430,7 @@ class botstatus(object):
         # A) Extract from manually provided mailinglist for this observatory
         obsdict = methods.get_conf(config.get('mailinglist'))
         mails = obsdict.get(obscode, [])
+        managers = obsdict.get('managers', [])
         if debug:
             print("A) Mails from provided maillinglist", mails)
 
@@ -527,16 +566,22 @@ class botstatus(object):
         return obslist
 
 
-    def get_modified(self, year=None, resolution=None, obscode=None):
+    def get_modified(self, year=None, resolution=None, obscode=None, timerange=None):
         """
         DESCRIPTION:
             Get all modified or new paths
+        VARIABLES
+            timerange : list : [start, end]
         RETURN:
             list of dictionaries with year, IMO, resolution and modification
         APPLICTAION:
 
         """
         output = []
+        if not timerange or not isinstance(timerange, (list,tuple)):
+            timerange = []
+        if not len(timerange) == 2:
+            timerange = []
         if year:
             if isinstance(year, (list, tuple)):
                 years = [str(y) for y in year]
@@ -571,7 +616,10 @@ class botstatus(object):
                                             'lastmodified' : obsd.get('lastmodified','') ,
                                             'step1path' : obsd.get('step1','') ,
                                             'modification' : mod }
-                                output.append(content)
+                                if timerange and testtime(timerange[0]) <= testtime(obsd.get('lastmodified','')) <= testtime(timerange[1]):
+                                    output.append(content)
+                                elif not timerange:
+                                    output.append(content)
         return output
 
 
@@ -591,6 +639,7 @@ class botstatus(object):
                 rsd = yeard.get(resolution)
                 if rsd:
                     imo = rsd.get(obscode)
+                    imo['managers'] = self.get_manager_mails(debug=debug)
                     imo['contacts'] = self.get_contact_mails(obscode=obscode, year=year, debug=debug)
                     imo['referee'] = self.get_data_checker(obscode=obscode, year=year, resolution=resolution,
                                                            debug=debug)

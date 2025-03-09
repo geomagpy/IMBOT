@@ -47,21 +47,10 @@ if local:
 from magpy.stream import *
 
 sys.path.insert(1,'/home/{}/MARTAS/core/'.format(user))
-from martas import martaslog as ml
-from martas import sendmail as sm
 
-import os
-import glob
 import getopt
-import pwd
-import zipfile
-import tarfile
-from shutil import copyfile
-import filecmp
-from dateutil.relativedelta import relativedelta
-import gc
 
-from imbotcore import *
+from imbot.imbotcore import *
 from version import __version__ as imbotversion
 
 # Basic MARTAS Telegram logging configuration for IMBOT manager
@@ -772,7 +761,7 @@ def main(argv):
         #          Telegram Logging
         # ################################################
         ## New Logging features
-        from martas import martaslog as ml
+        from imbot.martas import martaslog as ml
         # tele needs to provide logpath, and config path ('/home/cobs/SCRIPTS/telegram_notify.conf')
         telelogpath = os.path.join(logpath,analysistype,"telegram.log")
 
