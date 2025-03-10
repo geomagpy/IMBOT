@@ -1225,8 +1225,6 @@ class second_definitive(object):
         attachfilelist = glob.glob(os.path.join(destinationpath, "*.txt"))
         receivers = contacts
         nameofreferee = [n for n in referee][0]
-        if mod == 'update':
-            mod = 'updated'
 
         maildict['subject'] = 'IMBOT data check of {} one-{} submission from {}, {}'.format(mod, resolution, obscode,
                                                                                             year)

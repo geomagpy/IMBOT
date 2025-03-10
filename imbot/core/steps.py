@@ -202,7 +202,7 @@ class botstatus(object):
                                     if imolayer.get('step2') or imolayer.get('step3'):
                                         self.report.append(
                                                 " step1 data was changed although step2 or step3 are already existing")
-                                        imolayer['modification'] = 'updated already accepted'
+                                        imolayer['modification'] = 'updated but already accepted'
                             else:
                                 self.report.append(" step1_directory: Found unexpected data type '{}'".format(typ))
                         else:
@@ -217,7 +217,7 @@ class botstatus(object):
 
         return imolayer
 
-    def _get_step_information(self, imolayer, step=2, obscode='XXX', reviewidentifier="review", debug=False):
+    def _get_step_information(self, imolayer, step=2, obscode='XXX', reviewidentifier="accepted", debug=False):
         """
         DESCRIPTION:
             Method will update step2 and step3 information and test for review reports in step2
@@ -615,6 +615,7 @@ class botstatus(object):
                                             'resolution' : r ,
                                             'lastmodified' : obsd.get('lastmodified','') ,
                                             'step1path' : obsd.get('step1','') ,
+                                            'step2path' : obsd.get('step2','') ,
                                             'modification' : mod }
                                 if timerange and testtime(timerange[0]) <= testtime(obsd.get('lastmodified','')) <= testtime(timerange[1]):
                                     output.append(content)
@@ -656,7 +657,7 @@ class botstatus(object):
 
         """
         year = str(year)
-        if not set in ['', 'new', 'update']:
+        if not set in ['', 'new', 'updated', 'updated but already accepted', 'added to step2', 'added to step3', 'step2 reviewed']:
             print("Invalid set parameter provided")
             return self
         if year and resolution and obscode:

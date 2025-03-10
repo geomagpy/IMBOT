@@ -347,6 +347,43 @@ Scheduled jobs in the following order:
    - run the jobs and create mails
    - TODO send mails to receivers
    - TODO create reports and send via messenger and mail
+   - monitor successful completion of analysis
+
+REMOVE password for data access in download tool
+
+## Appendix 4: setting up an IMBOT server from scratch
+
+### Installing packages based on Ubunutu >= 20.04
+
+- install magpy>=2.0 (follow the magpy installation instructions, used for read/write)
+- get MARTAS and install a dummy martas job, addapp, telegram (used for monitoring)
+- sudo apt-get install curlftpfs (mounting external devices)
+- sudo apt install p7zip-full p7zip-rar (unpacking second data)
+- sudo apt install wine (for check1min dos program)
+- install imbot
+
+### Configuring all packages
+
+1) configuring wine for check1min analysis
+
+Copy check1min.exe to your homedirectory. Then do an initial test run with wine
+
+       $ wine start check1min.exe
+
+The above command will create a .wine folder in your home directory. After ending the the
+test run mv the check1min program to /home/USER/.wine/drive_c/
+
+       $ mv check1min.exe /home/USER/.wine/drive_c/
+
+Create a data directory under drive_c:
+
+       $ cd /home/USER/.wine/drive_c/
+       $ mkdir data
+
+Update imbot.cfg. Modify the inputs for "winepath" with /home/USER/.wine/drive_c/.
+
+2) configuring imbot
 
 
+3) configuring MARTAS applications
 

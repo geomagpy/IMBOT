@@ -6,6 +6,7 @@ methods contain all methods which do not fit to a magpy specific class
 |class | method | since version |  runtime test | result verification | manual | *tested by |
 |----- | ------ | ------------- |  ------------ | ------------------- | ------ | ---------- |
 |**core.methods** |    |        |               |              |  | |
+|    | convert_to_step_dir | 2.0.0 |             |              |        | |
 |    | copy_temporary  |  2.0.0 |  yes          | yes          |        | |
 |    | dictdiff        |  2.0.0 |  yes          | yes          |        | |
 |    | extract_mails   |  2.0.0 |  yes          | yes          |        | |
@@ -27,6 +28,8 @@ import tarfile
 import filecmp
 import time
 import random
+from magpy.core.methods import is_number
+
 
 
 partialcheck_v1 = {
@@ -225,6 +228,51 @@ def write_memory(mydict, path=None, debug=False):
     except:
         print(" writing memory files {} failed".format(path))
         return False
+    return True
+
+
+def convert_to_step_dir(sourcepath, destinationpath, destlevel1_prefix='mag', debug=False):
+    """
+    DESCRIPTION:
+        reads a directory structure in identifies recusively all IAF files. copies the files into a structure similar
+        as to be found on step1 and step2 directories. mag2020 -> IMO -> files
+    VARIABLES:
+        sourcepath : string : the base path of the i.e. my/path/step3raw
+        destination : string : the base path of the new directory i.e. my/path/step3
+    APPLICATION
+        apply this method directly after downloading minute step3 raw data
+    """
+    if not os.path.isdir(destinationpath):
+        print ("Destinationdirectory need to exist")
+        return False
+    for root, dirs, files in os.walk(sourcepath):
+        #level = root.replace(sourcepath, '').count(os.sep)
+        for file in files:
+            if (file.endswith('.zip') or file.endswith('.bin') or file.endswith('.BIN')):
+                filename = os.path.basename(file).split(".")[0]
+                if len(filename) == 8:
+                    y = filename[3:5]
+                    if is_number(y):
+                        # Found a IAF file
+                        y = int(y)
+                        obscode = filename[:3].upper()
+                        if y < 70:
+                            year = y+2000
+                        else:
+                            year = y+1900
+                        src = os.path.join(root,file)
+                        dst = os.path.join(destinationpath, "{}{}".format(destlevel1_prefix,year), obscode, file)
+                        if not os.path.exists(os.path.dirname(dst)):
+                            os.makedirs(os.path.dirname(dst), exist_ok=True)
+                        if debug:
+                            print ("Would copy file {} to destination {}".format(src, dst))
+                        else:
+                            if not os.path.exists(dst) or not filecmp.cmp(src, dst):
+                                shutil.copyfile(src, dst)
+                                print ("Copying new file to {}".format(dst))
+                            else:
+                                if debug:
+                                    print ("file {} existing")
     return True
 
 
