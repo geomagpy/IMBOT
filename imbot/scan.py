@@ -5,18 +5,22 @@
 IMBOT - automatic analysis of one minute data
 
 """
-
+import sys
+sys.path.insert(1, '/home/leon/Software/magpy/')  # should be magpy2
+sys.path.insert(1,'/home/leon/Software/IMBOT/') # should be magpy2
 
 from imbot.core import methods
 from imbot.core import steps
 import getopt
 import sys
 import os
-#config = methods.get_conf('')
+confpath = ''
+#config = methods.get_conf(confpath)
 
 def main(argv):
     debug = False
     config = {}
+    confpath = ''
     firstrun = False
 
 
@@ -56,19 +60,20 @@ def main(argv):
             print ('python3 minuteanalysis.py -s /media/leon/Images/Mag2020 -d /tmp -t /tmp -o CLF -e /home/leon/IMBOT/minute -D')
             sys.exit()
         elif opt in ("-c", "--config"):
-            source = os.path.abspath(arg)
+            confpath = os.path.abspath(arg)
         elif opt in ("-F", "--firstrun"):
             firstrun = True
         elif opt in ("-D", "--debug"):
             debug = True
 
+    if confpath:
+        config = methods.get_conf(confpath)
+    else:
+        config = {}
     # Starting preparations based on imbot_steps
     imostatus = steps.botstatus(config=config)  # allow for testrun which does not update operative imostatus
-    # TODO get the paths from config
-    sourcepath = "/home/leon/Tmp/GIN/step1minute"
-    imostatus = imostatus.analyse_source(sourcepath, step=1, type='minute', debug=debug)
-    sourcepath = "/home/leon/Tmp/GIN/step1second"
-    imostatus = imostatus.analyse_source(sourcepath, step=1, type='second', debug=debug)
+    imostatus = imostatus.analyse_source(imostatus.config.get('minute_step1'), step=1, type='minute', debug=debug)
+    imostatus = imostatus.analyse_source(imostatus.config.get('second_step1'), step=1, type='second', debug=debug)
 
     yearlist = [el for el in imostatus.result]
     for year in yearlist:
@@ -89,8 +94,9 @@ def main(argv):
 
     methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'), debug=debug)
 
-    print("Preparation finished:", imostatus.result)
-
+    print("Preparation finished")
+    if debug:
+        print (imostatus.result)
 
 if __name__ == "__main__":
    main(sys.argv[1:])

@@ -1217,6 +1217,8 @@ class second_definitive(object):
         mod = self.input.get('modification')
         stationname = self.logdict.get('Stationname', '')
         admin = self.config.get('sysadmin')
+        adminmail = [admin.get(n) for n in admin][0]
+
         referee = imodict.get('referee')
         contacts = imodict.get('contacts', [])
         imbotmanagers = imodict.get('manager', [])
@@ -1228,7 +1230,7 @@ class second_definitive(object):
 
         maildict['subject'] = 'IMBOT data check of {} one-{} submission from {}, {}'.format(mod, resolution, obscode,
                                                                                             year)
-        maildict['from'] = 'IMBOT'
+        maildict['from'] = [adminmail]
 
         maintext = "Dear data provider,\n\nyou receive the following information as your e-mail address is connected to submissions of geomagnetic data products from {} {} observatory.\nYour one-second data submission from {} has been automatically evaluated by IMBOT, an automatic data checker of INTERMAGNET.\n\nThe evaluation process resulted in\n\n".format(
             stationname, obscode, year)
@@ -1273,7 +1275,7 @@ class second_definitive(object):
 
         maildict['to'] = receivers
         maildict['text'] = maintext
-        maildict['attachement'] = attachfilelist
+        maildict['attachment'] = attachfilelist
 
         return maildict
 

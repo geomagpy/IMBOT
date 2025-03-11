@@ -76,7 +76,14 @@ class botstatus(object):
                            'minutefallback': {'Maxi Musti': 'maxi@example.com'},
                            'sysadmin': {'Roman Leonhardt': 'ro.test'},
                            'memory_mail': '/tmp/imbottest/memory/memory_email.json',
-                           'memory_directory_analysis': '/tmp/imbottest/memory/memory_directory_analysis.json'
+                           'memory_directory_analysis': '/tmp/imbottest/memory/memory_directory_analysis.json',
+                           'winepath': '/home/leon/.wine/drive_c',
+                           'second_local_step2': '/tmp/imbottest/second/step2/',
+                           'minute_step1': '/home/leon/Tmp/GIN/step1minute',
+                           'minute_step2': '/srv/imbot/minute/step2',
+                           'minute_step3': '/srv/imbot/minute/step3',
+                           'second_step1': '/home/leon/Tmp/GIN/step1second',
+                           'second_step2': '/srv/imbot/second/step2'
                            }
         if not self.result:
             self.result = methods.read_memory(self.config.get('memory_directory_analysis'))

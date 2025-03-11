@@ -242,6 +242,8 @@ def convert_to_step_dir(sourcepath, destinationpath, destlevel1_prefix='mag', de
     APPLICATION
         apply this method directly after downloading minute step3 raw data
     """
+    existcounter = 0
+    copycounter = 0
     if not os.path.isdir(destinationpath):
         print ("Destinationdirectory need to exist")
         return False
@@ -269,10 +271,14 @@ def convert_to_step_dir(sourcepath, destinationpath, destlevel1_prefix='mag', de
                         else:
                             if not os.path.exists(dst) or not filecmp.cmp(src, dst):
                                 shutil.copyfile(src, dst)
-                                print ("Copying new file to {}".format(dst))
+                                copycounter += 1
+                                if debug:
+                                    print ("Copying new file to {}".format(dst))
                             else:
+                                existcounter += 1
                                 if debug:
                                     print ("file {} existing")
+    print (" convert_to_step_directory structure: copied {} files and ignored {} existing, unchanged data sets".format(copycounter, existcounter))
     return True
 
 
