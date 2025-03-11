@@ -616,7 +616,8 @@ class botstatus(object):
                         obsd = self.result.get(ye).get(r).get(im)
                         if obsd:
                             mod = obsd.get('modification','')
-                            if mod:
+                            exclude = obsd.get('exclude',False)
+                            if mod and not exclude in ['True','true',True]:
                                 content = { 'obscode' : im ,
                                             'year' : ye,
                                             'resolution' : r ,

@@ -81,7 +81,7 @@ class minute_definitive(object):
         year = self.input.get('year')
         reportpath = ''
         sleeptime = 10
-        sourcepath = self.input.get('step1path')
+        sourcepath = self.input.get('step1path') #self.input.get('temporaryfolder')
         # sourcepath = self.config.get('minute_step1')
         winepath = self.config.get('winepath')  # winepath='/root/.wine'
 
@@ -131,7 +131,7 @@ class minute_definitive(object):
         """
         obscode = self.input.get('obscode')
         year = self.input.get('year')
-        sourcepath = self.input.get('step1path')
+        sourcepath = self.input.get('step1path') #self.input.get('temporaryfolder')
         winepath = self.config.get('winepath')  # winepath='/root/.wine'
 
         issuelist = []

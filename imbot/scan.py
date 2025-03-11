@@ -94,7 +94,8 @@ def main(argv):
 
     methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'), debug=debug)
 
-    print("Preparation finished")
+    print("Directory evaluation and memory update finished")
+    print("Please note: modification flags are NOT changed")
     if debug:
         print (imostatus.result)
 
