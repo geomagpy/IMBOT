@@ -13,6 +13,8 @@ methods contain all methods which do not fit to a magpy specific class
 |    | get_conf        |  2.0.0 |  yes          | yes          |        | |
 |    | limit_second_obs | 2.0.0 |  yes          | yes          |        | |
 |    | read_memory     |  2.0.0 |  yes          | yes          |        | |
+|    | sendmail        |  2.0.0 |               |              |        | |
+|    | sendtelegram    |  2.0.0 |               |              |        | |
 |    | write_memory    |  2.0.0 |  yes          | yes          |        | |
 
 """
@@ -29,6 +31,15 @@ import filecmp
 import time
 import random
 from magpy.core.methods import is_number
+import configparser  # For Python 3 use the configparser module instead (all lowercase)
+import requests
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email.utils import formatdate
+from email import encoders
+from magpy.opt import cred as cred
 
 
 
@@ -433,6 +444,104 @@ def limit_second_obs(modlist, limit=3, debug=False):
             print("limit_second_obs: Nothing to be done")
     newmodlist.extend(secondlist)
     return newmodlist
+
+
+def sendmail(dic, credentials="webmail", debug=False):
+    """
+    DESCRIPTION
+        Mailing function for sending contents of a mailing dictionary with attachments
+    DEPENDENCIES
+        requires the magpy credential module to obsfucate credential information on mail server.
+        You can insert new credentials either with "addcred" after installation of MagPy or use:
+        from magpy.opt import cred as cred
+        cred.cc('mail','webmail', user='user@web.xx', passwd="secret", smtp='smtp.provider.xx', port='587')
+    VARIABLES
+        dic : dict with 'subject', 'from', 'to', 'text', 'attachment'
+    """
+
+    #if not smtpserver:
+    #    smtpserver = 'smtp.web.de'
+    if 'attachment' in dic and isinstance(dic.get('attachment',[]), (list,tuple)):
+        files = dic.get('attachment',[])
+    else:
+        files = []
+    text = dic.get('text','Cheers, Your Analysis-Robot')
+    text = 'Cheers, Your Analysis-Robot'
+    subject = dic.get('subject','Automatic message')
+
+    smtpserver = cred.lc(credentials,'smtp')
+    user = cred.lc(credentials,'user')
+    pwd = cred.lc(credentials,'passwd')
+    port = cred.lc(credentials,'port')
+    if port:
+        port = int(port)
+
+    msg = MIMEMultipart()
+    msg['From'] = user #dic.get('from')
+    send_to = ', '.join(dic.get('to'))
+    msg['To'] = send_to
+    msg['Date'] = formatdate(localtime=True)
+    msg['Subject'] = subject
+    msg.attach( MIMEText(text) )
+
+    # TODO log if file does not exist
+    for f in files:
+        if not os.path.isfile(f):
+            print ("File {} not existing".format(f))
+        else:
+            part = MIMEBase('application', "octet-stream")
+            part.set_payload( open(f,"rb").read() )
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(f))
+            msg.attach(part)
+
+    # seems as if server name needs to be specified in py3.7 and 3.8, should work in older versions as well
+    if port in [465]:
+        smtp = smtplib.SMTP_SSL(smtpserver)
+    else:
+        smtp = smtplib.SMTP(smtpserver)
+    smtp.set_debuglevel(False)
+    if port:
+        smtp.connect(smtpserver, port)
+    else:
+        smtp.connect(smtpserver)
+    smtp.ehlo()
+    if port in [587]:
+        if debug:
+            print ("Using tls")
+        smtp.starttls()
+    smtp.ehlo()
+    if user and not user in ['None','False']:
+        smtp.login(user, pwd)
+    smtp.sendmail(user, send_to, msg.as_string())
+    smtp.close()
+
+
+def sendtelegram(message, configpath="", debug=True):
+    """
+    DESCRIPTION
+        Sending a telegram message provided that token and chat_id are provided
+        Requires configuartion data read by configparser of the following form:
+
+    VARIABLES
+        message : string
+        configpath  :
+    """
+
+    if not message or not configpath or not os.path.isfile(configpath):
+        return False
+    # telegram notifications - replace and cut
+    rep = message.replace('&', 'and').replace('/', '')[:4000]
+    print(rep)
+    # Send report to the specific user i.e. by telegram
+    config = configparser.ConfigParser()
+    config.read(configpath)
+    token = config.get('telegram', 'token')
+    chat_id = config.get('telegram', 'chat_id')
+    url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={rep}"
+    print(requests.get(url).json())  # this sends the message
+    return True
+
 
 if __name__ == '__main__':
 

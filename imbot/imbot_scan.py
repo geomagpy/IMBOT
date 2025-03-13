@@ -14,8 +14,6 @@ from imbot.core import steps
 import getopt
 import sys
 import os
-confpath = ''
-#config = methods.get_conf(confpath)
 
 def main(argv):
     debug = False
@@ -27,15 +25,15 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"hc:FD",["config=","firstrun=","debug=",])
     except getopt.GetoptError:
-        print ('scan.py -c <config> -F <firstrun>')
+        print ('imbot_scan.py -c <config> -F <firstrun>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
             print ('-------------------------------------')
             print ('Description:')
-            print ('-- minuteanalysis.py will automatically analyse one second data products --')
+            print ('-- imbot_scan.py will automatically analyse one second data products --')
             print ('-----------------------------------------------------------------')
-            print ('minuteanalysis is a python3 program to automatically')
+            print ('imbot_scan.py is a python3 program to automatically')
             print ('evaluate one second data submissions to INTERMAGNET.')
             print ('')
             print ('')

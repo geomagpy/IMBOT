@@ -75,6 +75,7 @@ class botstatus(object):
                            'secondrefereepath': '/tmp/imbottest/conf/refereelist_second.cfg',
                            'minutefallback': {'Maxi Musti': 'maxi@example.com'},
                            'sysadmin': {'Roman Leonhardt': 'ro.test'},
+                           'telegramconfig': '/tmp/imbottest/conf/imbot_telegram.cfg',
                            'memory_mail': '/tmp/imbottest/memory/memory_email.json',
                            'memory_directory_analysis': '/tmp/imbottest/memory/memory_directory_analysis.json',
                            'winepath': '/home/leon/.wine/drive_c',
@@ -662,8 +663,9 @@ class botstatus(object):
         RETURN:
             data dictionary with new modification flag
         APPLICTAION:
-
+            imostatus = imostatus.set_modification(set='', obscode=secana.input.get('obscode'), year=secana.input.get('year'), resolution='second')
         """
+
         year = str(year)
         if not set in ['', 'new', 'updated', 'updated but already accepted', 'added to step2', 'added to step3', 'step2 reviewed']:
             print("Invalid set parameter provided")
