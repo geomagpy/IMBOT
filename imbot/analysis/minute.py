@@ -52,7 +52,7 @@ class minute_definitive(object):
                            'minuterefereepath': '/tmp/imbottest/conf/refereelist_minute.cfg',
                            'secondrefereepath': '/tmp/imbottest/conf/refereelist_second.cfg',
                            'minutefallback': {'Maxi Musti': 'maxi@example.com'},
-                           'sysadmin': {'Roman Leonhardt': 'ro.test'},
+                           'sysadmin': {'Roman Leonhardt': 'imbot@conrad-observatory.at'},
                            'memory_mail': '/tmp/imbottest/memory/memory_email.json',
                            'memory_directory_analysis': '/tmp/imbottest/memory/memory_directory_analysis.json',
                            'second_local_step2': '/tmp/imbottest/second/step2/',

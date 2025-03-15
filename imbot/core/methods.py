@@ -466,7 +466,6 @@ def sendmail(dic, credentials="webmail", debug=False):
     else:
         files = []
     text = dic.get('text','Cheers, Your Analysis-Robot')
-    text = 'Cheers, Your Analysis-Robot'
     subject = dic.get('subject','Automatic message')
 
     smtpserver = cred.lc(credentials,'smtp')
@@ -528,11 +527,12 @@ def sendtelegram(message, configpath="", debug=True):
         configpath  :
     """
 
+    print ("Running telegram send:", configpath, message)
     if not message or not configpath or not os.path.isfile(configpath):
         return False
     # telegram notifications - replace and cut
     rep = message.replace('&', 'and').replace('/', '')[:4000]
-    print(rep)
+    print("Sending by telegram:", rep)
     # Send report to the specific user i.e. by telegram
     config = configparser.ConfigParser()
     config.read(configpath)

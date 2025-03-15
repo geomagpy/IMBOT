@@ -37,25 +37,19 @@ def main(argv):
             print ('evaluate one second data submissions to INTERMAGNET.')
             print ('')
             print ('')
-            print ('minuteanalysis requires magpy >= 0.9.5.')
+            print ('imbot_scan requires magpy >= 2.0.0')
             print ('-------------------------------------')
             print ('Usage:')
-            print ('python3 minuteanalysis.py -s <source> -d <destination> -t <temporary>')
+            print ('python3 imbot_scan.py -c <config>')
             print ('-------------------------------------')
             print ('Options:')
-            print ('-t            : temporary directory for conversion and analysis')
-            print ('-m            : a json file with full path for "memory"')
+            print ('-c            : imbot config file')
             print ('-------------------------------------')
             print ('Example of memory:')
             print ('-------------------------------------')
             print ('Application:')
             print ('-------------------------------------')
             print ('- debug mode')
-            print ('python3 /home/leon/Software/IMBOT/imbot/minuteanalysis.py -s /home/leon/Cloud/Test/IMBOTminute/IMinput/2020_step1 -d /home/leon/Cloud/Test/IMBOTminute/IMoutput/ -t /tmp -m /home/leon/Cloud/Test/IMBOTminute/analysetest.json -n /etc/martas/telegram.cfg -e /home/leon/Software/IMBOTconfig -o DOU -w /home/leon/.wine/drive_c -D')
-            print ('- test mode')
-            print ('python3 minuteanalysis.py -s /home/leon/Tmp -t /tmp -d /tmp -o BOU -i /home/leon/Tmp/minute')
-            print ('python3 secondanalysis.py -s /media/leon/Images/Mag2020 -d /tmp -t /media/leon/Images/DataCheck/tmp -i /media/leon/Images/DataCheck/2016/minute/Mag2016 -m /media/leon/Images/DataCheck/2016/testanalysis.json -o WIC')
-            print ('python3 minuteanalysis.py -s /media/leon/Images/Mag2020 -d /tmp -t /tmp -o CLF -e /home/leon/IMBOT/minute -D')
             sys.exit()
         elif opt in ("-c", "--config"):
             confpath = os.path.abspath(arg)
@@ -67,6 +61,7 @@ def main(argv):
     if confpath:
         config = methods.get_conf(confpath)
     else:
+        print ("No config path provided - assuming testrun - make sure to run unittest by python steps.py first")
         config = {}
     # Starting preparations based on imbot_steps
     imostatus = steps.botstatus(config=config)  # allow for testrun which does not update operative imostatus
@@ -93,7 +88,7 @@ def main(argv):
     methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'), debug=debug)
 
     print("Directory evaluation and memory update finished")
-    print("Please note: modification flags are NOT changed")
+    print("Please note: existing modification flags are NOT changed")
     if debug:
         print (imostatus.result)
 

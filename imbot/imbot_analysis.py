@@ -22,10 +22,16 @@ import os
 
 def main(argv):
     debug = False
+    test = False
     confpath = ''
     config = {}
     telmsg = ''
     maxamount = 40
+    resolution = ''
+    year = None
+    repeatobs = []
+    excludeobs = ''
+    includeobs = ''
     successminnew = []
     successminupd = []
     failedmin = []
@@ -34,7 +40,7 @@ def main(argv):
     failedsec = []
 
     try:
-        opts, args = getopt.getopt(argv,"hc:D",["config=","debug=",])
+        opts, args = getopt.getopt(argv,"hc:s:r:y:TD",["config=","sampling=","repeat=","year=","test=","debug=",])
     except getopt.GetoptError:
         print ('imbot_analysis.py -c <config>')
         sys.exit(2)
@@ -55,42 +61,68 @@ def main(argv):
             print ('-------------------------------------')
             print ('Options:')
             print ('-c            : imbot config file')
+            print ('-s            : sampling rate: analyze minute and second on default.')
+            print ('              : set to "minute" or "second" to limit analyses.')
+            print ('-r            : redo/repeat list, provide a list of obscode which will')
+            print ('              : flagged as new records and reanalyzed')
+            print ('-y            : year. only used together with redo/repeat list')
+            print ('-e            : exclude path. Provide a path to a exclude json structure')
+            print ('              : containing year, resolution and obslist to be ignored.')
+            print ('              : Include again by using -i to change its exclude state.')
+            print ('-i            : include path.')
             print ('-------------------------------------')
             print ('Example of memory:')
             print ('-------------------------------------')
             print ('Application:')
             print ('-------------------------------------')
-            print ('- debug mode')
+            print ('- debug mode - will not send reports but print them to stdout, no memory update')
             print ('python3 imbot_analysis.py -c ~/imbot.cfg -D')
-            print ('- test mode')
-            print ('python3 minuteanalysis.py -s /home/leon/Tmp -t /tmp -d /tmp -o BOU -i /home/leon/Tmp/minute')
+            print ('- test mode - will send reports only to sysadmin, no memory update')
+            print ('python3 imbot_analysis.py -c ~/imbot.cfg -T')
+            print ('- repeat mode - will flag IMO for second period and year 2022 as new')
+            print ('python3 imbot_analysis.py -c ~/imbot.cfg -r WIC,KOU,CLF -s second -y 2022')
             sys.exit()
         elif opt in ("-c", "--config"):
             confpath = os.path.abspath(arg)
+        elif opt in ("-s", "--sampling"):
+            resolution = arg
+        elif opt in ("-r", "--repeat"):
+            repeatobs = arg.split(',')
+        elif opt in ("-y", "--year"):
+            year = arg
+        elif opt in ("-T", "--test"):
+            test = True
         elif opt in ("-D", "--debug"):
             debug = True
 
     if confpath:
         config = methods.get_conf(confpath)
     else:
+        print ("No config path provided - setting testrun to True")
+        test = True
         config = {}
 
+    if test:
+        telmsg = 'TESTRUN - not operative\n'
 
-    imostatus = steps.botstatus(config=config)  # allow for testrun which does not update operative imostatus
-
-    # the read the memory again
-    # imostatus.result = methods.read_memory(imostatus.config.get('memory_directory_analysis'), debug=debug)
-    # print (imostatus.result)
+    # Now initialize IMBOT and read the current memory list as defined in config
+    imostatus = steps.botstatus(config=config)
+    # a pure runtime test requires the execution of unittest by "python steps.py" first
+    # This will create a temporary structure with dummy configurations and a minute test submission
 
     # eventually use update_validity to exclude data sets from analysis
-    imostatus = imostatus.update_validity(year=2022, resolution='second', excludeobs=['CNB', 'XYZ'])
     # imostatus = imostatus.update_validity(year=2022, resolution='second', includeobs=['CNB'])
 
+    # eventually update the modification list based on resolution, year and obslist
+    if len(repeatobs) > 0:
+        for obs in repeatobs:
+            imostatus = imostatus.set_modification(set='new', obscode=obs,
+                                                   year=year, resolution=resolution)
     # Analyse memory and extract all modified data sets
     # get all (year, resolution, obscode) with modification flags and exclude=False
     modlist = imostatus.get_modified()
 
-    # Now copy data to be analzed to a temporary directory (why? because some data is packed/zipped/tared) only second?
+    # Now copy data to be analyzed to a temporary directory (why? because some data is packed/zipped/tared) only second?
     modificationlist = methods.copy_temporary(modlist, tmpdir="/tmp/imbottest", debug=False)
     # tmpdir will look like os.path.join(tmpdir, 'unpacked', year, resolution, obscode)
 
@@ -104,11 +136,9 @@ def main(argv):
         print("It is very unlikely that more than 40 data sets have been uploaded in one day")
         print("Abort and inform sysadmin")
         telmsg = 'More than 40 records found to be analyzed - seems unlikely, aborting'
-        # sendtelegram(telmsg, imostatus.config.get('telegramconfig'))
+        methods.sendtelegram(telmsg, imostatus.config.get('telegramconfig'))
 
     modificationlist = methods.limit_second_obs(modificationlist, limit=3, debug=False)
-
-    # check of modification list: abot if modofication list is to long and inform admin
 
     for dataset in modificationlist:
         # modificationlist only contains new and updated flags
@@ -116,7 +146,7 @@ def main(argv):
             print("Running analysis for {},{} with {} resolution".format(dataset.get("obscode"), dataset.get("year"),
                                                                          dataset.get("resolution")))
         if dataset.get('modification') in ['new', 'updated']:  # don't analyse "updated but already accepted"
-            if dataset.get('resolution') == 'minute':
+            if dataset.get('resolution') == 'minute' and resolution in ['','minute']:
                 ok = True
                 # try:
                 if ok:
@@ -130,9 +160,15 @@ def main(argv):
                                                       resolution='minute', name='maildict_minute', content=maildict)
                     imostatus = imostatus.set_modification(set='', obscode=minana.input.get('obscode'),
                                                            year=minana.input.get('year'), resolution='minute')
-                    methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'),
+                    if not debug and not test:
+                        methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'),
                                          debug=True)
-                    # methods.sendmail(maildict, credentials="")
+                    if debug:
+                        print (maildict)
+                    else:
+                        if test:
+                            maildict['to'] = maildict.get('from')
+                        methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
                     # delete temporary directories
                     mintempdir = minana.input.get('temporaryfolder')
                     if os.path.exists(mintempdir):
@@ -143,7 +179,7 @@ def main(argv):
                         successminupd.append(dataset.get('obscode'))
                 # except:
                 #    failedmin.append(dataset.get('obscode'))
-            elif dataset.get('resolution') == 'second':
+            elif dataset.get('resolution') == 'second' and resolution in ['','second']:
                 ok = True
                 # try:
                 if ok:
@@ -184,9 +220,15 @@ def main(argv):
                                                       resolution='second', name='maildict_second', content=maildict)
                     imostatus = imostatus.set_modification(set='', obscode=secana.input.get('obscode'),
                                                            year=secana.input.get('year'), resolution='second')
-                    methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'),
+                    if not debug and not test:
+                        methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'),
                                          debug=True)
-                    # methods.sendmail(maildict, credentials="")
+                    if debug:
+                        print (maildict)
+                    else:
+                        if test:
+                            maildict['to'] = maildict.get('from')
+                        methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
                     # delete temporary directories
                     sectempdir = secana.input.get('temporaryfolder')
                     if os.path.exists(sectempdir):
@@ -199,18 +241,49 @@ def main(argv):
                 #    failedsec.append(dataset.get('obscode'))
 
     for dataset in modlist:
-        debug = True
         if debug:
             print(" Found the following mod:", dataset.get('modification'))
             print(dataset)
         if dataset.get('modification') in ['updated but already accepted']:
             pass
         elif dataset.get('modification') in ['added to step2']:
-            pass
+            contacts = imostatus.get_contact_mails(obscode=dataset.get('obscode'), year=dataset.get('year'))
+            managers = imostatus.get_manager_mails()
+            receivers = contacts + managers
+            maildict = {'subject': "Submission one-{} {}, {} moved to step2".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
+                        'text': "Dear data provider\nyour data submission has been moved to step2.\nSincerely,\n     IMBOT",
+                        'to': receivers}
+            if debug:
+                print(maildict)
+            else:
+                methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
+            imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
+                                                   year=dataset.get('year'), resolution=dataset.get('resolution'))
         elif dataset.get('modification') in ['added to step3']:
-            pass
+            contacts = imostatus.get_contact_mails(obscode=dataset.get('obscode'), year=dataset.get('year'))
+            managers = imostatus.get_manager_mails()
+            receivers = contacts + managers
+            maildict = {'subject': "Submission one-{} {}, {} moved to step3".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
+                        'text': "Dear data provider\nyour data submission has been moved to step3 and will be published soon.\nSincerely,\n     IMBOT",
+                        'to': receivers}
+            if debug:
+                print(maildict)
+            else:
+                methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
+            imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
+                                                   year=dataset.get('year'), resolution=dataset.get('resolution'))
         elif dataset.get('modification') in ['step2 reviewed']:
-            pass
+            managers = imostatus.get_manager_mails()
+            receivers = managers
+            maildict = {'subject': "Submission one-{} {}, {} has been reviewed".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
+                        'text': "Dear managers\na step2 data has been reviewed and is ready for final decisions.\nSincerely,\n     IMBOT",
+                        'to': receivers}
+            if debug:
+                print(maildict)
+            else:
+                methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
+            imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
+                                                   year=dataset.get('year'), resolution=dataset.get('resolution'))
 
     if len(successminnew) > 0:
         telmsg += "New minute: {}\n".format(",".join(successminnew))
@@ -225,10 +298,12 @@ def main(argv):
     if len(failedsec) > 0:
         telmsg += "Failed second: {}\n".format(",".join(failedsec))
 
-    print(telmsg)
+    if debug:
+        print(telmsg)
+    else:
+        methods.sendtelegram(telmsg, configpath=imostatus.config.get('telegramconfig'))
     print("SUCCESS")  # used for monitoring of logfile
     # end of analysis
-
 
 if __name__ == "__main__":
    main(sys.argv[1:])
