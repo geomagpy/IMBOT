@@ -48,6 +48,8 @@ def main(argv):
     homedir = os.getenv("HOME")
     print(homedir)
     # create .imbot
+    file_path = os.path.dirname(os.path.realpath(__file__))
+    print(file_path)
     if not debug:
         os.makedirs(os.path.join(homedir,".imbot"), exist_ok=True)
         # create sudirs
@@ -55,13 +57,11 @@ def main(argv):
     #
     # copy files into subdirs
     if not os.path.isdir(os.path.join(homedir,".imbot","conf")):
-        shutil.copytree("imbot/config", os.path.join(homedir, ".imbot", "conf"))
+        shutil.copytree(os.path.join(file_path, "config"), os.path.join(homedir, ".imbot", "conf"))
     if not os.path.isdir(os.path.join(homedir,".imbot","bash")):
-        shutil.copytree("imbot/bash", os.path.join(homedir, ".imbot", "bash"))
-    if not os.path.isdir(os.path.join(homedir,".imbot","app")):
-        shutil.copytree("imbot/external", os.path.join(homedir, ".imbot/app"))
+        shutil.copytree(os.path.join(file_path, "bash"), os.path.join(homedir, ".imbot", "bash"))
     if not os.path.isdir(os.path.join(homedir,".imbot","templates")):
-        shutil.copytree("imbot/templates", os.path.join(homedir, ".imbot/templates"))
+        shutil.copytree(os.path.join(file_path, "templates"), os.path.join(homedir, ".imbot/templates"))
     #
     # check for wine and copy check1minute to it
     if not os.path.exists(os.path.join(homedir,".wine")):
