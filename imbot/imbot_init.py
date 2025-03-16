@@ -49,8 +49,7 @@ def main(argv):
     print(homedir)
     # create .imbot
     import imbot
-    path = os.path.dirname(imbot.__file__)
-    file_path = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.dirname(imbot.__file__)
     print(file_path)
     if not debug:
         os.makedirs(os.path.join(homedir,".imbot"), exist_ok=True)
