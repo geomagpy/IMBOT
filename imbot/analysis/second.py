@@ -15,6 +15,7 @@ import glob
 import fnmatch
 from magpy.stream import DataStream, read, subtract_streams, magpyversion
 from magpy.core.methods import nearestPow2
+from magpy.core.activity import K_fmi
 from magpy.lib.format_imagcdf import HEADTRANSLATE
 from magpy.lib.magpy_formats import IMAGCDFMETA
 import unittest
@@ -630,6 +631,7 @@ class second_definitive(object):
         """
 
         mindatadict = {}
+        quietdays = []
         if not daterange:
             daterange = []
         month = (data.start() + timedelta(days=10)).strftime("%m (%b)")
@@ -642,6 +644,7 @@ class second_definitive(object):
         minutestep = self.input.get('minutestep')
 
         mindata = DataStream()
+        highresfilt = DataStream()
         if minutepath:
             try:
                 print(" Comparing with minute data: ", minutepath, daterange[0], daterange[1])
@@ -730,7 +733,14 @@ class second_definitive(object):
         logdict['DefinitiveStatus'] = mindatadict
         self.logdict[month] = logdict
 
-        return
+        if len(mindata) > 0:
+            kvals = K_fmi(mindata, K9_limit=mindata.header.get('StationK9'), longitude=mindata.header.get('DataAcquisitionLongitude'))
+            dmkvals = kvals.dailymeans(keys=['var1'])
+            K = 3
+            res = sorted(range(len(dmkvals.ndarray[1])), key=lambda sub: dmkvals.ndarray[1][sub])[:K]
+            quietdays = [dmkvals.ndarray[0][i].strftime("%Y-%m-%d") for i in res]
+
+        return quietdays
 
     def extract_selected_days(self, data, dates, selecteddays=None, dayformat='text', debug=False):
         """
@@ -1267,7 +1277,7 @@ class second_definitive(object):
         if int(level) < 2:
             if debug:
                 print("Loading instructions and adding them to attachments")
-            path = os.path.abspath("../lib/second_instructions.txt")
+            path = os.path.abspath("../../examples/second_instructions.txt")
             attachfilelist.append(path)
 
         receivers.extend(imbotmanagers)
@@ -1283,6 +1293,7 @@ class TestImbotSecond(unittest.TestCase):
 
     def test_runtime(self):
         # also tests idf and hdz tools
+        print ("testrun requires running steps.py first")
         config = {}
         dataset = {'obscode': 'CNB', 'year': '2022', 'resolution': 'second', 'lastmodified': '2025-02-25T20:17:03', 'step1path': '/home/leon/Tmp/GIN/step1second/2022_step1/CNB', 'modification': 'new', 'temporaryfolder': '/tmp/imbottest/unpacked/2022/second/CNB', 'minutestep': 'step1', 'minutepath': '/home/leon/Tmp/GIN/step1minute/Mag2022/CNB/*.bin'}
         # for dataset in modificationlist:

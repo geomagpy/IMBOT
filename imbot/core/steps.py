@@ -798,7 +798,7 @@ class TestImbotStep(unittest.TestCase):
                     self.assertEqual(['bcmt@ipgp.fr'], imostatus.result.get('2021').get('minute').get('KOU').get('contacts'))
 
         obsres = imostatus.get_imo(year=2021, resolution='minute', obscode='KOU')
-        self.assertEqual(10, len([e for e in obsres]))
+        self.assertEqual(11, len([e for e in obsres]))
         modres = imostatus.get_modified(year=2021, resolution='minute')
         self.assertEqual(1, len(modres))
 

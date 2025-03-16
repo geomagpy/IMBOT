@@ -1,6 +1,6 @@
 from magpy.stream import *
 
-from imbot.martas import martaslog as ml
+from imbot.old.martas import martaslog as ml
 
 import os
 import getopt

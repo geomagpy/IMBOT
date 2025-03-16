@@ -22,7 +22,7 @@ import telegram_send
 
 import getopt
 
-from imbot.imbotcore import *
+from imbot.old.imbotcore import *
 
 
 def markdown_table(head,body):
@@ -194,7 +194,6 @@ def main(argv):
         #          Telegram Logging
         # ################################################
         ## New Logging features
-        from imbot.martas import martaslog as ml
         # tele needs to provide logpath, and config path ('/home/cobs/SCRIPTS/telegram_notify.conf')
         telelogpath = os.path.join(logpath,analysistype,"telegram.log")
 

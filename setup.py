@@ -3,7 +3,11 @@ try:
 except ImportError:
     from distutils.core import setup
 import sys
+import shutil
 exec(open('imbot/version.py').read())
+shutil.copyfile('imbot/imbot_init.py','scripts/imbot_init')
+shutil.copyfile('imbot/imbot_scan.py','scripts/imbot_scan')
+shutil.copyfile('imbot/imbot_analysis.py','scripts/imbot_analysis')
 
 install_requires=[
             "geomagpy >= 2.0.0",
@@ -17,13 +21,13 @@ setup(
     version=__version__,
     author='R. Leonhardt',
     author_email='roman.leonhardt@geosphere.at',
-    packages=['imbot', 'imbot.analysis', 'imbot.core', 'imbot.lib', 'bash', 'magpy.core'],
-    scripts=['imbot/imbot_scan','imbot/imbot_analysis'],
+    packages=['imbot', 'imbot.analysis', 'imbot.core', 'bash', 'documentation', 'config', 'test', 'external', 'templates'],
+    scripts=['scripts/imbot_scan','scripts/imbot_analysis', 'scripts/imbot_init'],
     url='',
     license='LICENSE.txt',
     description='INTERMAGNET automatic data checker',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    package_data={'imbot': ['lib/*.txt'], 'documentation': ['*.pdf'], 'config': ['*.cfg']},
+    package_data={'imbot': ['lib/*.txt'], 'documentation': ['*.pdf'], 'config': ['*.cfg'], 'test': ['*'], 'external': ['*'], 'templates': ['*']},
     install_requires=install_requires,
 )
