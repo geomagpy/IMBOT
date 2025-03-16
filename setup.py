@@ -11,7 +11,7 @@ shutil.copyfile('imbot/imbot_analysis.py','scripts/imbot_analysis')
 shutil.copyfile('imbot/imbot_convert.py','scripts/imbot_convert')
 
 install_requires=[
-            "geomagpy >= 2.0.0",
+            "geomagpy > 1.1.9",
             "numpy >= 1.21.0",
             "scipy >= 1.7.3",
             "setuptools"
