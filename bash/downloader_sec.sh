@@ -1,28 +1,24 @@
 #!/bin/bash
 
-# Get starttime and date and calulate duration per GB
+# Get starttime and date and calculate duration per GB
 # Download one second data
 # ------------------------
-source /home/leon/ginsource.sh
-# GINSOURCE looks like
-# SECSTEP2USER='user'
-# SECSTEP2pwd='secret'
-# GINSECSTEP2='cdfsteptwo:86XaqU%'
+source /home/USER/.imbot/ginsource.sh
 
 # step1
-for i in {2018..2050} ; do wget -m -nH -np --cut-dirs=1 --user='user1sec' --password='71IUE2%f' ftp://par-gin.ipgp.fr/"$i"_step1 -P /srv/imbot/second/step1/"$i"/ ; done
+for i in {2018..2050} ; do wget -m -nH -np --cut-dirs=1 --user=$SECSTEP1USER --password=$SECSTEP1PWD ftp://par-gin.ipgp.fr/"$i"_step1 -P /srv/imbot/second/step1/"$i"/ ; done
 # step2
 MOUNTLEVEL=/mnt/level
 STEP2DIR=/srv/imbot/second/step2
 RSYNC=/usr/bin/rsync
 
-# MOUNT LEVEL DIRECTORY
-curlftpfs -o user=$GINSECSTEP2,allow_other $GINIP $MOUNTLEVEL
+# MOUNT REMOTE STEP2 DIRECTORY
+curlftpfs -o user=$SECSTEP2FULL,allow_other $GINIP $MOUNTLEVEL
 
-# Eventually create LEVEL DIRECTORY
+# Eventually create LOCAL DIRECTORY
 mkdir -p $STEP2DIR
 
 if grep -qs "$MOUNTLEVEL" /proc/mounts; then
-  $RSYNC -avz -T "/tmp/" --no-perms --no-owner --no-group $MOUNTLEVEL $OUT
+  $RSYNC -avz -T "/tmp/" --no-perms --no-owner --no-group $MOUNTLEVEL $STEP2DIR
   umount $MOUNTLEVEL
   echo "GIN level unmounted"

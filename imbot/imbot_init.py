@@ -60,6 +60,8 @@ def main(argv):
         shutil.copytree("../bash", os.path.join(homedir,".imbot","bash"))
     if not os.path.isdir(os.path.join(homedir,".imbot","app")):
         shutil.copytree("../external", os.path.join(homedir,".imbot/app"))
+    if not os.path.isdir(os.path.join(homedir,".imbot","templates")):
+        shutil.copytree("../templates", os.path.join(homedir,".imbot/templates"))
     #
     # check for wine and copy check1minute to it
     if not os.path.exists(os.path.join(homedir,".wine")):
@@ -70,7 +72,7 @@ def main(argv):
             print (" Wine and check1min already installed - continuing")
         else:
             print ("copy check1min")
-
+    print ("Now update all the configuration files manually")
 
 
 

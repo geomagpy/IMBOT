@@ -360,7 +360,9 @@ REMOVE password for data access in download tool
 - sudo apt-get install curlftpfs (mounting external devices)
 - sudo apt install p7zip-full p7zip-rar (unpacking second data)
 - sudo apt install wine (for check1min dos program)
-- install imbot
+- install imbot 
+
+       pip install imbot...
 
 ### Configuring all packages
 
@@ -383,6 +385,14 @@ Create a data directory under drive_c:
 Update imbot.cfg. Modify the inputs for "winepath" with /home/USER/.wine/drive_c/.
 
 2) configuring imbot
+
+go to ~/.imbot and copy the following files to the main directory
+
+        $ cd ~/.imbot
+        $ cp config/imbot.cfg .
+        $ cp config/telegram_imbot.cfg .
+        $ cp bash/*.sh .
+        $ cp bash/update_list.bash .
 
 
 3) configuring MARTAS applications

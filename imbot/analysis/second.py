@@ -1277,8 +1277,14 @@ class second_definitive(object):
         if int(level) < 2:
             if debug:
                 print("Loading instructions and adding them to attachments")
-            path = os.path.abspath("../../examples/second_instructions.txt")
+            homedir = os.getenv("HOME")
+            path = os.path.abspath(os.path.join(homedir, ".imbot", "templates","second_instructions.txt"))
             attachfilelist.append(path)
+
+            destinationpath = self.step2folder
+            obscode = self.input.get('obscode')
+            metapath = os.path.join(destinationpath, "meta_{}.txt".format(obscode))
+            attachfilelist.append(metapath)
 
         receivers.extend(imbotmanagers)
         receivers = list(dict.fromkeys(receivers))

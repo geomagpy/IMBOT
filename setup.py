@@ -8,6 +8,7 @@ exec(open('imbot/version.py').read())
 shutil.copyfile('imbot/imbot_init.py','scripts/imbot_init')
 shutil.copyfile('imbot/imbot_scan.py','scripts/imbot_scan')
 shutil.copyfile('imbot/imbot_analysis.py','scripts/imbot_analysis')
+shutil.copyfile('imbot/imbot_convert.py','scripts/imbot_convert')
 
 install_requires=[
             "geomagpy >= 2.0.0",
