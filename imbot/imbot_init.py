@@ -55,13 +55,13 @@ def main(argv):
     #
     # copy files into subdirs
     if not os.path.isdir(os.path.join(homedir,".imbot","conf")):
-        shutil.copytree("../config", os.path.join(homedir,".imbot","conf"))
+        shutil.copytree("imbot/config", os.path.join(homedir, ".imbot", "conf"))
     if not os.path.isdir(os.path.join(homedir,".imbot","bash")):
-        shutil.copytree("../bash", os.path.join(homedir,".imbot","bash"))
+        shutil.copytree("imbot/bash", os.path.join(homedir, ".imbot", "bash"))
     if not os.path.isdir(os.path.join(homedir,".imbot","app")):
-        shutil.copytree("../external", os.path.join(homedir,".imbot/app"))
+        shutil.copytree("imbot/external", os.path.join(homedir, ".imbot/app"))
     if not os.path.isdir(os.path.join(homedir,".imbot","templates")):
-        shutil.copytree("../templates", os.path.join(homedir,".imbot/templates"))
+        shutil.copytree("imbot/templates", os.path.join(homedir, ".imbot/templates"))
     #
     # check for wine and copy check1minute to it
     if not os.path.exists(os.path.join(homedir,".wine")):

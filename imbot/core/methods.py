@@ -585,14 +585,14 @@ if __name__ == '__main__':
         errors['dictdiff'] = str(excep)
         print(datetime.now(timezone.utc).replace(tzinfo=None), "--- ERROR dictdiff.")
     try:
-        test = get_conf("../../config/imbot.cfg")
+        test = get_conf("../config/imbot.cfg")
         #check test
         print (test)
     except Exception as excep:
         errors['get_conf'] = str(excep)
         print(datetime.now(timezone.utc).replace(tzinfo=None), "--- ERROR get_conf.")
     try:
-        test = extract_emails("../../config/imbot.cfg")
+        test = extract_emails("../config/imbot.cfg")
         #check test
         print (test)
     except Exception as excep:
