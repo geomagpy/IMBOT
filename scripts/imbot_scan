@@ -7,7 +7,7 @@ IMBOT - automatic analysis of one minute data
 """
 import sys
 sys.path.insert(1, '/home/leon/Software/magpy/')  # should be magpy2
-sys.path.insert(1,'/home/leon/Software/IMBOT/') # should be magpy2
+sys.path.insert(1, '//') # should be magpy2
 
 from imbot.core import methods
 from imbot.core import steps
