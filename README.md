@@ -57,14 +57,20 @@ cases already usable within hours after data submission.
 
 ## 1. Introduction
 
+A peer-review system is widely used for scientific publications, and is generally accepted as being essential for 
+providíng objective results in a transparent way. Data products are typically not reviewed by
+the science community. INTERMAGNET, a network of geomagnetic observatories, however, based their data publications since
+2010 ultimately on a international peer review system. A group of volunteering data checkers is evaluating each data 
+submission. Initially INTERMAGNET applied this peer review system to  obligatory 1-min data products, which are used
+to evaluate the quality of observatory data and whether this observatory meets the strict standards of INTERMAGNET.
 Since 2014 [INTERMAGNET] welcomes submissions of data products with one-second resolution. For effective archiving of 
 such data sets a new data format, [IMAGCDF], has been introduced. All INTERMAGNET observatories are invited to submit 
 such data sets along with their traditional one-minute data products. INTERMAGNET subjects submitted one-minute 
 data sets to a peer review system in order to ensure quality and accuracy of published data.
-All submitted one-minute data products are evaluated in a 2 step checking process. In a first step an independent 
-referee is checking the data submission trying to identify errors, inconsistencies, missing elements/meta information 
+All submitted one-minute data products are evaluated in a two-step checking process. In a first step an independent 
+referee is checking the data submission trying to identify errors, inconsistencies, missing elements, missing meta information 
 and evaluates the data against strict INTERMAGNET standards and thresholds. An automatic tool, check1min, is used to 
-assist the referees. In a second step, a member of the INTERMAGNET operations committees definitive data group is 
+assist the referees. In a second step, a member of the INTERMAGNET operations committees definitive data group, usually the chair, is 
 cross-checking reports and data, comparable to the editors decision in a publication peer-review process. If step 2 is
 passed, the data will be published on INTERMAGNET's web portals. 
 The hugh amount of new one-second data complicates this traditional approach. The acceptance of an observatory for 
@@ -73,11 +79,22 @@ data should meet high INTERMAGNET standards as well and the quality of these dat
 evaluated by a transparent and conclusive process. Ideally, an end user of such data products can fully access and 
 understand the quality assessment scheme.
 A major problem of evaluating one-second data products is the large amount of data, big file sizes, and limited software
-which complicate handling for data checkers. On the data supplier, similar problems including the need to create 
+which complicate handling for data checkers. On the data supplier side, similar problems including the need to create 
 a new sophisticated data format with previously unused meta information had to be faced. These aspects are the basic 
 reasons why for almost 10 years all submitted one-second data sets have not been reviewed.
-For this manuscript we inspect one-second submission for two years, one shortly after introducing one-second 
-data to INTERMAGNET (2016) and a recent submission year for which the call-of data deadline has been passed (2022). 
+
+In this article we briefly summarize general aspects of a data reviewing process. We will list a number of reviewing tasks
+to be performed and possible issues with data submissions, specifically submission of one-second data
+to INTERMAGNET, although such issues might generally affect any other data submission. We will introduce an automatic
+routine to assist the peer review process by taking over a significant amount of checking tasks. The principle idea of 
+IMBOT, this automatic data checker, is to minimize the work load on both sides, data supplier and 
+data checker, and provide data as fast as possible to end-users.
+For demonstration and testing purpose we are analyzing one-second submissions for two years, one shortly after 
+introducing one-second data to INTERMAGNET (2016) and a recent submission year for which the call-of data deadline 
+has been passed (2022). 
+
+
+
 Data files from 36 observatories are available for 2016. These data files have been submitted in various different 
 ways. The underlying data formats are either IAGA-2002 or different versions of IMAGCDF. IAGA-2002 submissions cover
 daily records which then have been packed into either daily, monthly or yearly zip files using zip or tgz compressions.
@@ -88,13 +105,6 @@ These files usually contain one second of the previous month and end at 23:59:58
 it comes to expected meta information, requested information is missing in more than 75% of all submissions.
 Nevertheless, most of these issues are not difficult to solve, although they would require a significant amount of
 discussion between data checker and submitting institute.
-
-In this article we briefly summarize general aspects of a data reviewing process. We will list a number of reviewing tasks
-to be performed and possible issues with data submissions, specifically submission of one-second data
-to INTERMAGNET, although such issues might generally affect any other data submission. We will introduce an automatic
-routine to assist the peer review process by taking over a significant amount of checking tasks. The principle idea of 
-IMBOT, this automatic data checker, is to minimize the work load on both sides, data supplier and 
-data checker, and provide data as fast as possible to end-users.
 
 
 ## 2. Data checking tasks
@@ -111,11 +121,11 @@ The first reviewing task will always be the verification of the general contents
 task involves the check whether the data products contains the correct amount of data files, whether naming principles
 are obeyed and whether the supplied formats are correct. In terms of a INTERMAGNET one-minute data product, the
 obligatory files comprise 12 binary data files with monthly coverage, 1 ascii data file containing baseline data, 1 
-readme file and a file containing yearly means for the observatory. There are also non-obligatory files which can be
-submitted along with the data product. A one-second submission should contain either 12 monthly or 365/366 daily 
-data files in ImagCDF format (citation). Currently also the submission of 365/366 daily files in IAGA-2002 format
-is accepted. It needs to be tested whether all requested files are available in readable formats and whether the follow
-the naming conventions.
+readme file and a file containing yearly means for the observatory. There are also non-obligatory files, at least for
+the initial submission, like country information,  which can be submitted along with the data product. A one-second
+submission should contain either 12 monthly or 365/366 daily data files in ImagCDF format (citation). Currently also
+the submission of 365/366 daily files in IAGA-2002 format is accepted. It needs to be tested whether all requested
+files are available in readable formats and whether the follow the naming conventions.
 
 ### 2.2 Task 2: Meta information complete and appropriate
 
@@ -129,27 +139,41 @@ for INTERMAGNET is described in the technical manual (citation) and specific for
 
 ### 2.3 Task 3: Data contents
 
-IMBOT is checking data coverage in all files. If individual data points are missing (time step and values), the report
-will contain amount and month of occurrence. Sometimes, the last second in month is missing, particularly in December
-submission. If more then just individual points are missing, the data set might be classified as level0, as such
-observation might be caused by corrupted uploads and downloads, until the submitting institute confirms the 
-unavailability of such data. If F values are provided, IMBOT tests whether these values are independent measures of
-the field (S), as requested by INTERMAGNET. This test is done by calculating delta F and its standard deviation from 
-the vectorial components. If both values are negligible small, non-independency is assumed.
+When it comes to data contents it is firstly necessary to check whether each data file covers the projected time range
+and and missing data set is marked with appropriate flags. It is further necessary to check whether all components are
+present and whether these columns contain appropriate data. The given components as defined in the meta information
+need to be present in the data file and be included according to the underlying format description. In terms of 
+geomagnetic data, vectorial information can be provided in various different coordinate systems, spherical, cylindrical,
+cartesian, and associated different units. The correctness of this information needs to be verified.  
 
-### 2.4 Data consistency
+### 2.4 Task 4: Data consistency
 
-Data consistent between different files, data consistent with the underlying analysis methods (i.e. K values), data 
-consistent with expectations (i.e. comparison with nearby stations or basic physical frameworks).
-Finally, as the data product is termed "definitive", the consistency with submitted one-minute data products is tested.
-Like for data quality these tests are listed in the [IMBOT 1s report], but only severe differences between average 
-monthly values of each component exceeding 0.3 nT might influence the assigned level. Besides, the standard deviation of the difference and individual maximal amplitude differences are tested and listed in the report. If amplitude differences are small e.g. below 0.1 nT, this indicates that obviously one-second data is the primary analyzed signal of the submitting institute, and all "cleaning" as been performed on this data set. Minute data is just a filtered product of the one-second data set. If larger amplitudes are observed, e.g. independent cleaning has been performed or even different instruments are used.
+Some data products contain averages and means referring to the same underlying data set. These averages need to be
+consistent within and between different files. The INTERMAGNET one-minute data product contains hourly and daily means 
+within the binary data files, yearly means are contained in baseline and yearly mean files. Definitve one-second data 
+for a specific observatory needs be consistent with definitive one-minute product of the same observatory, as both 
+records sample the same local geomagnetic field only in different frequencies. Thus a filtered one-second product 
+needs to closely resemble the one-minute data.
+Beside inherent data consistency, it is also necessary to check the consistency of data products with the applied
+methodology. Geomagnetic activity indices K can be calculated in various different ways (citation). If a method 
+is referenced then the results need to be consistent with this methodology.
+Finally, data should also be consistent with a physical framework, which means that variations need to represent a 
+real, unbiased record of the geomagnetic field. A common way to verify the last condition is a comparison with well
+established data from a nearby location. 
 
 ### 2.5 Data quality
-        
-Data quality is not used as a criteria for level classification. Nevertheless, IMBOT runs a few tests and provides this information within the report, so that the submitting institute as well as the data checker gets some initial feedback about quality parameters. The first test is performed if independent F values are provided. Delta F variations are calculated on a monthly basis. Average delta F, which is expected to be close to zero, and its standard deviation are listed in the report. A predefined list of quiet days is used to extract data from these days and to calculate the power spectral density function for each day. Using periods below 10 seconds, the noise level is determined from each daily record and all individual noise levels are then averaged. This average noise level and its standard deviation are also given in the report. As noise level is part of the requested StandardLevel description of the IMAGCDF's meta information, you will get some recommendation for IMOS-11 (see [IMAGCDF]). If the standard deviation of the noise level is relatively high (e.g. approaching or exceeding mean value) the submitting institute might want to check for technical and other disturbances.
 
-
+The final task of a data review process concerns data quality. Overall, a unique measure of data quality is not easy to 
+access in geomagnetic data as many typically used parameters like noise level, signal amplitudes are strongly dependent
+on latitude, background geology, vicinity to oceans and so on. Nevertheless, the data should be free of anthropogenic
+disturbances. Nearby magnetic disturbances are typically investigated by analysis of sensor differences of two
+sensors, often provided as delta F between a continuous vectorial F and continuous scalar F sensor. Frequency 
+disturbances can assessed by power spectral analysis. Basevalues provide a measure on stability and INTERMAGNET gives
+thresholds for acceptable long term variations and accuracy below 5nT. Data continuity in baseline requires steps 
+below 1 nT between successive data points. Changes in instrumentation or site characteristics might lead to 
+larger "jumps" in baselines which should then be traceable and described accurately in the data's meta information. 
+Data quality also comprises time step accuracy. The local geomagnetic activity indices should resemble the global
+activity in a reasonable way although no thresholds are defined for this comparison. 
 
 ## 3. Basic concept of an automatic assistance system
 
@@ -201,7 +225,7 @@ automatic processes are logged and reports on newly evaluated data and eventual 
 Converted data files, the reports, and if necessary, a template for meta information updates, will also be uploaded to
 the GIN into a new subdirectory called "level" to be found here: GINSERVER/YEAR/level/OBSCODE. Original submission
 in step1 are kept until final evaluation from the data checker. The data submitter is asked to briefly check, whether
-all converted files have been uploaded into the "level" directory.
+all converted files have been uploaded into the "level" directory. 
 
 
 ### 4.2 Quality levels
@@ -291,6 +315,32 @@ will be given in the [IMBOT 1s report] and a template will be created to support
 this information. Besides, the report will contain some information on non-obligatory meta information which might,
 however, be helpful for end users.
 
+IMBOT is checking data coverage in all files. If individual data points are missing (time step and values), the report
+will contain amount and month of occurrence. Sometimes, the last second in month is missing, particularly in December
+submission. If more then just individual points are missing, the data set might be classified as level0, as such
+observation might be caused by corrupted uploads and downloads, until the submitting institute confirms the 
+unavailability of such data. If F values are provided, IMBOT tests whether these values are independent measures of
+the field (S), as requested by INTERMAGNET. This test is done by calculating delta F and its standard deviation from 
+the vectorial components. If both values are negligible small, non-independency is assumed.
+
+Data consistent between different files, data consistent with the underlying analysis methods (i.e. K values), data 
+consistent with expectations (i.e. comparison with nearby stations or basic physical frameworks).
+Finally, as the data product is termed "definitive", the consistency with submitted one-minute data products is tested.
+Like for data quality these tests are listed in the [IMBOT 1s report], but only severe differences between average 
+monthly values of each component exceeding 0.3 nT might influence the assigned level. Besides, the standard deviation of the difference and individual maximal amplitude differences are tested and listed in the report. If amplitude differences are small e.g. below 0.1 nT, this indicates that obviously one-second data is the primary analyzed signal of the submitting institute, and all "cleaning" as been performed on this data set. Minute data is just a filtered product of the one-second data set. If larger amplitudes are observed, e.g. independent cleaning has been performed or even different instruments are used.
+
+
+Data quality is not used as a criteria for level classification. Nevertheless, IMBOT runs a few tests and provides this
+information within the report, so that the submitting institute as well as the data checker gets some initial feedback
+about quality parameters. The first test is performed if independent F values are provided. Delta F variations are
+calculated on a monthly basis. Average delta F, which is expected to be close to zero, and its standard deviation are
+listed in the report. A predefined list of quiet days is used to extract data from these days and to calculate the
+power spectral density function for each day. Using periods below 10 seconds, the noise level is determined from each
+daily record and all individual noise levels are then averaged. This average noise level and its standard deviation are
+also given in the report. As noise level is part of the requested StandardLevel description of the IMAGCDF's meta
+information, you will get some recommendation for IMOS-11 (see [IMAGCDF]). If the standard deviation of the noise level
+is relatively high (e.g. approaching or exceeding mean value) the submitting institute might want to check for
+technical and other disturbances.
 
 ### 4.4 IMBOT one-minute
 
