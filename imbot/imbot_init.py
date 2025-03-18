@@ -46,11 +46,11 @@ def main(argv):
 
     # get home directory of current user
     homedir = os.getenv("HOME")
-    print(homedir)
+    #print(homedir)
     # create .imbot
     import imbot
     file_path = os.path.dirname(imbot.__file__)
-    print(file_path)
+    #print(file_path)
     if not debug:
         os.makedirs(os.path.join(homedir,".imbot"), exist_ok=True)
         # create sudirs
