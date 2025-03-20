@@ -381,61 +381,94 @@ high (e.g. approaching or exceeding mean value) the submitting institute might w
 disturbances. What currently is not tested for are individual outliers. 
 
 
-## 5. Results for a complete one-second analysis of 2016
-
-A prototype of such automatic system, called IMBOT version 1, is running since 2023 on one-minute and 
-one-second data. 
-
-IMBOT one-second accesses data uploads from the observatories and automatically converts the uploaded data sets into an
-INTERMAGNET conform [IMAGCDF] archive format. During the conversion process, data and meta information content is
-checked and any missing information is requested from the uploading institute. Missing meta information can be easily
-supplied, by providing this data in an automatically produced and pre-configured text file to be uploaded into the 
-submission directory minimizing the amount of data needed to be transferred to the GIN. Thus, at time when data
-checkers need to finally evaluate such data sets, most technical problems have been solved already, and the basic
-content should be conform to IM rules. The automatic evaluation process of one-second data makes use of a level
-description, similar as in other disciplines and as used for satellite data products. Therefore most users are already
-well acquainted with such evaluation process. In dependency of data content, meta information and data quality, data is
-assigned to different quality levels from 0 to 2, from which the highest level 2 in combination with an accepted
-one-minute product qualifies for final manual evaluation by a data checker.
-
-Beside supporting the primary aim, simplifying and speeding up the publication and checking process of one-second data,
-IMBOT has been recently extended supporting one-minute data checking as well. As one-minute data checking is well 
-established already, IMBOT focuses on notification and provides reports based on the usually applied [check1min]
-routine. Thus referees and data submitters will get such reports whenever new data is submitted of modified within the 
-STEP1 directory of the GIN. As soon as data is accepted and moved to STEP3, data sets are not monitored any more.
+## 5. Results for automatic analyses of step 1 data
 
 
+The analysis of one-minute data is straightforward and the automatic routine is basically only a notification system. 
+The CHECK1MIN routine is well tested and the overall automatic testing and notification procedure does not contain any
+significant obstacles. Therefore we will focus on the much more
+heterogenic and much more volumnious one-second data products, which are also the main reason for developing such
+automatic assistance system. For the following analysis we will focus on submissions from two years and will summarize 
+the current state of data submssions. Please note that this state is not reproducible as IMO's will review their data 
+products and modify their step 1 submissions in order to get their data sets accepted in the near future. This 
+particularly affects 2022 data sets which are currently handled by INTERMAGNET data checkers and will gradually be
+extended to earlier submissions. This manuscript is based on the submission status of 20. March 2025. 
+
+### 5.1. One-second data submissions and an automatic analysis overview
+
+One-second data products from 36 observatories have been submitted for 2016. These data files have been upload to 
+the step 1 folder of the Paris GIN in various different ways and formats. Submissions make use of either the IAGA-2002 
+format (citation) or different versions of IMAGCDF (citation). IAGA-2002 submissions cover
+daily records which then have been packed into either daily, monthly or yearly zip files using zip, 7z or tgz
+compressions tools. IMAGCDF file submissions consist mostly of daily files, compressed in gnuzip or zips or just 
+combined into tar archives. Monthly IMAGCDF files without any additional compression as requested in 2016 by
+INTERMAGNET are provided by a few observatories only. Table 1 provides a short summary on this pre-analysis condition.
 
 
-Data files from 36 observatories are available for 2016. These data files have been submitted in various different 
-ways. The underlying data formats are either IAGA-2002 or different versions of IMAGCDF. IAGA-2002 submissions cover
-daily records which then have been packed into either daily, monthly or yearly zip files using zip or tgz compressions.
-IMAGCDF file submissions consist mostly of daily files, compressed in gnuzip or zips or just tared. Monthly IMAGCDF 
-files without any additional compression as requested in 2016 by IM are provided by few observatories only. When
-looking at the file coverage it is found that about 20% of the submissions do not cover the expected time range.
+The download process of IMBOT is able to extract all of these different packing structures and the underlying
+MagPy library is able to read all the different file formats. Thus an automatic analysis is possible for all those 
+products. 
+
+Below a table summarizes IMBOT analyses of 2016. The 2016 analysis has also been used for development and error
+analysis of the underlying packages. IMBOT makes use of [MagPy] and requires version 0.9.7 or larger particularly for
+the one-minute data comparison, as some reading issues with [IAF] data have been solved in this version. All reports
+and converted files are readily available, but have not yet been send out to the submitting institute. As IMBOT firstly
+requires a conceptual acceptance from [INTERMAGNET] and reviews of its methodology, all these results are preliminary
+and do not indicate any decision from [INTERMAGNET].
+
+Parameter             | 2016   |   2022
+--------------------- |--------| ------
+Available submissions | 36     | 36
+IMBOT successful analyses | 36 | 36
+Submitted as IAGA-2002 | 13    | 13
+Submitted as ImagCDFvs1.0 | 23      | 23
+Submitted as ImagCDFvs1.1 | 23      | 23
+Submitted as ImagCDFvs1.2 | 23      | 23
+Submitted as ImagCDFvs1.3 | 23      | 23
+ vs1.1
+Level 0 | 3 | 3
+Level 1 | 25 | 25
+Level 2 | 8 | 8
+Most common level0 reason | empty file for one month
+Most common level1 reason | StandardLevel description missing (in all level 1 cases)
+
+### 5.2. IMBOT's assistance regarding data checking tasks
+
+Go through the analysis in detail - discuss all tasks:
+
+Meta info
+
+Predominantly level 1 classifications are found. The basic reason for this classification, found in all level 1 data
+sets, is the absence of a StandardLevel description as requested in [IMAGCDF]. This information is missing for all
+IAGA-2002 submissions. StandardLevel description supports two inputs: **full** or **partial**. In case of **partial**,
+details on the standard levels are required. A full list is provided in the [IMBOT 1s report]. In order to deal with
+this issue, the observatory just needs to fill out the provided template, which is sent out with the report. After
+uploading the meta template to the submission directory the data set is re-evaluated. This way, most of the level 1
+submissions will get re-evaluated for level 2 with minimal workload and data transfer. The second most important reason
+for level one is usually an incomplete December record with one second missing on 31 December. Uploading this data file
+with a complete amount of seconds will also trigger a re-evaluation.
+
+
+Contents and coverage
+
+When looking at the file coverage it is found that about 20% of the submissions do not cover the expected time range.
 These files usually contain one second of the previous month and end at 23:59:58 of the last day in the month. When
 it comes to expected meta information, requested information is missing in more than 75% of all submissions.
 Nevertheless, most of these issues are not difficult to solve, although they would require a significant amount of
 discussion between data checker and submitting institute.
 
 
-Below a table summarizes IMBOT analyses of 2016. The 2016 analysis has also been used for development and error analysis of the underlying packages. IMBOT makes use of [MagPy] and requires version 0.9.7 or larger particularly for the one-minute data comparison, as some reading issues with [IAF] data have been solved in this version. All reports and converted files are readily available, but have not yet been send out to the submitting institute. As IMBOT firstly requires a conceptual acceptance from [INTERMAGNET] and reviews of its methodology, all these results are preliminary and do not indicate any decision from [INTERMAGNET].
-
-Parameter | Amount
---------- | ------
-Available submissions | 36
-IMBOT successful analyses | 36
-Submitted as IAGA-2002 | 13
-Submitted as ImagCDF | 23
-Level 0 | 3
-Level 1 | 25
-Level 2 | 8
-Most common level0 reason | empty file for one month
-Most common level1 reason | StandardLevel description missing (in all level 1 cases)
-
-Predominantly level 1 classifications are found. The basic reason for this classification, found in all level 1 data sets, is the absence of a StandardLevel description as requested in [IMAGCDF]. This information is missing for all IAGA-2002 submissions. StandardLevel description supports two inputs: **full** or **partial**. In case of **partial**, details on the standard levels are required. A full list is provided in the [IMBOT 1s report]. In order to deal with this issue, the observatory just needs to fill out the provided template, which is sent out with the report. After uploading the meta template to the submission directory the data set is re-evaluated. This way, most of the level 1 submissions will get re-evaluated for level 2 with minimal workload and data transfer. The second most important reason for level one is usually an incomplete December record with one second missing on 31 December. Uploading this data file with a complete amount of seconds will also trigger a re-evaluation.
-The most common reason for level 0 is a missing record for one month although an empty data file is provided. The most likely cause for this observation is a corrupted file structure. Details are provided in the [IMBOT 1s report]. Uploading the data file again and checking its size will most likely solve this issue. In one case, indications for many duplicates are found within the file structure for a few months.
+The most common reason for level 0 is a missing record for one month although an empty data file is provided. The most
+likely cause for this observation is a corrupted file structure. Details are provided in the [IMBOT 1s report].
+Uploading the data file again and checking its size will most likely solve this issue. In one case, indications for
+many duplicates are found within the file structure for a few months.
 Overall, all submissions have been carefully prepared and submitted data generally is of high quality.
+
+### 5.3. Homogenizing submitted one-second data products 
+
+Conversion of data sets to step 2. Show that data content is identical, show comparison of header information.
+
+
 
 
 Table with all results for appendix
@@ -488,13 +521,56 @@ since 199x with archive names consisting of IMO code, two digit year and three c
 format is obviously 209x, although it is unlikely that this format will be supported that long. 
 
 
+
+A prototype of such automatic system, called IMBOT version 1, is running since 2023 on one-minute and 
+one-second data. 
+
+IMBOT one-second accesses data uploads from the observatories and automatically converts the uploaded data sets into an
+INTERMAGNET conform [IMAGCDF] archive format. During the conversion process, data and meta information content is
+checked and any missing information is requested from the uploading institute. Missing meta information can be easily
+supplied, by providing this data in an automatically produced and pre-configured text file to be uploaded into the 
+submission directory minimizing the amount of data needed to be transferred to the GIN. Thus, at time when data
+checkers need to finally evaluate such data sets, most technical problems have been solved already, and the basic
+content should be conform to IM rules. The automatic evaluation process of one-second data makes use of a level
+description, similar as in other disciplines and as used for satellite data products. Therefore most users are already
+well acquainted with such evaluation process. In dependency of data content, meta information and data quality, data is
+assigned to different quality levels from 0 to 2, from which the highest level 2 in combination with an accepted
+one-minute product qualifies for final manual evaluation by a data checker.
+
+Beside supporting the primary aim, simplifying and speeding up the publication and checking process of one-second data,
+IMBOT has been recently extended supporting one-minute data checking as well. As one-minute data checking is well 
+established already, IMBOT focuses on notification and provides reports based on the usually applied [check1min]
+routine. Thus referees and data submitters will get such reports whenever new data is submitted of modified within the 
+STEP1 directory of the GIN. As soon as data is accepted and moved to STEP3, data sets are not monitored any more.
+
+
 ### 6.1 Server issues
 
-With version 1.0.0, IMBOT requires that the GIN data source is mounted on the analysis server. At present this is done using an ftp mount based on curlftpfs. IMBOT solely analyses files within the step1/OBSCODE directory. Any further subdirectories are neglected. To minimize security issues it would be advisable to change from FTP access towards a more secure connection protocol in the future. Possible options which are easy to integrate would be ssl connections. The IMBOT server itself requires a suitable amount of memory in order to deal with yearly one-second data sets. In particular, if several data sets are uploaded at once, all analysis are performed in one run. The current hardware (8GB ram) allows for contemporaneous analysis of up to 10 records without memory issues, although this strongly depends on data content. Large data sets with high resolution scalar and temperature readings need significantly more memory. As it is rather unlikely that more than 10 data sets are uploaded within three hours of the year, this limitation should not be an issue. Nevertheless, failures are monitored and if the data submitter does not receive a [IMBOT 1s report] within 24 hours after submission, please contact the IMBOT manager.
+With version 1.0.0, IMBOT requires that the GIN data source is mounted on the analysis server. At present this is done 
+using an ftp mount based on curlftpfs. IMBOT solely analyses files within the step1/OBSCODE directory. Any further 
+subdirectories are neglected. To minimize security issues it would be advisable to change from FTP access towards a 
+more secure connection protocol in the future. Possible options which are easy to integrate would be ssl connections.
+The IMBOT server itself requires a suitable amount of memory in order to deal with yearly one-second data sets. In 
+particular, if several data sets are uploaded at once, all analysis are performed in one run. The current hardware
+(8GB ram) allows for contemporaneous analysis of up to 10 records without memory issues, although this strongly depends
+on data content. Large data sets with high resolution scalar and temperature readings need significantly more memory.
+As it is rather unlikely that more than 10 data sets are uploaded within three hours of the year, this limitation
+should not be an issue. Nevertheless, failures are monitored and if the data submitter does not receive a
+[IMBOT 1s report] within 24 hours after submission, please contact the IMBOT manager.
 
 ### 6.2 Format issues
 
-Although IMBOT supports many different data formats and packing routines, it is not meant to be an universal interpreting machine. Please stick to the most common packing methods and avoid, if possible, commercial packing routines. Currently supported are [IAGA-2002] sec files, [IMAGCDF] files, as well as .tar, .tar.gz (.tgz) and .zip compressions. From the tested 2016 data set, 3 zipped records produced an "End-of-central-directory signature not found" error. IMBOT deals with such incomplete/corrupted files by using the external [7z] routine. Data content was fully recovered for all these files. Nevertheless, please check your files thoroughly before uploading. Data submission should be based preferably on [IMAGCDF] data or [IAGA-2002]. Please add any missing meta information within these data structures, or submit them along with your files by using the IMBOT meta file as described above. Nevertheless, there might be formatting and interpretation issues. You can easily test your files before: If [MagPy] can read and interpret the data sets, then IMBOT should be able as well. The version of MagPy, which is used for format conversion, is given in the [IMBOT 1s report].
+Although IMBOT supports many different data formats and packing routines, it is not meant to be an universal
+interpreting machine. Please stick to the most common packing methods and avoid, if possible, commercial packing
+routines. Currently supported are [IAGA-2002] sec files, [IMAGCDF] files, as well as .tar, .tar.gz (.tgz) and .zip
+compressions. From the tested 2016 data set, 3 zipped records produced an "End-of-central-directory signature not
+found" error. IMBOT deals with such incomplete/corrupted files by using the external [7z] routine. Data content was
+fully recovered for all these files. Nevertheless, please check your files thoroughly before uploading. Data submission
+should be based preferably on [IMAGCDF] data or [IAGA-2002]. Please add any missing meta information within these data
+structures, or submit them along with your files by using the IMBOT meta file as described above. Nevertheless, there
+might be formatting and interpretation issues. You can easily test your files before: If [MagPy] can read and interpret
+the data sets, then IMBOT should be able as well. The version of MagPy, which is used for format conversion, is given
+in the [IMBOT 1s report].
 
 ### 6.3 General issues
 
