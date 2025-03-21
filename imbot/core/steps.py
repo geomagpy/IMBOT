@@ -120,7 +120,7 @@ class botstatus(object):
             print("  for sourcepath: {}".format(sourcepath))
         if not sourcepath or not os.path.exists(sourcepath):
             self.report.append(" _get_step1_information: could not access sourcepath {}".format(sourcepath))
-            return
+            return imolayer
             # This function is incredibly slow - check - leon 2023-12-11
         for root, dirs, files in os.walk(sourcepath):
             level = root.replace(sourcepath, '').count(os.sep)
@@ -208,9 +208,9 @@ class botstatus(object):
                                         if debug:
                                             print("Comparison", oldfiledict, filedict)
                                         imolayer['modfiles'] = methods.dictdiff(oldfiledict, filedict)
-                                    if imolayer.get('step2') or imolayer.get('step3'):
+                                    if imolayer.get('step3') or imolayer.get('review'):
                                         self.report.append(
-                                                " step1 data was changed although step2 or step3 are already existing")
+                                                " step1 data was changed although step3 is already existing or review finished")
                                         imolayer['modification'] = 'updated but already accepted'
                             else:
                                 self.report.append(" step1_directory: Found unexpected data type '{}'".format(typ))
@@ -237,7 +237,7 @@ class botstatus(object):
         APPLICTAION:
             for obs in obslist:
                 imolayer = obsdata.get(obs)
-                imolayer = imostatus._get_step2_information(imolayer, obscode=obs, debug=False)
+                imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=False)
         """
         sourcepath = imolayer.get('step{}'.format(step))
         if debug:
@@ -269,14 +269,14 @@ class botstatus(object):
                 if debug:
                     print("Found files in step{}:{}".format(step, files))
                 if step == 2:
-                    imolayer['review'] = False
-                    for f in files:
-                        if f.find(reviewidentifier) >= 0:
-                            imolayer['review'] = True
-                            revname = "reviewdate"
-                            if not imolayer.get(revname, ''):
-                                imolayer[revname] = datetime.now().strftime("%Y-%m-%d")
-                                imolayer['modification'] = "step{} reviewed".format(step)
+                    if not imolayer.get('review', False):
+                        for f in files:
+                            if f.find(reviewidentifier) >= 0:
+                                imolayer['review'] = True
+                                revname = "reviewdate"
+                                if not imolayer.get(revname, ''):
+                                    imolayer[revname] = datetime.now().strftime("%Y-%m-%d")
+                                    imolayer['modification'] = "step{} reviewed".format(step)
             elif level > 1:
                 self.report.append(" step{}_directory: Found subdirectories - ignoring this folder".format(step))
             t2 = datetime.now(timezone.utc)
@@ -376,6 +376,8 @@ class botstatus(object):
                     obslist = [el for el in dirs if len(el) == 3]
             if useyear and len(obslist) > 0 and lastpart in obslist:
                 imolayer = {}
+                resolutionlayer = {}
+                yearlayer = {}
                 useyear = str(useyear)
                 if result.get(useyear):
                     yearlayer = result.get(useyear)
@@ -410,8 +412,10 @@ class botstatus(object):
         """
 
         config = self.config
-        obsdict = methods.get_conf(config.get('mailinglist'))
-        managers = obsdict.get('managers', [])
+        managers = []
+        if os.path.isfile(config.get('mailinglist')):
+            obsdict = methods.get_conf(config.get('mailinglist'))
+            managers = obsdict.get('managers', [])
         return managers
 
 
@@ -434,10 +438,12 @@ class botstatus(object):
         dictkey = "{}{}".format(obscode.lower(), year)
         year = str(year)
         config = self.config
+        obsdict = {}
         # Create mailing list
         # -----------
         # A) Extract from manually provided mailinglist for this observatory
-        obsdict = methods.get_conf(config.get('mailinglist'))
+        if os.path.isfile(config.get('mailinglist')):
+            obsdict = methods.get_conf(config.get('mailinglist'))
         mails = obsdict.get(obscode, [])
         managers = obsdict.get('managers', [])
         if debug:
@@ -474,13 +480,13 @@ class botstatus(object):
         """
         DESCRIPTION
             determine a data checker for the IMO defined by obscode.
-            Please note that only one data checker can be asigned for each record.
+            Please note that only one data checker can be assigned for each record.
             The last one will be chosen.
-            This method will access config and extrat the default refereepath.
-            It will howevere search for a file containin "referee", YEAR and RESOLUTIUON first.
-            If not found it will use "referee" and RESOLUTIUON.
+            This method will access config and extract the default referee path.
+            It will however search for a file containing "referee", YEAR and RESOLUTION first.
+            If not found it will use "referee" and RESOLUTION.
             If no referee is found then fallback referees are used
-            If duplicate entries for obscode are found, then the first input is used and a waring is issued
+            If duplicate entries for obscode are found, then the first input is used and a warning is issued
         PARAMETER:
             path ideally should be the same as for mail.cfg
         CALLED BY:
@@ -496,17 +502,17 @@ class botstatus(object):
         if debug:
             print("CONF", confpath)
         onlyfiles = [f for f in os.listdir(confpath) if os.path.isfile(os.path.join(confpath, f))]
-        if debug:
-            print("All referee files:", onlyfiles)
         for i in onlyfiles:
-            if "referee" in i.lower() and str(year) in i and resolution in i:
+            if "referee" in i.lower() and resolution in i and i.endswith('cfg'):
                 refereefiles.append(i)
+        if debug:
+            print("Fitting referee files:", refereefiles)
         if len(refereefiles) > 0:
-            refereepath = refereefiles
+            refereepath = os.path.join(confpath, refereefiles[0])
         else:
             refereepath = self.config.get('{}refereepath'.format(resolution))
         if debug:
-            print("Referee file:", refereepath)
+            print("Selected referee file:", refereepath)
 
         fallback = self.config.get("{}fallback".format(resolution), {"Max Mustermann": "max@mustermann.at"})
 
@@ -514,14 +520,23 @@ class botstatus(object):
             self.report.append("WARNING: DID NOT FIND REFEREE CONFIGURATION FILE")
             return fallback
         checkdict = methods.get_conf(refereepath)
+        if debug:
+            print ("dictionary", checkdict)
         for mail in checkdict:
             subdict = checkdict[mail]
             obslist = subdict.get('obslist', [])
             if not isinstance(obslist, list):
                 obslist = [obslist]
-            if obscode in obslist:
-                checker = subdict.get('name', '')
-                checkermail = mail
+            if mail.find("@") >= 0:
+                if obscode in obslist:
+                    checker = subdict.get('name', '')
+                    checkermail = mail
+            else:
+                # specialdict
+                dyear = subdict.get('year')
+                if str(dyear) == str(year) and obscode in obslist:
+                    checker = subdict.get('name', '')
+                    checkermail = subdict.get('email', '')
         if not checker == '' and not checkermail == '':
             return {checker: checkermail}
         else:

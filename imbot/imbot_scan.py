@@ -67,6 +67,10 @@ def main(argv):
     imostatus = steps.botstatus(config=config)  # allow for testrun which does not update operative imostatus
     imostatus = imostatus.analyse_source(imostatus.config.get('minute_step1'), step=1, type='minute', debug=debug)
     imostatus = imostatus.analyse_source(imostatus.config.get('second_step1'), step=1, type='second', debug=debug)
+    imostatus = imostatus.analyse_source(imostatus.config.get('minute_step2'), step=2, type='minute', debug=debug)
+    imostatus = imostatus.analyse_source(imostatus.config.get('second_step2'), step=2, type='second', debug=debug)
+    imostatus = imostatus.analyse_source(imostatus.config.get('minute_step3'), step=3, type='minute', debug=debug)
+    #imostatus = imostatus.analyse_source(imostatus.config.get('second_step3'), step=3, type='second', debug=debug)
 
     yearlist = [el for el in imostatus.result]
     for year in yearlist:
@@ -78,12 +82,16 @@ def main(argv):
                     if debug:
                         print(obs, restype, year)
                     imolayer = obsdata.get(obs)
+                    #imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=debug)
+                    #imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=debug)
                     imolayer = imostatus._get_step1_information(imolayer, obscode=obs, debug=debug)
+                    imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=debug)
+                    imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=debug)
                     imostatus = imostatus.set_contacts(year=year, resolution=restype, obscode=obs)
                     if firstrun:
                         # reset all inputs, remove "new" flags
                         imostatus = imostatus.set_modification(set='', year=year, resolution=restype, obscode=obs)
-                imostatus = imostatus.update_validity(year=year, resolution=restype, excludeobs=['CNB', 'XYZ'])
+                #imostatus = imostatus.update_validity(year=year, resolution=restype, excludeobs=['CNB', 'XYZ'])
 
     methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'), debug=debug)
 

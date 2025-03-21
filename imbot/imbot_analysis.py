@@ -26,6 +26,7 @@ def main(argv):
     confpath = ''
     config = {}
     telmsg = ''
+    nomail = False
     maxamount = 40
     resolution = ''
     year = None
@@ -40,7 +41,7 @@ def main(argv):
     failedsec = []
 
     try:
-        opts, args = getopt.getopt(argv,"hc:s:r:y:TD",["config=","sampling=","repeat=","year=","test=","debug=",])
+        opts, args = getopt.getopt(argv,"hc:s:r:y:m:NTD",["config=","sampling=","repeat=","year=","maxamount=","no-mail=","test=","debug=",])
     except getopt.GetoptError:
         print ('imbot_analysis.py -c <config>')
         sys.exit(2)
@@ -66,10 +67,9 @@ def main(argv):
             print ('-r            : redo/repeat list, provide a list of obscode which will')
             print ('              : flagged as new records and reanalyzed')
             print ('-y            : year. only used together with redo/repeat list')
-            print ('-e            : exclude path. Provide a path to a exclude json structure')
-            print ('              : containing year, resolution and obslist to be ignored.')
-            print ('              : Include again by using -i to change its exclude state.')
-            print ('-i            : include path.')
+            print ('-m            : maximum amount of tolerated changed files, default = 40')
+            print ('                 - if larger, then nothing is done')
+            print ('-N            : NO e-mail notification send to IMOs.')
             print ('-------------------------------------')
             print ('Example of memory:')
             print ('-------------------------------------')
@@ -79,9 +79,19 @@ def main(argv):
             print ('python3 imbot_analysis.py -c ~/imbot.cfg -D')
             print ('- test mode - will send reports only to sysadmin, no memory update')
             print ('python3 imbot_analysis.py -c ~/imbot.cfg -T')
+            print ('- no IMO mail - will send reports only to sysadmin')
+            print ('python3 imbot_analysis.py -c ~/imbot.cfg -N')
             print ('- repeat mode - will flag IMO for second period and year 2022 as new')
             print ('python3 imbot_analysis.py -c ~/imbot.cfg -r WIC,KOU,CLF -s second -y 2022')
+            """
+            TODO - but that should be done in imbot_scan
+            print ('-e            : exclude path. Provide a path to a exclude json structure')
+            print ('              : containing year, resolution and obslist to be ignored.')
+            print ('              : Include again by using -i to change its exclude state.')
+            print ('-i            : include path.')
+            """
             sys.exit()
+
         elif opt in ("-c", "--config"):
             confpath = os.path.abspath(arg)
         elif opt in ("-s", "--sampling"):
@@ -90,6 +100,10 @@ def main(argv):
             repeatobs = arg.split(',')
         elif opt in ("-y", "--year"):
             year = arg
+        elif opt in ("-m", "--maxamount"):
+            maxamount = int(arg)
+        elif opt in ("-N", "--no-mail"):
+            nomail = True
         elif opt in ("-T", "--test"):
             test = True
         elif opt in ("-D", "--debug"):
@@ -123,7 +137,7 @@ def main(argv):
     modlist = imostatus.get_modified()
 
     # Now copy data to be analyzed to a temporary directory (why? because some data is packed/zipped/tared) only second?
-    modificationlist = methods.copy_temporary(modlist, tmpdir="/tmp/imbottest", debug=False)
+    modificationlist = methods.copy_temporary(modlist, tmpdir=config.get("temporary_dir","/tmp/imbottest"), debug=False)
     # tmpdir will look like os.path.join(tmpdir, 'unpacked', year, resolution, obscode)
 
     # Please note: modificationlist will only contain new/update flags. step2/step3 additions will be dropped as they are not analyzed
@@ -164,7 +178,7 @@ def main(argv):
                     if debug:
                         print (maildict)
                     else:
-                        if test:
+                        if test or nomail:
                             maildict['to'] = maildict.get('from')
                         methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
                     # delete temporary directories
@@ -221,7 +235,7 @@ def main(argv):
                     if debug:
                         print (maildict)
                     else:
-                        if test:
+                        if test or nomail:
                             maildict['to'] = maildict.get('from')
                         methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
                     # delete temporary directories
@@ -251,6 +265,8 @@ def main(argv):
             if debug:
                 print(maildict)
             else:
+                if test or nomail:
+                    maildict['to'] = maildict.get('from')
                 methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
             imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
                                                    year=dataset.get('year'), resolution=dataset.get('resolution'))
@@ -264,6 +280,8 @@ def main(argv):
             if debug:
                 print(maildict)
             else:
+                if test or nomail:
+                    maildict['to'] = maildict.get('from')
                 methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
             imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
                                                    year=dataset.get('year'), resolution=dataset.get('resolution'))
@@ -276,6 +294,8 @@ def main(argv):
             if debug:
                 print(maildict)
             else:
+                if test or nomail:
+                    maildict['to'] = maildict.get('from')
                 methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
             imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
                                                    year=dataset.get('year'), resolution=dataset.get('resolution'))

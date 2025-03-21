@@ -107,6 +107,10 @@ def get_conf(path):
        key   :    subkey1:value1;subkey2:item1,item2,item3    # extracted as { key: {subkey1:value1,subkey2:[item1...]} }
     """
     confdict={}
+    if not os.path.isfile(path):
+        print ("get_conf: {} not found ".format(path))
+        return confdict
+
     with open(path, 'r') as config:
         #try:
         #config = open(path,'r')

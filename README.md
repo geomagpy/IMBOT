@@ -306,12 +306,12 @@ After submitting your data, IMBOT will check your data for general readability a
 Within this report you will see, what level has been assigned to your submission. In dependency of this level, you
 eventually need to take action:  
 
-##### If your data was assigned level 0
+##### Data is assigned to level 0
 
 Your data could not be read or significant problems with your submission were encountered (e.g. no one second data, 
 empty files). Please correct the issues and upload a new data set. If you do not know how to proceed, contact the IMBOT manager.
 
-##### If your data was assigned level 1
+##### Data is assigned to level 1
 
 Some meta information or data is missing. Please check the issue list in the level report you received. If data is
 missing, please upload such data files. If meta information is missing, please use "meta\_IMO.txt" file also
@@ -395,6 +395,11 @@ particularly affects 2022 data sets which are currently handled by INTERMAGNET d
 extended to earlier submissions. This manuscript is based on the submission status of 20. March 2025. 
 
 ### 5.1. One-second data submissions and an automatic analysis overview
+
+
+How does this work:
+
+
 
 One-second data products from 36 observatories have been submitted for 2016. These data files have been upload to 
 the step 1 folder of the Paris GIN in various different ways and formats. Submissions make use of either the IAGA-2002 
@@ -725,19 +730,24 @@ after secondanalysis:
 
 ## Appendix 2: Defining Referee and Observatory mailing lists
 
-Referee mailing lists should be named as follows: refereelist_second.cfg
-Alternatively a year can be used as well: refereelist_second_2021.cfg
-Lists with year are primarily used for the analysis of a specific data set of this year. If no yearly list is found then the standard refereelist_second is used.
-Rename old refereelists if you want to keep to keep but dont use them, i.e. refereelist_second_2020old.cfg
+Referee mailing lists should be named as follows: refereelist_second.cfg and refereelist_minute.cfg. The refereelist
+files contain e-mails and associated observatory lists of currently active data checkers. It is also possible
+to provide 'special assignments', which are data checkers responsible for data submissions from a number of given 
+observatories in a specific year. These special assignments will override the general data checker list. The 
+refereelist file needs to be updated periodically. If you want to keep a backup copy of old refereelist files it is 
+necessary to change rename the file extension from "cfg" to "bak". 
 
-Mailing adresses for the observatories are obtained in the following order:
+Mailing addresses for IMOs are obtained in the following order:
 
 1. mailinglist.cfg
 2. localmailrep.json
 3. mail addresses extracted from the one-minute submissions (readme file)
 
-Mailing addresses extracted from the one-minute submissions are also stored locally in a json file called localmailrep.json.
-This is important as step3 one-minute data has no readme files any more.  
+Mailing addresses extracted from the one-minute submissions are also stored locally in a json file called 
+localmailrep.json. This is important as step3 one-minute data has no readme files any more.  
+
+Fallback addresses, i.e. data checker if observatory has not yet been assigned to a specific data checker, the 
+address of the system administrator and imbots mailingaddress are part of the general configuration file.
 
 ## Appendix 3: imbot2.0 general workflow
 
