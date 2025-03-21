@@ -175,10 +175,10 @@ def main(argv):
                     if not debug and not test:
                         methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'),
                                          debug=True)
-                    if debug:
+                    if debug or nomail:
                         print (maildict)
                     else:
-                        if test or nomail:
+                        if test:
                             maildict['to'] = maildict.get('from')
                         methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
                     # delete temporary directories
@@ -205,8 +205,8 @@ def main(argv):
                         month = (data.start() + timedelta(days=10)).strftime("%m (%b)")
                         secana.delta_f_test(data)
                         mtable = secana.check_standard_level(data, partialcheck=methods.partialcheck_v1, debug=False)
-                        quietdays = secana.check_diff_to_minute(data, daterange=datelist[0], debug=False)
-                        daystreams.extend(secana.extract_selected_days(data, datelist[0],
+                        quietdays = secana.check_diff_to_minute(data, daterange=dates, debug=False)
+                        daystreams.extend(secana.extract_selected_days(data, dates,
                                                                        selecteddays=quietdays, dayformat='text',
                                                                        debug=False))
                         secana.export_month(data, allcontents, debug=False)
@@ -231,11 +231,11 @@ def main(argv):
                                                            year=secana.input.get('year'), resolution='second')
                     if not debug and not test:
                         methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'),
-                                         debug=True)
-                    if debug:
+                                         debug=debug)
+                    if debug or nomail:
                         print (maildict)
                     else:
-                        if test or nomail:
+                        if test:
                             maildict['to'] = maildict.get('from')
                         methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
                     # delete temporary directories
@@ -262,10 +262,10 @@ def main(argv):
             maildict = {'subject': "Submission one-{} {}, {} moved to step2".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
                         'text': "Dear data provider\nyour data submission has been moved to step2.\nSincerely,\n     IMBOT",
                         'to': receivers}
-            if debug:
+            if debug or nomail:
                 print(maildict)
             else:
-                if test or nomail:
+                if test:
                     maildict['to'] = maildict.get('from')
                 methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
             imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
@@ -277,10 +277,10 @@ def main(argv):
             maildict = {'subject': "Submission one-{} {}, {} moved to step3".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
                         'text': "Dear data provider\nyour data submission has been moved to step3 and will be published soon.\nSincerely,\n     IMBOT",
                         'to': receivers}
-            if debug:
+            if debug or nomail:
                 print(maildict)
             else:
-                if test or nomail:
+                if test:
                     maildict['to'] = maildict.get('from')
                 methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
             imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
@@ -291,14 +291,18 @@ def main(argv):
             maildict = {'subject': "Submission one-{} {}, {} has been reviewed".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
                         'text': "Dear managers\na step2 data has been reviewed and is ready for final decisions.\nSincerely,\n     IMBOT",
                         'to': receivers}
-            if debug:
+            if debug or nomail:
                 print(maildict)
             else:
-                if test or nomail:
+                if test:
                     maildict['to'] = maildict.get('from')
                 methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
             imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
                                                    year=dataset.get('year'), resolution=dataset.get('resolution'))
+
+    if not debug and not test:
+        methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'),
+                             debug=debug)
 
     if len(successminnew) > 0:
         telmsg += "New minute: {}\n".format(",".join(successminnew))

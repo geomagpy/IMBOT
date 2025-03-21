@@ -82,11 +82,11 @@ def main(argv):
                     if debug:
                         print(obs, restype, year)
                     imolayer = obsdata.get(obs)
-                    #imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=debug)
-                    #imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=debug)
-                    imolayer = imostatus._get_step1_information(imolayer, obscode=obs, debug=debug)
-                    imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=debug)
                     imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=debug)
+                    imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=debug)
+                    imolayer = imostatus._get_step1_information(imolayer, obscode=obs, debug=debug)
+                    #imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=debug)
+                    #imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=debug)
                     imostatus = imostatus.set_contacts(year=year, resolution=restype, obscode=obs)
                     if firstrun:
                         # reset all inputs, remove "new" flags
