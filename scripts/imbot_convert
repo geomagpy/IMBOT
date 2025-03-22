@@ -53,7 +53,7 @@ def main(argv):
             debug = True
 
     methods.convert_to_step_dir(source, destination, destlevel1_prefix=prefix,
-                        debug=False)
+                        debug=debug)
 
     print("SUCCESS")  # used for monitoring of logfile
     # end of init

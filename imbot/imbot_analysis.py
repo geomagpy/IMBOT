@@ -218,10 +218,15 @@ def main(argv):
                     print("   month second analysis finished")
                     # select day checks
                     if len(daystreams) > 0:
-                        secana.psd_analysis(daystreams)
+                        nl, nlstd = secana.psd_analysis(daystreams)
                         tablelist = secana.update_table(mtable, month)
+                        imostatus = imostatus.add_content(obscode=secana.input.get('obscode'), year=secana.input.get('year'),
+                                                      resolution='second', name='noiselevel', content=nl)
                     # write the report (mtable is just needed once)
                     level = secana.write_report(tablelist=tablelist, debug=False)
+                    print ("Obtained level", level)
+                    imostatus = imostatus.add_content(obscode=secana.input.get('obscode'), year=secana.input.get('year'),
+                                                      resolution='second', name='imbot_level', content=level)
                     imodict = imostatus.get_imo(obscode=secana.input.get('obscode'), year=secana.input.get('year'),
                                                 resolution='second')
                     maildict = secana.second_mail_text(level, imodict)

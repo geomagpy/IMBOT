@@ -268,6 +268,7 @@ class second_definitive(object):
             # Write parameters for monthly report
             # print ("Datalimits from {} to {}".format(st,et))
             logdict['Datalimits'] = [st, et]
+            logdict['Data format'] = data.header.get('DataFormat')
             logdict['N'] = len(data)
             logdict['Leap second update'] = data.header.get('DataLeapSecondUpdated')
             # if not str(latestleapsecond) == str(data.header.get('DataLeapSecondUpdated')):
@@ -874,6 +875,8 @@ class second_definitive(object):
             dictionary input at "Noiselevel" containing the arithmetic mean of all noiselevels
             dictionary input at "NoiselevelStdDeviation" containing the StandardDeviation of all noiselevels
         """
+        nl = 0
+        nlstd = 0
         print("Running Power Analysis for {} records".format(len(dailystreamlist)))
         if len(dailystreamlist) > 0:
             noiselevellist = []
@@ -900,17 +903,19 @@ class second_definitive(object):
                         failedlist.append(1)
             # print ("NOISELIST", noiselevellist)
             try:
+                nl = np.mean(np.asarray(noiselevellist))
                 self.logdict['Noiselevel'] = np.mean(np.asarray(noiselevellist))
             except:
                 pass
             if len(failedlist) > 1:
                 self.logdict['Failed noiselevel determinations'] = np.sum(np.asarray(failedlist))
             try:
+                nlstd = np.std(np.asarray(noiselevellist))
                 self.logdict['NoiselevelStdDeviation'] = np.std(np.asarray(noiselevellist))
             except:
                 self.logdict['NoiselevelStdDeviation'] = 0.0
 
-        return
+        return nl, nlstd
 
     def write_report(self, tablelist=None, debug=False):
         """
@@ -1216,7 +1221,6 @@ class second_definitive(object):
         RETURN
             a dictionary with subject, text, from, to, attachments
         """
-        level = 0
         maildict = {}
         if not imodict:
             imodict = {}
