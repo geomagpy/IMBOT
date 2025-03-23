@@ -260,12 +260,17 @@ class botstatus(object):
                 obscode = root.replace(sourcepath, '')[1:4]
                 obscode = obscode.upper()
                 filedict = {}
+                files = [f for f in files if not self._find_exclude(f)]
+                extlist = [os.path.splitext(fi)[1] for fi in files]
+                typ = max(extlist, key=extlist.count)
                 contentname = "step{}date".format(step)
                 if not imolayer.get(contentname, ''):
                     imolayer[contentname] = datetime.now().strftime("%Y-%m-%d")
                     imolayer['maximum_minute_step'] = "step{}".format(step)
                     imolayer['modification'] = "added to step{}".format(step)
-                files = [f for f in files if not self._find_exclude(f)]
+                    # IMPORTANT: get the filetyp of the highest available step so that correct mindata is loaded
+                    # Min data in step3 is usually zipped (unlike step1 or step2)
+                    imolayer['maximum_step_filetype'] = typ
                 if debug:
                     print("Found files in step{}:{}".format(step, files))
                 if step == 2:
@@ -318,10 +323,17 @@ class botstatus(object):
                 minres = self.get_imo(year=year, resolution='minute', obscode=obscode)
                 if debug:
                     print("Found corresponding minute data", minres)
-                maxstep = minres.get('maximum_minute_step', '')
-                extension = minres.get('filetype')
-                obsdict['minutestep'] = maxstep
-                obsdict['minutepath'] = os.path.join(minres.get(maxstep, ''), "*{}".format(extension))
+                if minres:
+                    maxstep = minres.get('maximum_minute_step', '')
+                    extension = minres.get('maximum_step_filetype','')
+                    if not extension:
+                        extension = minres.get('filetype','')
+                    obsdict['minutestep'] = maxstep
+                    obsdict['minutepath'] = os.path.join(minres.get(maxstep, ''), "*{}".format(extension))
+                else:
+                    print ("Getting maximum minstep: did not find minuta data for {}, {}".format(obscode, year))
+                    obsdict['minutestep'] = ''
+                    obsdict['minutepath'] = ''
 
         return modlist
 

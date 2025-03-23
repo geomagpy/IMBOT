@@ -268,7 +268,7 @@ class second_definitive(object):
             # Write parameters for monthly report
             # print ("Datalimits from {} to {}".format(st,et))
             logdict['Datalimits'] = [st, et]
-            logdict['Data format'] = data.header.get('DataFormat')
+            #logdict['Data format'] = data.header.get('DataFormat')
             logdict['N'] = len(data)
             logdict['Leap second update'] = data.header.get('DataLeapSecondUpdated')
             # if not str(latestleapsecond) == str(data.header.get('DataLeapSecondUpdated')):
@@ -1097,7 +1097,7 @@ class second_definitive(object):
         # TODO: add daylist
 
         text.append("\n\n### Details on monthly evaluation\n\n")
-        print("Definitive dict", definitivedict)
+        #print("Definitive dict", definitivedict)
         for month in monthlist:
             defdi = definitivedict.get(month)
             monthly = self.logdict.get(month)

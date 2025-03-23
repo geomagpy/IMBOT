@@ -134,7 +134,7 @@ def main(argv):
                                                    year=year, resolution=resolution)
     # Analyse memory and extract all modified data sets
     # get all (year, resolution, obscode) with modification flags and exclude=False
-    modlist = imostatus.get_modified()
+    modlist = imostatus.get_modified(year=year, resolution=resolution, obscode=None, timerange=None)
 
     # Now copy data to be analyzed to a temporary directory (why? because some data is packed/zipped/tared) only second?
     modificationlist = methods.copy_temporary(modlist, tmpdir=config.get("temporary_dir","/tmp/imbottest"), debug=False)
@@ -152,7 +152,7 @@ def main(argv):
         telmsg = 'More than 40 records found to be analyzed - seems unlikely, aborting'
         methods.sendtelegram(telmsg, imostatus.config.get('telegramconfig'))
 
-    modificationlist = methods.limit_second_obs(modificationlist, limit=3, debug=False)
+    modificationlist = methods.limit_second_obs(modificationlist, limit=2, debug=False)
 
     for dataset in modificationlist:
         # modificationlist only contains new and updated flags
@@ -192,16 +192,21 @@ def main(argv):
                 except:
                     failedmin.append(dataset.get('obscode'))
             elif dataset.get('resolution') == 'second' and resolution in ['','second']:
-                try:
+                #try:
+                ok = True
+                if ok:
+                    tablelist = []
                     secana = second.second_definitive(input=dataset)
                     datelist = secana.get_months()
                     secana.logdict['MagPyVersion'] = magpyversion
+                    dataformat = ""
                     # Monthly checks
                     if debug:
                         datelist = datelist[:1]
                     daystreams = []
                     for i, dates in enumerate(datelist):
                         data, allcontents = secana.read_month(dates, debug=False)
+                        dataformat = data.header.get("DataFormat")
                         month = (data.start() + timedelta(days=10)).strftime("%m (%b)")
                         secana.delta_f_test(data)
                         mtable = secana.check_standard_level(data, partialcheck=methods.partialcheck_v1, debug=False)
@@ -218,13 +223,15 @@ def main(argv):
                     print("   month second analysis finished")
                     # select day checks
                     if len(daystreams) > 0:
+                        print ("  Analyzing {} randomly selected days".format(len(daystreams)))
                         nl, nlstd = secana.psd_analysis(daystreams)
                         tablelist = secana.update_table(mtable, month)
                         imostatus = imostatus.add_content(obscode=secana.input.get('obscode'), year=secana.input.get('year'),
                                                       resolution='second', name='noiselevel', content=nl)
                     # write the report (mtable is just needed once)
+                    print ("  Writing report...")
                     level = secana.write_report(tablelist=tablelist, debug=False)
-                    print ("Obtained level", level)
+                    print ("  Obtained level", level)
                     imostatus = imostatus.add_content(obscode=secana.input.get('obscode'), year=secana.input.get('year'),
                                                       resolution='second', name='imbot_level', content=level)
                     imodict = imostatus.get_imo(obscode=secana.input.get('obscode'), year=secana.input.get('year'),
@@ -232,6 +239,8 @@ def main(argv):
                     maildict = secana.second_mail_text(level, imodict)
                     imostatus = imostatus.add_content(obscode=secana.input.get('obscode'), year=secana.input.get('year'),
                                                       resolution='second', name='maildict_second', content=maildict)
+                    imostatus = imostatus.add_content(obscode=secana.input.get('obscode'), year=secana.input.get('year'),
+                                                      resolution='second', name='dataformat', content=dataformat)
                     imostatus = imostatus.set_modification(set='', obscode=secana.input.get('obscode'),
                                                            year=secana.input.get('year'), resolution='second')
                     if not debug and not test:
@@ -251,8 +260,8 @@ def main(argv):
                         successsecnew.append(dataset.get('obscode'))
                     else:
                         successsecupd.append(dataset.get('obscode'))
-                except:
-                    failedsec.append(dataset.get('obscode'))
+                #except:
+                #    failedsec.append(dataset.get('obscode'))
 
     for dataset in modlist:
         if debug:

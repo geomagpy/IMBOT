@@ -387,9 +387,9 @@ disturbances. What currently is not tested for are individual outliers.
 The analysis of one-minute data is straightforward and the automatic routine is basically only a notification system. 
 The CHECK1MIN routine is well tested and the overall automatic testing and notification procedure does not contain any
 significant obstacles. Therefore we will focus on the much more
-heterogenic and much more volumnious one-second data products, which are also the main reason for developing such
-automatic assistance system. For the following analysis we will focus on submissions from two years and will summarize 
-the current state of data submssions. Please note that this state is not reproducible as IMO's will review their data 
+heterogenic and much more voluminous one-second data products, which are also the main reason for developing such
+automatic assistance system. For the following in-depth analysis we select submissions from two years and will summarize 
+the current state from April 2025. Please note that this state is not reproducible as IMO's will review their data 
 products and modify their step 1 submissions in order to get their data sets accepted in the near future. This 
 particularly affects 2022 data sets which are currently handled by INTERMAGNET data checkers and will gradually be
 extended to earlier submissions. This manuscript is based on the submission status of 20. March 2025. 
@@ -397,11 +397,27 @@ extended to earlier submissions. This manuscript is based on the submission stat
 ### 5.1. One-second data submissions and an automatic analysis overview
 
 
+Submitted data sets on March 23, 2025:
+
+year | N_sub | N_aut | N_ac
+---- |-------|------| ---
+2014 | 41    | -    | 
+2015 | 44    | -    | 
+2016 | 45    | -    | 
+2017 | 45    | -    | 
+2018 | 53    | -    | 
+2019 | 50    | -    | 
+2020 | 43    |      | 
+2021 | 32    |      | 
+2022 | 29    |      | 2
+2023 | 20    |      | 
+2024 | 0     | 0    |      
+
 How does this work:
 
 
 
-One-second data products from 36 observatories have been submitted for 2016. These data files have been upload to 
+One-second data products from 45 observatories have been submitted for 2016. These data files have been upload to 
 the step 1 folder of the Paris GIN in various different ways and formats. Submissions make use of either the IAGA-2002 
 format (citation) or different versions of IMAGCDF (citation). IAGA-2002 submissions cover
 daily records which then have been packed into either daily, monthly or yearly zip files using zip, 7z or tgz
@@ -421,15 +437,17 @@ and converted files are readily available, but have not yet been send out to the
 requires a conceptual acceptance from [INTERMAGNET] and reviews of its methodology, all these results are preliminary
 and do not indicate any decision from [INTERMAGNET].
 
-Parameter             | 2016   |   2022
---------------------- |--------| ------
-Available submissions | 36     | 36
-IMBOT successful analyses | 36 | 36
-Submitted as IAGA-2002 | 13    | 13
-Submitted as ImagCDFvs1.0 | 23      | 23
-Submitted as ImagCDFvs1.1 | 23      | 23
-Submitted as ImagCDFvs1.2 | 23      | 23
-Submitted as ImagCDFvs1.3 | 23      | 23
+Parameter             | 2016 |   2022
+--------------------- |------| ------
+Available submissions | 45   | 29
+Submitted as IAGA-2002 | 13   | 13
+Submitted as ImagCDFvs1.0 | 23   | 23
+Submitted as ImagCDFvs1.1 | 23   | 23
+Submitted as ImagCDFvs1.2 | 23   | 23
+Submitted as ImagCDFvs1.3 | 23   | 23
+Auxiliary meta information | 0    | 36
+IMBOT successful analyses | 36   | 36
+Accepted for step3 | 0    | 2
  vs1.1
 Level 0 | 3 | 3
 Level 1 | 25 | 25
