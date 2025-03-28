@@ -437,6 +437,8 @@ and converted files are readily available, but have not yet been send out to the
 requires a conceptual acceptance from [INTERMAGNET] and reviews of its methodology, all these results are preliminary
 and do not indicate any decision from [INTERMAGNET].
 
+CTA, WIC, EBR (Jan OK, Feb leads to abort) failed for 2016. Check why
+
 Parameter             | 2016 |   2022
 --------------------- |------| ------
 Available submissions | 45   | 29
@@ -543,7 +545,7 @@ since 199x with archive names consisting of IMO code, two digit year and three c
 8 character filenames are a remanence of the 1980's DOS limit for filenames. An inherent end-date for usability of this 
 format is obviously 209x, although it is unlikely that this format will be supported that long. 
 
-
+Preserve flagging information if provided along with the data products.
 
 A prototype of such automatic system, called IMBOT version 1, is running since 2023 on one-minute and 
 one-second data. 

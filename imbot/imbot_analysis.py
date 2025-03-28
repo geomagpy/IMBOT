@@ -28,6 +28,7 @@ def main(argv):
     telmsg = ''
     nomail = False
     maxamount = 40
+    seclimit = 3
     resolution = ''
     year = None
     repeatobs = []
@@ -41,7 +42,7 @@ def main(argv):
     failedsec = []
 
     try:
-        opts, args = getopt.getopt(argv,"hc:s:r:y:m:NTD",["config=","sampling=","repeat=","year=","maxamount=","no-mail=","test=","debug=",])
+        opts, args = getopt.getopt(argv,"hc:s:r:y:l:m:NTD",["config=","sampling=","repeat=","year=","limit=","maxamount=","no-mail=","test=","debug=",])
     except getopt.GetoptError:
         print ('imbot_analysis.py -c <config>')
         sys.exit(2)
@@ -67,6 +68,7 @@ def main(argv):
             print ('-r            : redo/repeat list, provide a list of obscode which will')
             print ('              : flagged as new records and reanalyzed')
             print ('-y            : year. only used together with redo/repeat list')
+            print ('-l            : limit of second analyses in one run, default = 3')
             print ('-m            : maximum amount of tolerated changed files, default = 40')
             print ('                 - if larger, then nothing is done')
             print ('-N            : NO e-mail notification send to IMOs.')
@@ -102,6 +104,8 @@ def main(argv):
             year = arg
         elif opt in ("-m", "--maxamount"):
             maxamount = int(arg)
+        elif opt in ("-l", "--limit"):
+            seclimit = int(arg)
         elif opt in ("-N", "--no-mail"):
             nomail = True
         elif opt in ("-T", "--test"):
@@ -152,7 +156,7 @@ def main(argv):
         telmsg = 'More than 40 records found to be analyzed - seems unlikely, aborting'
         methods.sendtelegram(telmsg, imostatus.config.get('telegramconfig'))
 
-    modificationlist = methods.limit_second_obs(modificationlist, limit=2, debug=False)
+    modificationlist = methods.limit_second_obs(modificationlist, limit=seclimit, debug=False)
 
     for dataset in modificationlist:
         # modificationlist only contains new and updated flags
@@ -192,9 +196,9 @@ def main(argv):
                 except:
                     failedmin.append(dataset.get('obscode'))
             elif dataset.get('resolution') == 'second' and resolution in ['','second']:
-                #try:
                 ok = True
                 if ok:
+                    #try:
                     tablelist = []
                     secana = second.second_definitive(input=dataset)
                     datelist = secana.get_months()
@@ -207,14 +211,18 @@ def main(argv):
                     for i, dates in enumerate(datelist):
                         data, allcontents = secana.read_month(dates, debug=False)
                         dataformat = data.header.get("DataFormat")
-                        month = (data.start() + timedelta(days=10)).strftime("%m (%b)")
-                        secana.delta_f_test(data)
-                        mtable = secana.check_standard_level(data, partialcheck=methods.partialcheck_v1, debug=False)
-                        quietdays = secana.check_diff_to_minute(data, daterange=dates, debug=False)
-                        daystreams.extend(secana.extract_selected_days(data, dates,
+                        print ("data length", len(data))
+                        if len(data) > 0:
+                            month = (data.start() + timedelta(days=10)).strftime("%m (%b)")
+                            secana.delta_f_test(data)
+                            mtable = secana.check_standard_level(data, partialcheck=methods.partialcheck_v1, debug=False)
+                            quietdays = secana.check_diff_to_minute(data, daterange=dates, debug=False)
+                            daystreams.extend(secana.extract_selected_days(data, dates,
                                                                        selecteddays=quietdays, dayformat='text',
                                                                        debug=False))
-                        secana.export_month(data, allcontents, debug=False)
+                            secana.export_month(data, allcontents, debug=False)
+                        else:
+                            print ("  no data found - either missing or corrupt file ")
                         if len(secana.logdict.get(month).get('Issues')) > 0 and not secana.logdict.get('Level') == 0:
                             secana.logdict['Level'] = 1
                         if debug:
