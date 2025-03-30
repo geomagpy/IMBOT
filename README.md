@@ -438,6 +438,7 @@ requires a conceptual acceptance from [INTERMAGNET] and reviews of its methodolo
 and do not indicate any decision from [INTERMAGNET].
 
 CTA, WIC, EBR (Jan OK, Feb leads to abort) failed for 2016. Check why
+CTA and EBR have missing data or corrupted files, check meta_ ... missing data
 
 Parameter             | 2016 |   2022
 --------------------- |------| ------
