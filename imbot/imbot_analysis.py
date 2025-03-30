@@ -211,7 +211,6 @@ def main(argv):
                     for i, dates in enumerate(datelist):
                         data, allcontents = secana.read_month(dates, debug=False)
                         dataformat = data.header.get("DataFormat")
-                        print ("data length", len(data))
                         if len(data) > 0:
                             month = (data.start() + timedelta(days=10)).strftime("%m (%b)")
                             secana.delta_f_test(data)
