@@ -459,6 +459,15 @@ Level 2 | 8 | 8
 Most common level0 reason | empty file for one month
 Most common level1 reason | StandardLevel description missing (in all level 1 cases)
 
+
+The median noise level of the submission is determined by selecting 3 records with minimal average K (fmi) each month.
+These 36 records correspond to 10% of the collection and are then used to estimate the average noise level. The selected 
+daily records are analyzed by PSD and the individual noise level of each selected day is calculated as the mean of the 
+amplitude spectrum between nyquist and a period of 10 seconds. All daily noise levels are collected and extreme outliers 
+are removed by testing the median of distances from the median. Threshold are defined to correspond a 95% selection
+criteria in case of a normal distribution.  
+
+
 ### 5.2. IMBOT's assistance regarding data checking tasks
 
 Go through the analysis in detail - discuss all tasks:
