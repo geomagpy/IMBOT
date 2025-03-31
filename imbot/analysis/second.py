@@ -909,9 +909,11 @@ class second_definitive(object):
                         noiselevellist.append(noiselevel)
                     except:
                         failedlist.append(1)
-            print ("NOISELIST", noiselevellist, len(noiselevellist))
+            #print ("NOISELIST", noiselevellist, len(noiselevellist))
+            lenbef = len(noiselevellist)
             noiselevellist = drop_outliers(np.asarray(noiselevellist))
-            print ("NOISELIST after dropping outliers", noiselevellist, len(noiselevellist))
+            lenaft = len(noiselevellist)
+            print ("lenght of NOISELIST before and after dropping outliers:", lenbef, lenaft)
             try:
                 nl = np.median(np.asarray(noiselevellist))
                 self.logdict['Noiselevel'] = nl

@@ -393,30 +393,38 @@ automatic assistance system. For the following in-depth analysis we select submi
 the current state from April 2025. Please note that this state is not reproducible as IMO's will review their data 
 products and modify their step 1 submissions in order to get their data sets accepted in the near future. This 
 particularly affects 2022 data sets which are currently handled by INTERMAGNET data checkers and will gradually be
-extended to earlier submissions. This manuscript is based on the submission status of 20. March 2025. 
+extended to earlier submissions. This manuscript is based on the submission status of 23. March 2025. 
 
 ### 5.1. One-second data submissions and an automatic analysis overview
 
 
-Submitted data sets on March 23, 2025:
+Table 5.1 summarizes the current submission status of one second data since the official start in 2014. A peak in 
+submission was reached for 2018 with data sets from 53 INTERMAGNET observatories, indicating that about half of the 
+IMOs are ready to provide such high frequency products. Shown are also the amount of automatically ananylsed data sets
+for each year. Automatic IMBOT analyses are currently active for 2019 onwards, although earlier years have been locally
+analyzed for testing purposes. In order to save storage space on GINs it is also planned to remove accepted step2 
+one-second products after this data sets are published on the INTERMAGNET portal. Thus, only the originally submitted
+raw data product and the homogenized published archive are preserved, including review protocols of IMBOT and the human 
+data checker.
 
-year | N_sub | N_aut | N_ac
----- |-------|------| ---
-2014 | 41    | -    | 
-2015 | 44    | -    | 
-2016 | 45    | -    | 
-2017 | 45    | -    | 
-2018 | 53    | -    | 
-2019 | 50    | -    | 
-2020 | 43    |      | 
-2021 | 32    |      | 
-2022 | 29    |      | 2
-2023 | 20    |      | 
-2024 | 0     | 0    |      
+year  | N_sub | N_aut | N_ac
+----- |-------|-------| ----
+2014  | 41    | -     | 
+2015  | 44    | -     | 
+2016  | 45    | -     | 
+2017  | 45    | -     | 
+2018  | 53    | -     | 
+2019  | 50    | -     | 
+2020  | 43    | 43    | 
+2021  | 32    | 32    | 
+2022  | 29    | 29    | 2
+2023  | 20    | 20    | 
+2024  | 0     | 0     |      
 
+
+For this report we will focus on submissions from two years, 2016 and 2022. Based on all submission from these years
+we will analyse how the automatic routines can help data suppliers and data publishers to simplyfy streamline and speed up
 How does this work:
-
-
 
 One-second data products from 45 observatories have been submitted for 2016. These data files have been upload to 
 the step 1 folder of the Paris GIN in various different ways and formats. Submissions make use of either the IAGA-2002 
