@@ -134,6 +134,9 @@ def main(argv):
     # eventually update the modification list based on resolution, year and obslist
     if len(repeatobs) > 0:
         for obs in repeatobs:
+            print ("Repeating analysis for {}".format(obs))
+            if not resolution or not year:
+                print (" ! requires YEAR (-y) AND RESOLUTION (-s) options")
             imostatus = imostatus.set_modification(set='new', obscode=obs,
                                                    year=year, resolution=resolution)
     # Analyse memory and extract all modified data sets
@@ -235,6 +238,9 @@ def main(argv):
                         tablelist = secana.update_table(mtable, month)
                         imostatus = imostatus.add_content(obscode=secana.input.get('obscode'), year=secana.input.get('year'),
                                                       resolution='second', name='noiselevel', content=nl)
+                        imostatus = imostatus.add_content(obscode=secana.input.get('obscode'),
+                                                      year=secana.input.get('year'),
+                                                      resolution='second', name='noisestddev', content=nlstd)
                     # write the report (mtable is just needed once)
                     print ("  Writing report...")
                     level = secana.write_report(tablelist=tablelist, debug=False)

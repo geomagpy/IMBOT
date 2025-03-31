@@ -203,9 +203,9 @@ class second_definitive(object):
             self.logdict['Stationname'] = data.header.get('StationName')
             # drop flagged data
             if data.header.get('DataFlags'):
-                print("Found flagging information - dropping")
-                fl = data.header.get('DataFlags')
-                data = fl.apply_flags(data, mode='drop')
+                print("Found flagging information - flagging contents updated for MagPy2.0 compatibility")
+                #fl = data.header.get('DataFlags')
+                #data = fl.apply_flags(data, mode='drop')
             contents = data.header.get('FileContents')
             if contents:
                 if debug:
@@ -875,6 +875,14 @@ class second_definitive(object):
             dictionary input at "Noiselevel" containing the arithmetic mean of all noiselevels
             dictionary input at "NoiselevelStdDeviation" containing the StandardDeviation of all noiselevels
         """
+
+        def drop_outliers(inputarray, threshold = 3.5):
+            # Drop significant outliers from noiselevel list
+            d = np.abs(inputarray - np.median(inputarray))
+            mdev = np.median(d)
+            s = d / mdev if mdev else np.zeros(len(d))
+            return inputarray[s < threshold]
+
         nl = 0
         nlstd = 0
         print("Running Power Analysis for {} records".format(len(dailystreamlist)))
@@ -901,10 +909,12 @@ class second_definitive(object):
                         noiselevellist.append(noiselevel)
                     except:
                         failedlist.append(1)
-            # print ("NOISELIST", noiselevellist)
+            print ("NOISELIST", noiselevellist, len(noiselevellist))
+            noiselevellist = drop_outliers(np.asarray(noiselevellist))
+            print ("NOISELIST after dropping outliers", noiselevellist, len(noiselevellist))
             try:
-                nl = np.mean(np.asarray(noiselevellist))
-                self.logdict['Noiselevel'] = np.mean(np.asarray(noiselevellist))
+                nl = np.median(np.asarray(noiselevellist))
+                self.logdict['Noiselevel'] = nl
             except:
                 pass
             if len(failedlist) > 1:

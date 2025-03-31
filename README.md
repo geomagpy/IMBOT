@@ -234,7 +234,7 @@ Actually, submitting IMOs are requested to perform this data check already befor
 to their submission. Running a MS-DOS routine however get more and more complicated for data suppliers as such routine 
 is not inherently supported by any modern operating system. Thus an automatic application simplifies the future usage 
 until INTERMAGNET is updating format requirements for one-minute data. 
-The CHECK1MIN process and its automatically send report includes checks for end-of-line characters in text files and
+The CHECK1MIN process includes checks for end-of-line characters in text files and
 header information in the obligatory INTERMAGNET archive format (IAF) files, by verification of words W01-W16 in those 
 binary files. It tests annual mean consistency, comparing yearmean.imo with values calculated from 1-minute data in
 IAF files. Discrepancies are flagged only if they exceed the file's resolution (1 nT & 0.1 minute). Baseline metadata
@@ -244,6 +244,7 @@ in IAF files is tested, ensuring differences do not exceed 0.2 nT. The format of
 Please note, CHECK1MIN does not detect incorrect field formats, such as "2019 500" or "2019.500" in yearmean.imo. No 
 errors should be reported in any of the above checks. If CHECK1MIN flags the annual mean from IAF 1-minute values as
 999999.0, it indicates insufficient data for a complete mean calculation (<90% of values available).
+
 
 
 ### 4.2. IMBOT one-second
@@ -546,7 +547,14 @@ since 199x with archive names consisting of IMO code, two digit year and three c
 8 character filenames are a remanence of the 1980's DOS limit for filenames. An inherent end-date for usability of this 
 format is obviously 209x, although it is unlikely that this format will be supported that long. 
 
-Preserve flagging information if provided along with the data products.
+IMBOT one-minute is already capable of reading and analyzing other one-minute data formats i.e. like a yearly IMAGCDF 
+one-minute data file (IMO_2016_PT1M.cdf). At the current stage only basic read tests, acertaining a correct data format
+and its general readability are performed. This one-minute test module can however easily be extended for more intense 
+data checking.
+
+
+Preserve flagging information if provided along with the data products. Flagging information however is updated to be
+conform with newest IMAGCDF and flagging software (MagPy2.0) standards.
 
 A prototype of such automatic system, called IMBOT version 1, is running since 2023 on one-minute and 
 one-second data. 
