@@ -399,27 +399,31 @@ extended to earlier submissions. This manuscript is based on the submission stat
 
 
 Table 5.1 summarizes the current submission status of one second data since the official start in 2014. A peak in 
-submission was reached for 2018 with data sets from 53 INTERMAGNET observatories, indicating that about half of the 
-IMOs are ready to provide such high frequency products. Shown are also the amount of automatically ananylsed data sets
-for each year. Automatic IMBOT analyses are currently active for 2019 onwards, although earlier years have been locally
-analyzed for testing purposes. In order to save storage space on GINs it is also planned to remove accepted step2 
-one-second products after this data sets are published on the INTERMAGNET portal. Thus, only the originally submitted
-raw data product and the homogenized published archive are preserved, including review protocols of IMBOT and the human 
-data checker.
+submission ($N_{sub}$) was reached for 2018 with data sets from 53 INTERMAGNET observatories, indicating that about half of the 
+IMOs are ready to provide such high frequency products. Shown are also the amount of successful automatic analyses in 
+step2 ($N_{aut}$). An automatic analysis is termed successful if level2 is reached. Only in this case, provided that 
+corresponding one-minute data has been accepted, human referees are informed and continue the evaluation process. 
+Automatic IMBOT analyses are currently active for 2019 onwards, although earlier years have 
+been partly analyzed for testing purposes. The amount of data sets which have been checked by human data checkers and
+(in all cases) have been finally accepted for publication is shown in column $N_{ac}$. In order to save storage space 
+on GINs it is also planned to remove accepted step2 
+one-second products after this data sets are published on the INTERMAGNET portal, as the underlying data will be 
+identical. Thus, only the originally submitted raw data product and the homogenized published archive are preserved, 
+including review protocols of IMBOT and the human data checker.
 
-year  | N_sub | N_aut | N_ac
------ |-------|-------| ----
-2014  | 41    | -     | 
-2015  | 44    | -     | 
-2016  | 45    | -     | 
-2017  | 45    | -     | 
-2018  | 53    | -     | 
-2019  | 50    | -     | 
-2020  | 43    | 43    | 
-2021  | 32    | 32    | 
-2022  | 29    | 29    | 2
-2023  | 20    | 20    | 
-2024  | 0     | 0     |      
+| year | $N_{sub}$ | $N_{aut}$ | $N_{ac}$ |
+|------|-----------|-----------|----------|
+| 2014 | 41        | -         | -        |
+| 2015 | 44        | -         | -        |
+| 2016 | 45        | -         | -        |
+| 2017 | 45        | -         | -        |
+| 2018 | 53        | -         | -        |
+| 2019 | 50        | 40        | 4        |
+| 2020 | 43        | 35        | 8        |
+| 2021 | 32        | 28        | 4        |
+| 2022 | 29        | 25*       | 2        |
+| 2023 | 20        | 11*       | 0        |
+| 2024 | 0         | 0         | -        |  
 
 
 For this report we will focus on submissions from two years, 2016 and 2022. Based on all submission from these years
@@ -891,3 +895,16 @@ TermsOfUse  :  Do whatever you want with my data
 
 #### Using meta_OBSCODE.txt with original submission
 
+## Appendix 5: useful bash commands on te linux IMBOT server
+
+Count the amount of subdirectories in a specific folder (i.e. get number of submissions):
+
+          find * -maxdepth 0 -type d | wc -l
+
+Get an overview about all level reports in all subdirectories:
+
+          find . -print | grep -i level
+
+Get all human referee reports:
+
+          find . -print | grep -i accept
