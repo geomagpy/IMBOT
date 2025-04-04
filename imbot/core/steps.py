@@ -12,6 +12,7 @@ from magpy.core.methods import testtime
 from datetime import datetime, timedelta, timezone
 import unittest
 import shutil
+import collections
 
 
 class botstatus(object):
@@ -61,6 +62,7 @@ class botstatus(object):
 |  imbot_steps     |  set_modification |     2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  update_level    |      2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  update_validity |      2.0.0 |      yes      |             |         |           |
+|  imbot_steps     |  yearly_stats    |      2.0.0 |      yes      |             |         |           |
 
     """
 
@@ -767,6 +769,65 @@ class botstatus(object):
         return self
 
 
+    def yearly_stats(self, resolution='minute'):
+        """
+        DESCRIPTION
+            extract some yearly statistics
+        REQUIREMENTS
+            makes use of the collection module in order to return an ordered dictionary
+        RETURNS
+            statsdictionary
+        """
+        result = self.result
+        statsdict = {}
+        for year in result:
+            step3list = []
+            step2reviewlist = []
+            step2list = []
+            step1list = []
+            dataformats = []
+            levellist = []
+            totallist = []
+            leveldict = {}
+            noisedict = {}
+            resolutiondict = result.get(year).get(resolution,{})
+            for imo in resolutiondict:
+                imocontent = resolutiondict.get(imo)
+                totallist.append(imo)
+                if imocontent.get('step3'):
+                    step3list.append(imo)
+                elif imocontent.get('step2'):
+                    if imocontent.get('review'):
+                        step2reviewlist.append(imo)
+                    else:
+                        step2list.append(imo)
+                elif imocontent.get('step1'):
+                    step1list.append(imo)
+                if imocontent.get('imbot_level') in [0,1,2]:
+                    level = imocontent.get('imbot_level')
+                    leveldict[imo] = level
+                    levellist.append(level)
+                if imocontent.get('noiselevel'):
+                    noise = imocontent.get('noiselevel')
+                    noisedict[imo] = noise
+                if imocontent.get('dataformat'):
+                    dataformats.append(imocontent.get('dataformat').upper())
+            contdict = {i:dataformats.count(i) for i in dataformats}
+            contdict["N_step3"] = len(step3list)
+            contdict["N_step2accepted"] = len(step2reviewlist)
+            contdict["N_step2"] = len(step2list)
+            contdict["N_step1"] = len(step1list)
+            contdict["N_total"] = len(totallist)
+            contdict["LevelDetails"] = leveldict
+            contdict["NoiseLevel"] = noisedict
+            tmpdict = {i:levellist.count(i) for i in levellist}
+            for el in tmpdict:
+                contdict["Level"+str(el)] = tmpdict[el]
+            statsdict[year] = contdict
+
+        return collections.OrderedDict(sorted(statsdict.items()))
+
+
 class TestImbotStep(unittest.TestCase):
 
     def test_runtime(self):
@@ -791,7 +852,7 @@ class TestImbotStep(unittest.TestCase):
         os.makedirs(os.path.dirname("/tmp/imbottest/conf"), exist_ok=True)
         if os.path.exists("/tmp/imbottest/conf"):
             shutil.rmtree("/tmp/imbottest/conf")
-        shutil.copytree(os.path.join(basepath, 'config'), "/tmp/imbottest/conf")
+        shutil.copytree(os.path.join(basepath, 'imbot', 'config'), "/tmp/imbottest/conf")
         if os.path.exists("/tmp/imbottest/memory"):
             shutil.rmtree("/tmp/imbottest/memory")
 
@@ -892,6 +953,8 @@ class TestImbotStep(unittest.TestCase):
         imostatus = imostatus.update_level(level='1', year=2021, obscode='KOU')
         print ("PHASE 3 done") #, imostatus.result)
         print (imostatus.report)
+        stats = imostatus.yearly_stats()
+        print (stats)
 
     def test_preparation(self):
         # also tests idf and hdz tools

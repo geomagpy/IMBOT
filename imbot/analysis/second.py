@@ -385,10 +385,11 @@ class second_definitive(object):
                 warningdict['F'] = 'mean delta F exceeds 1 nT'
             if fstd >= 3.0:
                 issuedict['F'] = 'dF/G shows large scatter about mean'
+                logdict['Level'] = 1
             if np.abs(fmean) < 0.01 and fstd < 0.01:
                 f1text = 'found'  # eventually not-independent
             if np.abs(fmean) < 0.001 and fstd < 0.001:
-                f1text = 'found not-independend'
+                f1text = 'found not-independent'
 
             f2text = "{} {} with sampling period: {} sec\n".format(f1text, scal, fsamprate)
             logdict['F'] = f2text
@@ -455,10 +456,10 @@ class second_definitive(object):
                 if key in ['IMOS41', 'IMOS-41'] and (
                         logdict.get('F') in ['None', ''] or logdict.get('F').startswith('found no')):
                     tableline.append('confirmed but invalid')
-                    warningdict['StandardLevel - IMOS-41'] = 'IMOS41 confirmed but no F-values provided'
+                    warningdict['StandardLevel - IMOS-41'] = 'IMOS-41 confirmed but no F-values provided'
                 elif key in ['IMOS42', 'IMOS-42'] and logdict.get('T') in ['None', '']:
                     tableline.append('confirmed but invalid')
-                    warningdict['StandardLevel - IMOS-42'] = 'IMOS42 confirmed but no temperature values provided'
+                    warningdict['StandardLevel - IMOS-42'] = 'IMOS-42 confirmed but no temperature values provided'
                 else:
                     tableline.append('validity confirmed by submitter')
                 tablelist.append(tableline)
@@ -496,13 +497,13 @@ class second_definitive(object):
                         tableline.append('validity confirmed by submitter')
                         if key == 'IMOS-41' and (
                                 logdict.get('F') in ['None', ''] or logdict.get('F').startswith('found no')):
-                            print(" F values missing although IMOS41")
+                            print(" F values missing although IMOS-41")
                             tableline.append('confirmed but invalid')
-                            warningdict['StandardLevel - IMOS41'] = 'IMOS41 confirmed but no F values found'
+                            warningdict['StandardLevel - IMOS41'] = 'IMOS-41 confirmed but no F values found'
                         elif key == 'IMOS-42' and logdict.get('T') in ['None', '']:
-                            print(" temperature values missing although IMOS42")
+                            print(" temperature values missing although IMOS-42")
                             tableline.append('confirmed but invalid')
-                            warningdict['StandardLevel - IMOS42'] = 'IMOS42 confirmed but no temperature values found'
+                            warningdict['StandardLevel - IMOS42'] = 'IMOS-42 confirmed but no temperature values found'
                     else:
                         tableline.append('not met as confirmed by submitter')
                 # except:
@@ -1009,6 +1010,8 @@ class second_definitive(object):
             print("Levellist", levellist)
         # remove Nones from levellist
         levellist = [el for el in levellist if not el in [None, '']]
+        #mainlevel  = self.logdict.get('Level')
+        levellist.append(self.logdict.get('Level'))
         if len(levellist) > 0:
             level = min(levellist)
         else:
@@ -1023,7 +1026,7 @@ class second_definitive(object):
         for issue in issuesummary:
             months = issuesummary[issue]
             if debug:
-                print("Lenght", len(months))
+                print("Length", len(months))
             foundat = "every month"
             if not len(months) == 12:
                 foundat = ",".join(months)
@@ -1068,7 +1071,7 @@ class second_definitive(object):
         if len(warninglist) > 0 and level >= 1:
             text.append("\n### Too be considered for final evaluation\n")
             text.append("\n")
-            text.append("Considerations for manual checking | Observered \n")
+            text.append("Considerations for manual checking | Observed \n")
             text.append("----- | -----\n")
             for warn in warninglist:
                 text.append(warn)
@@ -1201,7 +1204,7 @@ class second_definitive(object):
                 '## Example:\n',
                 '## Providing Partial standard value descriptions as requested:\n',
                 '# StandardLevel  :  partial\n',
-                '# PartialStandDesc  :  IMOS11,IMOS14,IMOS41\n\n\n']
+                '# PartialStandDesc  :  IMOS-11,IMOS-14,IMOS-41\n\n\n']
 
         headlinedict = {'StandardLevel': '# Provide a valid standard level (full, partial), None is not accepted\n',
                         'PartialStandDesc': '# If Standard Level is partial, provide a list of standards met\n',

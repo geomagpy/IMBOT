@@ -310,7 +310,8 @@ eventually need to take action:
 ##### Data is assigned to level 0
 
 Your data could not be read or significant problems with your submission were encountered (e.g. no one second data, 
-empty files). Please correct the issues and upload a new data set. If you do not know how to proceed, contact the IMBOT manager.
+empty or corrupt files). Please correct the issues and upload a new data set. If you do not know how to proceed, 
+contact the IMBOT manager.
 
 ##### Data is assigned to level 1
 
@@ -395,18 +396,21 @@ products and modify their step 1 submissions in order to get their data sets acc
 particularly affects 2022 data sets which are currently handled by INTERMAGNET data checkers and will gradually be
 extended to earlier submissions. This manuscript is based on the submission status of 23. March 2025. 
 
-### 5.1. One-second data submissions and an automatic analysis overview
+### 5.1. One-second data submissions and status of automatic analysis
 
-
-Table 5.1 summarizes the current submission status of one second data since the official start in 2014. A peak in 
-submission ($N_{sub}$) was reached for 2018 with data sets from 53 INTERMAGNET observatories, indicating that about half of the 
+Table 5.1 summarizes the current submission status of one second data since the official start in 2014. Such an 
+overview is of particular interest for data managers and although this just represents a current status at the time
+when submitting this article, such information can be easily extracted anytime when needed from IMBOT using its 
+management interaction tools as shown in the appendix. A peak in submission ($N_{sub}$) was reached for 2018 with data 
+sets from 53 INTERMAGNET observatories, indicating that about half of the 
 IMOs are ready to provide such high frequency products. Shown are also the amount of successful automatic analyses in 
 step2 ($N_{aut}$). An automatic analysis is termed successful if level2 is reached. Only in this case, provided that 
 corresponding one-minute data has been accepted, human referees are informed and continue the evaluation process. 
 Automatic IMBOT analyses are currently active for 2019 onwards, although earlier years have 
 been partly analyzed for testing purposes. The amount of data sets which have been checked by human data checkers and
-(in all cases) have been finally accepted for publication is shown in column $N_{ac}$. In order to save storage space 
-on GINs it is also planned to remove accepted step2 
+(in all cases) have been finally accepted for publication is shown in column $N_{ac}$. Please note that the manual 
+data checking procedure has started only recently, explaining the relative low number of currently accepted data products.
+In order to save storage space on GINs it is also planned to remove accepted step2 
 one-second products after this data sets are published on the INTERMAGNET portal, as the underlying data will be 
 identical. Thus, only the originally submitted raw data product and the homogenized published archive are preserved, 
 including review protocols of IMBOT and the human data checker.
@@ -425,19 +429,119 @@ including review protocols of IMBOT and the human data checker.
 | 2023 | 20        | 11*       | 0        |
 | 2024 | 0         | 0         | -        |  
 
+*Should be 28 for 2022 (but i.e. FUR leads to memory failure in old IMBOT) and likely also higher for 2023 (check).
+Old versions reports level1 for BOU (dF/G), SIT (df/G) and ??? and aborts analysis for FUR
 
-For this report we will focus on submissions from two years, 2016 and 2022. Based on all submission from these years
-we will analyse how the automatic routines can help data suppliers and data publishers to simplyfy streamline and speed up
-How does this work:
+
+### 5.2. In-depth analysis of submitted data sets 
+
+Any automatic analysis system requires accurate monitoring and statistical analysis tools particular when it comes to
+critical pre-selections of data products, whether they are suitable for a final review or not. This is of essential 
+interest not only for the data publisher, but also for the data supplier who usually denotes a significant amount
+of work to get their data products ready for publication. In order to outline how IMBOT is approaching these two 
+challenges we will firstly have a detailed look on INTERMAGNET data submissions. For this report we will focus on 
+submissions from two years, 2016 and 2022. 
 
 One-second data products from 45 observatories have been submitted for 2016. These data files have been upload to 
-the step 1 folder of the Paris GIN in various different ways and formats. Submissions make use of either the IAGA-2002 
+the step 1 folder of the Paris GIN in various different ways and formats. A summary of the underlying formats is shown 
+in Figure 5.1. Submissions make use of either the IAGA-2002 
 format (citation) or different versions of IMAGCDF (citation). IAGA-2002 submissions cover
-daily records which then have been packed into either daily, monthly or yearly zip files using zip, 7z or tgz
-compressions tools. IMAGCDF file submissions consist mostly of daily files, compressed in gnuzip or zips or just 
+daily records which then have been packed into either daily, monthly or yearly zip files using zip or tgz
+compressions tools. In three cases complex non-standard compression routines were used. IMAGCDF file submissions consist 
+mostly of daily files, compressed in gnuzip or zips or just 
 combined into tar archives. Monthly IMAGCDF files without any additional compression as requested in 2016 by
-INTERMAGNET are provided by a few observatories only. Table 1 provides a short summary on this pre-analysis condition.
+INTERMAGNET are provided by a few observatories only.  
 
+Figure 5.1a: ![5.1a](./imbot/documentation/pie_2016_formats.png "Underlying data formats for 2016.")
+
+Since 2016 INTERMAGNET and several observatories provided new tools for IMAGCDF export and also the official CDF 
+tools improved. When looking at the submission status for 2022, the proportion of correct submissions using a 
+modern version of the IMAGCDF format increased strongly. The heterogenity in packing and compression algorythms
+significantly decreased. Three observatories submitted data sets with flagging information, denoted with a preliminary,
+in-official version number 1.3, which will hereinafter denoted as version 1.2.1.
+
+Figure 5.1b: ![5.1b](./imbot/documentation/pie_2022_formats.png "Underlying data formats for 2022.")
+
+The automatic analysis routine IMBOT is able to extract data from all compression and archiving formats used so far 
+in data submission. It further can handle all different file formats and their underlying versions and data coverages.
+Thus the automatic system is able to overcome problems of data suppliers to fulfill stringent format requirements, which 
+is of significant help for some institutions.  Adept quickly to such requirements requires manpower and 
+IT support which is not equally available in observatories. 
+
+### 5.3. Supporting the data supplier 
+
+After downloading and extracting all data submissions, data is subject to the checking procedure as outlined in section 4.
+When looking at the automatic level assignment and compare submissions for 2016 and 2022 one can easily spot that the 
+relative amount of level 2 grades significantly increased between those years. The main reason of level 1 grades
+is missing meta information, particularly the required information on Standard Level classification 
+of field [PartialStandDesc](https://tech-man.intermagnet.org/stable/appendices/dataformats.html#imagcdfv1-2-intermagnet-exchange-format).
+For the 2022 submissions, IMBOT send meta-information templates to the data suppliers in case if such missing meta
+information which are used by all those observatories. The data supplier does not need to recreate all data sets,
+they just need to upload the required meta-information in a simple text file which will then be considered by
+IMBOT and included into the converted step 2 editorial data products. The main reason for level 0, only observed in old
+2016 submissions are missing data or individual unreadable, likely corrupt data files. Figure 5.2 give an overview 
+about the automatic level assignments for 2016 and 2022. 
+
+Figure 5.2: ![5.2](./imbot/documentation/level1_BOU_df.png "Strong deviations in delta F (G) will trigger a level reduction")
+
+
+In all cases the automatic report contains instructions for the data supplier on how to obtain a level 2 data products
+which in most cases requires meta information, re-uploading of individual files or confirmation of missing data. In some 
+cases, i.e. two level 1 data products in 2022, significant disturbances are observed for a single month (Figure 5.3).
+
+Figure 5.3: ![5.3](./imbot/documentation/level1_BOU_df.png "Strong deviations in delta F (G) will trigger a level reduction")
+
+The report will contain the respective month, so that the data supplier can quickly identify the source of the error report.
+When updating the corresponding files und uploading the corrected data sets, IMBOT will be triggered and the data 
+product will be reanalyzed. Using this techniques, the data supplier get an initial feedback on his data submissions 
+and can react to eventually arising problems within hours to days, thus significantly speeding up the publication 
+process. All issues to be resolved for achieving a level 2 product are listed on top of the IMBOT report in section
+"Issues to be clarified for level2", denoting the observed issue and the month in which it was observed.
+
+### 5.4. Supporting the data checker and final judgement
+
+As soon as the data submission is reaching level 2 of the automatic checking system and corresponding one-minute data
+has been accepted, then a data checker is assigned and informed. The data checker will receive the same report as the 
+data supplier. Although an automatic level 2 test indicates a high quality data set, most checks have been performed 
+on a monthly average level. Furthermore, complex data quality issues are not tested by IMBOT. The data checker can
+access the editorial step 2 files and thus does not have to bother with compression and format issues. All INTERMAGNET
+software products recommended for data checkers can handle editorial step2 contents. In addition, the IMBOT report 
+eventually contains a section with aspects "to be checked by a data referee" on top of the report. The automatic 
+report will also contain some hints and information useful for the data checker, as well as for the data supplier,
+providing some insights in data quality and consistency. Beside details on comparisons between minute and second data,
+some general information is provided about delta F (G) is available and a measure of the noise level.
+The median noise level of the submission is determined by selecting 3 records with minimal average K (fmi) each month.
+These 36 records correspond to 10% of the collection and are then used to estimate the average noise level. The selected 
+daily records are analyzed by PSD and the individual noise level of each selected day is calculated as the mean of the 
+amplitude spectrum between nyquist and a period of 10 seconds. All daily noise levels are collected and extreme outliers 
+are removed by testing the median of distances from the median. Threshold are defined to obtain 95% of the collection 
+in case of a normal distribution. The noise level strongly depends on environmental conditions and the 
+instruments in use by the observatory. For IMOs providing one-second the noise level is usually relatively low , 
+even below 30pT/$\sqrt{Hz}$ for half of the data suppliers for 2016 (Figure 5.4). For 2022 2/3 of the submissions are 
+characterized by noise levels below 30pT/$\sqrt{Hz}$.
+
+Figure 5.4: ![5.4](./imbot/documentation/noiselevel_2016.png "Median noise level for all IMOs submitting data in 2016")
+
+The noise level and a comparison to other observatories might be helpful to when planing instrument and installation 
+upgrades. Nevertheless, data suppliers and data checkers might test the power spectral density function for identifying 
+technical and other noise contributions in lower frequencies, which eventually can point to spurious signal contributions 
+from other instruments or electronic devices.
+
+### 5.5. Homogenizing data products for publications
+
+Conversion of data sets to step 2. Show that data content is identical, show comparison of header information.
+
+
+
+
+
+
+In any case 
+the human data checker will investigate the data product and provide a final review report, also to be uploaded 
+to the editorial step 2 directory on the GIN. In case of "acceptance" by the human data checker, the data product 
+is published by INTERMAGNET.
+
+Table 1 provides a short summary on this pre-analysis condition.
 
 The download process of IMBOT is able to extract all of these different packing structures and the underlying
 MagPy library is able to read all the different file formats. Thus an automatic analysis is possible for all those 
@@ -472,16 +576,6 @@ Most common level0 reason | empty file for one month
 Most common level1 reason | StandardLevel description missing (in all level 1 cases)
 
 
-The median noise level of the submission is determined by selecting 3 records with minimal average K (fmi) each month.
-These 36 records correspond to 10% of the collection and are then used to estimate the average noise level. The selected 
-daily records are analyzed by PSD and the individual noise level of each selected day is calculated as the mean of the 
-amplitude spectrum between nyquist and a period of 10 seconds. All daily noise levels are collected and extreme outliers 
-are removed by testing the median of distances from the median. Threshold are defined to correspond a 95% selection
-criteria in case of a normal distribution.  
-
-
-### 5.2. IMBOT's assistance regarding data checking tasks
-
 Go through the analysis in detail - discuss all tasks:
 
 Meta info
@@ -511,12 +605,6 @@ likely cause for this observation is a corrupted file structure. Details are pro
 Uploading the data file again and checking its size will most likely solve this issue. In one case, indications for
 many duplicates are found within the file structure for a few months.
 Overall, all submissions have been carefully prepared and submitted data generally is of high quality.
-
-### 5.3. Homogenizing submitted one-second data products 
-
-Conversion of data sets to step 2. Show that data content is identical, show comparison of header information.
-
-
 
 
 Table with all results for appendix
