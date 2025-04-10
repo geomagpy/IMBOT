@@ -573,6 +573,8 @@ class second_definitive(object):
                         compshort = compvalue1.lower()[:3]
                         # only warn here as both data sources might come from different instruments
                         onlywarn = True
+                    if keyname == 'PublicationLevel':
+                        onlywarn = True
                     if not refshort == compshort:
                         if not onlywarn:
                             diffcnt += 1

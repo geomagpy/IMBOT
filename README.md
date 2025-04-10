@@ -246,7 +246,6 @@ errors should be reported in any of the above checks. If CHECK1MIN flags the ann
 999999.0, it indicates insufficient data for a complete mean calculation (<90% of values available).
 
 
-
 ### 4.2. IMBOT one-second
 
 For one-second analysis, the new data set will automatically be downloaded and eventually extracted (supported are zip, gz and
@@ -430,7 +429,7 @@ including review protocols of IMBOT and the human data checker.
 | 2024 | 0         | 0         | -        |  
 
 *Should be 28 for 2022 (but i.e. FUR leads to memory failure in old IMBOT) and likely also higher for 2023 (check).
-Old versions reports level1 for BOU (dF/G), SIT (df/G) and ??? and aborts analysis for FUR
+Old versions reports level1 for BOU (dF/G), SIT (df/G) and HER and aborts analysis for FUR
 
 
 ### 5.2. In-depth analysis of submitted data sets 
@@ -456,9 +455,11 @@ Figure 5.1a: ![5.1a](./imbot/documentation/pie_2016_formats.png "Underlying data
 
 Since 2016 INTERMAGNET and several observatories provided new tools for IMAGCDF export and also the official CDF 
 tools improved. When looking at the submission status for 2022, the proportion of correct submissions using a 
-modern version of the IMAGCDF format increased strongly. The heterogenity in packing and compression algorythms
+modern version of the IMAGCDF format increased strongly. The heterogeneity in packing and compression algorithms
 significantly decreased. Three observatories submitted data sets with flagging information, denoted with a preliminary,
-in-official version number 1.3, which will hereinafter denoted as version 1.2.1.
+in-official version number 1.3, which will hereinafter denoted as version 1.2.1. For three observatories, a step 3
+one minute data product is not available (ABK, DED, HRN). Therefore, these data sets are missing in the analyses of 
+5.3 onwards. 
 
 Figure 5.1b: ![5.1b](./imbot/documentation/pie_2022_formats.png "Underlying data formats for 2022.")
 
@@ -478,22 +479,32 @@ of field [PartialStandDesc](https://tech-man.intermagnet.org/stable/appendices/d
 For the 2022 submissions, IMBOT send meta-information templates to the data suppliers in case if such missing meta
 information which are used by all those observatories. The data supplier does not need to recreate all data sets,
 they just need to upload the required meta-information in a simple text file which will then be considered by
-IMBOT and included into the converted step 2 editorial data products. The main reason for level 0, only observed in old
-2016 submissions are missing data or individual unreadable, likely corrupt data files. Figure 5.2 give an overview 
-about the automatic level assignments for 2016 and 2022. 
+IMBOT and included into the converted step 2 editorial data products. As can be seen in Figure 5.2 the relative proportion
+of level 2 data sets is much higher for 2022 than for 2016. This is partly related to the usage of the meta templates
+and to another part to better controlled submissions. For 2022 only three level 1 data products and no level 0 product 
+oppose 26 level 2 data sets. For 2016 there were 21 level 1 and two level 0 data sets together with 18 level 2 data sets.
+The main reason for level 0, only observed in old 2016 submissions are missing data or individual unreadable, likely 
+corrupted data files.
 
-Figure 5.2: ![5.2](./imbot/documentation/level1_BOU_df.png "Strong deviations in delta F (G) will trigger a level reduction")
+Figure 5.2: ![5.2](./imbot/documentation/bar_levels.png "IMBOT level assignments during the automatic data checking process. In 2022 the majority of
+data sets fulfilles all testing criteria.")
 
-
-In all cases the automatic report contains instructions for the data supplier on how to obtain a level 2 data products
-which in most cases requires meta information, re-uploading of individual files or confirmation of missing data. In some 
-cases, i.e. two level 1 data products in 2022, significant disturbances are observed for a single month (Figure 5.3).
+The main reason of level 1 products in 2016 is missing meta information, and missing data due insufficient file 
+coverage is the second most important. For 2022 only the second reason remains, as the data supplier improved their own
+data production strategy and for several submissions use the meta template provided by IMBOT. 
+The main reason for two level 1 data products in 2022 is related to significant disturbances of delta F values, the 
+difference between a continuous scalar F and the vector F, observed for a single month (Figure 5.3).
 
 Figure 5.3: ![5.3](./imbot/documentation/level1_BOU_df.png "Strong deviations in delta F (G) will trigger a level reduction")
 
-The report will contain the respective month, so that the data supplier can quickly identify the source of the error report.
+The example of Figure 5.3 indicates likely a problem of baseline adoption for two days. As the data supplier obtains 
+details on the failure and its specific month, they can quickly react and correct the issue.  
+In all level 1 and level 0 cases the automatic report contains instructions for the data supplier on how to obtain a 
+level 2 data product. In most cases this requires meta information, re-uploading of individual files or 
+confirmation/correction of missing data. The report will contain the respective month, so that the data supplier can 
+quickly identify the source of the error report.
 When updating the corresponding files und uploading the corrected data sets, IMBOT will be triggered and the data 
-product will be reanalyzed. Using this techniques, the data supplier get an initial feedback on his data submissions 
+product will be reanalyzed. Therefore the data supplier will get an immediate feedback on his data submission 
 and can react to eventually arising problems within hours to days, thus significantly speeding up the publication 
 process. All issues to be resolved for achieving a level 2 product are listed on top of the IMBOT report in section
 "Issues to be clarified for level2", denoting the observed issue and the month in which it was observed.
@@ -503,295 +514,108 @@ process. All issues to be resolved for achieving a level 2 product are listed on
 As soon as the data submission is reaching level 2 of the automatic checking system and corresponding one-minute data
 has been accepted, then a data checker is assigned and informed. The data checker will receive the same report as the 
 data supplier. Although an automatic level 2 test indicates a high quality data set, most checks have been performed 
-on a monthly average level. Furthermore, complex data quality issues are not tested by IMBOT. The data checker can
+on monthly averages. Furthermore, complex data quality issues are not tested by IMBOT. The data checker can
 access the editorial step 2 files and thus does not have to bother with compression and format issues. All INTERMAGNET
 software products recommended for data checkers can handle editorial step2 contents. In addition, the IMBOT report 
-eventually contains a section with aspects "to be checked by a data referee" on top of the report. The automatic 
+eventually contains section 4: "To be considered for final evaluation". The automatic 
 report will also contain some hints and information useful for the data checker, as well as for the data supplier,
 providing some insights in data quality and consistency. Beside details on comparisons between minute and second data,
-some general information is provided about delta F (G) is available and a measure of the noise level.
-The median noise level of the submission is determined by selecting 3 records with minimal average K (fmi) each month.
-These 36 records correspond to 10% of the collection and are then used to estimate the average noise level. The selected 
-daily records are analyzed by PSD and the individual noise level of each selected day is calculated as the mean of the 
-amplitude spectrum between nyquist and a period of 10 seconds. All daily noise levels are collected and extreme outliers 
-are removed by testing the median of distances from the median. Threshold are defined to obtain 95% of the collection 
-in case of a normal distribution. The noise level strongly depends on environmental conditions and the 
-instruments in use by the observatory. For IMOs providing one-second the noise level is usually relatively low , 
-even below 30pT/$\sqrt{Hz}$ for half of the data suppliers for 2016 (Figure 5.4). For 2022 2/3 of the submissions are 
-characterized by noise levels below 30pT/$\sqrt{Hz}$.
+some general information is provided about delta F (G), if available, and a measure of the noise level. The noise
+level is one of the few testable standard descriptions.
+A median noise level of the submission is determined by selecting 3 records with minimal average $K_{FMI}$ each month.
+These 36 records correspond to 10% of the collection and are then used to estimate the average noise level. The power 
+spectral density (PSD) of the selected daily records is calculated and the individual noise level of each selected day 
+is obtained as the mean of the amplitude spectrum between nyquist and a period of 10 seconds. All daily noise levels
+are collected and extreme outliers are removed by testing the median of distances from the median, corresponding to a 
+2-sigma selection in case of a normal distribution . 
+This value provides some control on IMOS-11, part of the obligatory meta information in PartialStandDesc. 
+Such median noise level strongly depends on environmental conditions and the instruments in use by the observatory
+and a inter-comparison with other observatories might also provide some insight on possible improvements for data 
+providers. For most IMOs providing one-second data, the noise level is usually relatively low, 
+even below 20pT/$\sqrt{Hz}$ for half of the data suppliers for 2016. For 2022 the majority 
+of submissions are characterized by noise levels below 20pT/$\sqrt{Hz}$ (Figure 5.4). For two data sets noise levels exceeding 
+100pT/$\sqrt{Hz}$ are found of which one has the correct corresponding IMOS-11 input. 
 
-Figure 5.4: ![5.4](./imbot/documentation/noiselevel_2016.png "Median noise level for all IMOs submitting data in 2016")
+Figure 5.4: ![5.4](./imbot/documentation/noiselevel_2022.png "Median noise level for all IMOs submitting data in 2022")
 
-The noise level and a comparison to other observatories might be helpful to when planing instrument and installation 
+The noise level and a comparison to other observatories might be helpful when planing instrument and installation 
 upgrades. Nevertheless, data suppliers and data checkers might test the power spectral density function for identifying 
 technical and other noise contributions in lower frequencies, which eventually can point to spurious signal contributions 
 from other instruments or electronic devices.
 
 ### 5.5. Homogenizing data products for publications
 
-Conversion of data sets to step 2. Show that data content is identical, show comparison of header information.
+Every successful analysis of step1 data, obtaining an IMBOT level 1 or level 2 is converted into a step 2 data product. 
+These step 2 archive files follow the naming and content convention of the newest IMAGCDF version, 1.3. at the time of 
+writing this article. The conversion routine also incorporates manually provided meta information from the meta 
+templates. This procedure ascertains that the final publication products are standardized and also simplifies data 
+access for data checkers, as basically all format relevant issues have been solved this way. Conversion, however does 
+not alter or modify the submitted data in any way. In Figure 5.5 we are showing an example of a step1 data set (top),
+the same day extracted from step 2 (middle) and the difference of both (bottom), demonstrating that data is exactly the same considering 
+the full resolution of the original data set. 
+
+Figure 5.5: ![5.4](./imbot/documentation/differences.png "Comparison of step1 and step2 data contents, and its difference (bottom)")
+
+Step 2 files will also contain any auxiliary data set like temperature or scalar data in the original resolution. The 
+step 1 meta information will be preserved completely, adding any additional information provided with a meta data 
+template. The filename, name of time column assignments, and format types of numerical inputs (strings will be 
+transformed to floats) might be be changed to meet the IMAGCDF 1.3 standard. Obviously also the format type will be
+updated to 1.3 for step2 products.
+
+## 6. Discussion and Conclusion
+
+Automatic systems for quality control are of particular interest when is comes to evaluation of hugh data sets.
+Geomagnetic data is particular challenging due to its non-stationary character and the highly dynamic, non-periodic 
+signal contributions affecting a wide range of different frequencies and signal origins. Careful control by the data 
+providers and removal or marking of spurious signals is of great interest for the end user. INTERMAGNET distinguishes
+"definitive" data, subjected to an intense checking procedure and "real time" data, so called adjusted or variation 
+products useful for early warning systems and space weather applications.
+INTERMAGNET not only asks their data suppliers to perform such data quality control, but also subjects such data sets to 
+a peer review system, which unquestionably increases trustworthiness for end-users. A big drawback of such testing and 
+review procedure is the delay with which such data will be available to end-users. A second problem is the amount of work 
+for the referees/data checkers who usually are volunteers and perform these tasks beside their usual work. 
+As shown above an automatic system like IMBOT will help to speed up the evaluation process, particularly for a stock pile
+of yet untreated old submissions. 
+For any future submission it should help the data provider by giving prompt and exact information about eventual 
+improvements. Data providers are immediately informed about the current status and progress of the review process until
+final publication of their data product.
+
+IMBOT is ready for a number future challenges. Thus is can treat data including flagging information. Flagging
+information however is updated to be conform with newest IMAGCDF and flagging software (MagPy2.0) standards. IMBOT 
+one-minute is already capable of reading and analyzing other one-minute data formats i.e. like a yearly IMAGCDF 
+one-minute data file (IMO_2016_PT1M.cdf). At the current stage only basic read tests, ascerting a correct data format
+and its general readability are performed. This one-minute test module can however be extended for more intense 
+data checking similar to check1min.
+Although IMBOT has been created for definitive one-second data it can also be modified and used for other data sets 
+as well. A possible application would be high resolution variation data which could be quickly checked with such 
+routine and provided as a tested data product by INTERMAGNET basically on the fly. Further data sources might also be
+included. 
+IMBOT is written completely modular. Each checking technique is described and coded in an individual module. Thus, 
+IMBOT can be simply extended or modified towards others tests and other data sets.
 
 
+Currently it is an ongoing discussion which criteria and thresholds are necessary in order to evaluate submitted data
+sets. IMBOT makes use of a minimal approach. The highest automatic grade requires that the data sets are readable, 
+complete and (correctly) contain all requested information for the [IMAGCDF] file format. Data quality is tested but 
+no criteria for failure. 
 
+TODO: what criteria are currently in use, how to distinguish between excellent and good
 
+Any final judgement of data quality or more sophisticated analysis of its definitive character is currently subject of a final
+analysis by a human data checker. As the data sets are automatically converted to
+a common data format, further data access is straight forward. A detailed level report allows to judge the
+classification also for end users and eventually select data which suit their needs. Due to the detailed standard level
+description of the [IMAGCDF] format, a level 2 product already contains essential details on data quality as provided
+by the data submitter. Part of this information is cross checked by IMBOT (e.g. noise level). Based on this information
+it is suggested here that a level2 data set is complete, conclusive and usable for end users. From a modelers
+perspective, this information is sufficient to work with the data products.
 
-
-In any case 
-the human data checker will investigate the data product and provide a final review report, also to be uploaded 
-to the editorial step 2 directory on the GIN. In case of "acceptance" by the human data checker, the data product 
-is published by INTERMAGNET.
-
-Table 1 provides a short summary on this pre-analysis condition.
-
-The download process of IMBOT is able to extract all of these different packing structures and the underlying
-MagPy library is able to read all the different file formats. Thus an automatic analysis is possible for all those 
-products. 
-
-Below a table summarizes IMBOT analyses of 2016. The 2016 analysis has also been used for development and error
-analysis of the underlying packages. IMBOT makes use of [MagPy] and requires version 0.9.7 or larger particularly for
-the one-minute data comparison, as some reading issues with [IAF] data have been solved in this version. All reports
-and converted files are readily available, but have not yet been send out to the submitting institute. As IMBOT firstly
-requires a conceptual acceptance from [INTERMAGNET] and reviews of its methodology, all these results are preliminary
-and do not indicate any decision from [INTERMAGNET].
-
-CTA, WIC, EBR (Jan OK, Feb leads to abort) failed for 2016. Check why
-CTA and EBR have missing data or corrupted files, check meta_ ... missing data
-
-Parameter             | 2016 |   2022
---------------------- |------| ------
-Available submissions | 45   | 29
-Submitted as IAGA-2002 | 13   | 13
-Submitted as ImagCDFvs1.0 | 23   | 23
-Submitted as ImagCDFvs1.1 | 23   | 23
-Submitted as ImagCDFvs1.2 | 23   | 23
-Submitted as ImagCDFvs1.3 | 23   | 23
-Auxiliary meta information | 0    | 36
-IMBOT successful analyses | 36   | 36
-Accepted for step3 | 0    | 2
- vs1.1
-Level 0 | 3 | 3
-Level 1 | 25 | 25
-Level 2 | 8 | 8
-Most common level0 reason | empty file for one month
-Most common level1 reason | StandardLevel description missing (in all level 1 cases)
-
-
-Go through the analysis in detail - discuss all tasks:
-
-Meta info
-
-Predominantly level 1 classifications are found. The basic reason for this classification, found in all level 1 data
-sets, is the absence of a StandardLevel description as requested in [IMAGCDF]. This information is missing for all
-IAGA-2002 submissions. StandardLevel description supports two inputs: **full** or **partial**. In case of **partial**,
-details on the standard levels are required. A full list is provided in the [IMBOT 1s report]. In order to deal with
-this issue, the observatory just needs to fill out the provided template, which is sent out with the report. After
-uploading the meta template to the submission directory the data set is re-evaluated. This way, most of the level 1
-submissions will get re-evaluated for level 2 with minimal workload and data transfer. The second most important reason
-for level one is usually an incomplete December record with one second missing on 31 December. Uploading this data file
-with a complete amount of seconds will also trigger a re-evaluation.
-
-
-Contents and coverage
-
-When looking at the file coverage it is found that about 20% of the submissions do not cover the expected time range.
-These files usually contain one second of the previous month and end at 23:59:58 of the last day in the month. When
-it comes to expected meta information, requested information is missing in more than 75% of all submissions.
-Nevertheless, most of these issues are not difficult to solve, although they would require a significant amount of
-discussion between data checker and submitting institute.
-
-
-The most common reason for level 0 is a missing record for one month although an empty data file is provided. The most
-likely cause for this observation is a corrupted file structure. Details are provided in the [IMBOT 1s report].
-Uploading the data file again and checking its size will most likely solve this issue. In one case, indications for
-many duplicates are found within the file structure for a few months.
-Overall, all submissions have been carefully prepared and submitted data generally is of high quality.
-
-
-Table with all results for appendix
-
-OBSCODE | Level |  sub. DataFormat | IMBOT vers |   Level 0 problem   |    Level 1 problem   |   Other issue
-------- | ----- | ---------------- | ---------- | ------------------- | -------------------- | ------------------
-ABK     |   2   |   IMAGCDF 1.2    |    0.9.1   |                     |                      |
-ASP     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
-BDV     |   0   |   IMAGCDF 1.1    |    0.9.1   |   Duplicates        |                      |
-BEL     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
-BOU     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
-BRW     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
-BSL     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
-CKI     |   2   |   IMAGCDF 1.1    |    0.9.1   |                     |                      |
-CMO     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
-CNB     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev              |
-CSY     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev              |
-CTA     |   0   |   IMAGCDF 1.1    |    0.9.1   |  Month missing      |                      |
-DED     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
-EBR     |   0   |   IMAGCDF 1.1    |    0.9.1   |  Month missing      |                      |
-FRD     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
-FRN     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |  7z, very high noise level?
-GNG     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
-HER     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev              |
-HLP     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
-HON     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |  7z
-HRN     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
-KAK     |   2   |   IMAGCDF 1.x    |    0.9.1   |                     |                      |  min with 0.9.7
-KDU     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
-KNY     |   1   |   IMAGCDF 1.x    |    0.9.1   |                     |  Amount6,7           |  memory issue (firefox?)
-LRM     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev              |
-LYC     |   2   |   IMAGCDF 1.2    |    0.9.1   |                     |                      |
-MAW     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
-MCQ     |   2   |   IMAGCDF 1.1    |    0.9.1   |                     |                      |
-MMB     |   2   |   IMAGCDF 1.x    |    0.9.1   |                     |                      |  min with 0.9.7
-NEW     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |  7z
-SHU     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
-SIT     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |      
-SJG     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |      
-TUC     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |      
-UPS     |   2   |   IMAGCDF 1.2    |    0.9.1   |                     |                      |      
-WIC     |   2   |   IMAGCDF 1.2    |    0.9.1   |                     |                      |
-
-
-## 6. Discussion
-
-The automatic system is ready for future format changes. One-minute data is submitted in monthly binary structures
-since 199x with archive names consisting of IMO code, two digit year and three character "english" month abbrevation.
-8 character filenames are a remanence of the 1980's DOS limit for filenames. An inherent end-date for usability of this 
-format is obviously 209x, although it is unlikely that this format will be supported that long. 
-
-IMBOT one-minute is already capable of reading and analyzing other one-minute data formats i.e. like a yearly IMAGCDF 
-one-minute data file (IMO_2016_PT1M.cdf). At the current stage only basic read tests, acertaining a correct data format
-and its general readability are performed. This one-minute test module can however easily be extended for more intense 
-data checking.
-
-
-Preserve flagging information if provided along with the data products. Flagging information however is updated to be
-conform with newest IMAGCDF and flagging software (MagPy2.0) standards.
-
-A prototype of such automatic system, called IMBOT version 1, is running since 2023 on one-minute and 
-one-second data. 
-
-IMBOT one-second accesses data uploads from the observatories and automatically converts the uploaded data sets into an
-INTERMAGNET conform [IMAGCDF] archive format. During the conversion process, data and meta information content is
-checked and any missing information is requested from the uploading institute. Missing meta information can be easily
-supplied, by providing this data in an automatically produced and pre-configured text file to be uploaded into the 
-submission directory minimizing the amount of data needed to be transferred to the GIN. Thus, at time when data
-checkers need to finally evaluate such data sets, most technical problems have been solved already, and the basic
-content should be conform to IM rules. The automatic evaluation process of one-second data makes use of a level
-description, similar as in other disciplines and as used for satellite data products. Therefore most users are already
-well acquainted with such evaluation process. In dependency of data content, meta information and data quality, data is
-assigned to different quality levels from 0 to 2, from which the highest level 2 in combination with an accepted
-one-minute product qualifies for final manual evaluation by a data checker.
-
-Beside supporting the primary aim, simplifying and speeding up the publication and checking process of one-second data,
-IMBOT has been recently extended supporting one-minute data checking as well. As one-minute data checking is well 
-established already, IMBOT focuses on notification and provides reports based on the usually applied [check1min]
-routine. Thus referees and data submitters will get such reports whenever new data is submitted of modified within the 
-STEP1 directory of the GIN. As soon as data is accepted and moved to STEP3, data sets are not monitored any more.
-
-
-### 6.1 Server issues
-
-With version 1.0.0, IMBOT requires that the GIN data source is mounted on the analysis server. At present this is done 
-using an ftp mount based on curlftpfs. IMBOT solely analyses files within the step1/OBSCODE directory. Any further 
-subdirectories are neglected. To minimize security issues it would be advisable to change from FTP access towards a 
-more secure connection protocol in the future. Possible options which are easy to integrate would be ssl connections.
-The IMBOT server itself requires a suitable amount of memory in order to deal with yearly one-second data sets. In 
-particular, if several data sets are uploaded at once, all analysis are performed in one run. The current hardware
-(8GB ram) allows for contemporaneous analysis of up to 10 records without memory issues, although this strongly depends
-on data content. Large data sets with high resolution scalar and temperature readings need significantly more memory.
-As it is rather unlikely that more than 10 data sets are uploaded within three hours of the year, this limitation
-should not be an issue. Nevertheless, failures are monitored and if the data submitter does not receive a
-[IMBOT 1s report] within 24 hours after submission, please contact the IMBOT manager.
-
-### 6.2 Format issues
-
-Although IMBOT supports many different data formats and packing routines, it is not meant to be an universal
-interpreting machine. Please stick to the most common packing methods and avoid, if possible, commercial packing
-routines. Currently supported are [IAGA-2002] sec files, [IMAGCDF] files, as well as .tar, .tar.gz (.tgz) and .zip
-compressions. From the tested 2016 data set, 3 zipped records produced an "End-of-central-directory signature not
-found" error. IMBOT deals with such incomplete/corrupted files by using the external [7z] routine. Data content was
-fully recovered for all these files. Nevertheless, please check your files thoroughly before uploading. Data submission
-should be based preferably on [IMAGCDF] data or [IAGA-2002]. Please add any missing meta information within these data
-structures, or submit them along with your files by using the IMBOT meta file as described above. Nevertheless, there
-might be formatting and interpretation issues. You can easily test your files before: If [MagPy] can read and interpret
-the data sets, then IMBOT should be able as well. The version of MagPy, which is used for format conversion, is given
-in the [IMBOT 1s report].
-
-### 6.3 General issues
-
-A couple of issues showed up while developing the program. A small list containing description and how it was solved is given below. This should provide an example on how upcoming issues should be reported. The project folder on GitHub provides an issue section where you can write down a detailed description. The developers are automatically informed. All user can access issues and comment on them. If an issue is solved, a reference to the changed code fragments and a description from the developers will be added before closing. Closed issues can always be accessed later. This way, IMBOT undergoes a permanent and transparent review process.  
-
-
-> Issue: Bug - Scalar data of different resolution not correctly exported in new ImagCDF
->
->MagPy does not export cdf with f values in different resolution correctly.
->This eventually is already an input problem. -> find a solution
->The file converter extracts variometer and scalar data from the original file.
->If scalar data is of different resolution, this data is joined into a common
->timeseries, where missing points due to the reduced resolution are denoted by NaN.
->Thus, real missing data is not easy distinguishable from spaces due to reduced
->resolution. Check the final monthly ImagCDF structures whether this is transferred
->into these files.
->
-> -> solved with MagPy 0.9.7
-
-
-> Issue: Test - Check whether raw data and converted data are identical
->
-> Test case 1: analyse raw data and the resulting converted files. Compare the reports for differences.
-> -> done for MCQ > report of converted data identical to raw data (updated are only leap seconds, and data format)
-> Test case 2: use MagPy to load raw and converted level data. Subtract both streams: Difference needs to be zero
-> -> done for EBR > perfect
-
-
-> Issue: Bug - Meta information needs to be conform with ImagCDF ruleset
->
-> e.g. References, DataReferences not existing. ImagCDF type is called ReferenceLinks.
-> has been corrected before uploading --- check
-
-
-> Issue: Bug - One-minute IAF files of a few observatories cannot be read
->
-> For some observatories (2016: KAK, BEL, ) one-minute IAF binary files cannot be read.
-> The reading process terminates and returns an empty file structure. This error
-> requires a review of the MagPy readIAF method.
->
-> -> solved with MagPy 0.9.7
-
-
-> Issue: Discussion - Auxiliary data like temperature.
->
-> If such data is confirmed in meta information, is it then necessary/obligatory
-> to provide such data along with the cdf file?
-> Currently, this is sometimes done, sometimes not.
-> Dealing with this issue requires a decision by the definite data committee of IM.
-
-
-### 6.4 Test criteria
-
-Currently it is an ongoing discussion which criteria and thresholds are necessary in order to evaluate submitted data sets. IMBOT makes use of a minimal approach. The highest automatic grade requires that the data sets are readable, complete and (correctly) contain all requested information for the [IMAGCDF] file format. There is no evaluation of data quality and only a single test regarding its definitive character, which was met by all submissions tested so far. Any test of data quality or more sophisticated analysis of its definitive character is currently subject of a final analysis by a human data checker.
-Nevertheless, it is suggested here that any submitted data set, which is readable and convertable, will already be accepted for step2 by INTERMAGNET using the IMBOT automatic procedure. As the data sets are automatically converted to a common data format, further data access is straight forward. A detailed level report allows to judge the classification for end users and eventually select data which suit their needs. Due to the detailed standard level description of the [IMAGCDF] format, a level 2 product already contains essential details on data quality as provided by the data submitter. Part of this information is cross checked by IMBOT (e.g. noiselevel). Based on this information it is suggested here that a level2 data set is complete, conclusive and usable for end users. From a modelers perspective, this information is sufficient to work with the data products.
-
-
-### 6.5 Open aspects for the future
-
-  - data checker manual procedure for one-second
-  - can data checker handle the files ?-> yes
-  - is data quality a criteria (?) or just meta information
-       - INTERMAGNET defined Standard levels for one second data. Which ones are obligatory to obtain final acceptance?
-       - Noise level analysis is very simple at the moment, too be improved.
-       - How to deal with amplitude deviations between definitive one-minute and definitive one-second?
-
-### 6.6 Further improvements
-
-Suggested further improvements include a revision check. If no revision is performed or final revision requested for a certain time range, e.g. 3 months, than the current level of data submission is confirmed by simply renaming the "level1_underreview.txt" to "level1.txt". Obviously this can be done automatically as well.
-
-Although IMBOT has been created for definitive one-second data it can also be modified and used for other data sets as well. A possible application would be high resolution variation data which could be quickly checked with such routine and provided as a tested data product by INTERMAGNET basically on the fly. Further data sources might also be included.
-
-IMBOT is written completely modular. Each checking technique is described and coded in an individual method. Thus, IMBOT can be simply extended or modified towards others tests and other data sets.
-
-
-## Conclusion
-
-IMBOT can be used instantly for all future processing of new one second uploads. It can also be used to start an evaluation of all submitted data sets from 2014 onwards and provides the possibility to get this data sets published on INTERMAGNET within hours. For testing the capabilities of IMBOT and for reviewing of its methods, it is possible to run IMBOT for selected observatories and to send reports and mails only to a selected group of referees. It is our intention to describe IMBOT and all methods as good as possible. The source code is accessible and, thus, the evaluation process is transparent both for submitters and end users.
+IMBOT can be used instantly for all future processing of new one second uploads. It can also be used to start an 
+evaluation of all submitted data sets from 2014 onwards and provides the possibility to get this data sets published 
+on INTERMAGNET within hours. For testing the capabilities of IMBOT and for reviewing of its methods, it is possible
+to run IMBOT for selected observatories and to send reports and mails only to a selected group of referees. It is our
+intention to describe IMBOT and all methods as good as possible. The source code is accessible and, thus, the 
+evaluation process is transparent both for submitters and end users.
 
 
 
@@ -812,7 +636,7 @@ IMBOT can be used instantly for all future processing of new one second uploads.
 
 Acknowledgments:
 
-Sergey Komoutov, Jan Reda, Benoit Heumez, Tero Raita
+Sergey Komoutov
 
 
 ## Appendix 1: Installation instructions
@@ -996,3 +820,123 @@ Get an overview about all level reports in all subdirectories:
 Get all human referee reports:
 
           find . -print | grep -i accept
+
+
+
+
+
+
+
+
+In any case 
+the human data checker will investigate the data product and provide a final review report, also to be uploaded 
+to the editorial step 2 directory on the GIN. In case of "acceptance" by the human data checker, the data product 
+is published by INTERMAGNET.
+
+Table 1 provides a short summary on this pre-analysis condition.
+
+The download process of IMBOT is able to extract all of these different packing structures and the underlying
+MagPy library is able to read all the different file formats. Thus an automatic analysis is possible for all those 
+products. 
+
+Below a table summarizes IMBOT analyses of 2016. The 2016 analysis has also been used for development and error
+analysis of the underlying packages. IMBOT makes use of [MagPy] and requires version 0.9.7 or larger particularly for
+the one-minute data comparison, as some reading issues with [IAF] data have been solved in this version. All reports
+and converted files are readily available, but have not yet been send out to the submitting institute. As IMBOT firstly
+requires a conceptual acceptance from [INTERMAGNET] and reviews of its methodology, all these results are preliminary
+and do not indicate any decision from [INTERMAGNET].
+
+CTA, WIC, EBR (Jan OK, Feb leads to abort) failed for 2016. Check why
+CTA and EBR have missing data or corrupted files, check meta_ ... missing data
+
+Parameter             | 2016 |   2022
+--------------------- |------| ------
+Available submissions | 45   | 29
+Submitted as IAGA-2002 | 13   | 13
+Submitted as ImagCDFvs1.0 | 23   | 23
+Submitted as ImagCDFvs1.1 | 23   | 23
+Submitted as ImagCDFvs1.2 | 23   | 23
+Submitted as ImagCDFvs1.3 | 23   | 23
+Auxiliary meta information | 0    | 36
+IMBOT successful analyses | 36   | 36
+Accepted for step3 | 0    | 2
+ vs1.1
+Level 0 | 3 | 3
+Level 1 | 25 | 25
+Level 2 | 8 | 8
+Most common level0 reason | empty file for one month
+Most common level1 reason | StandardLevel description missing (in all level 1 cases)
+
+
+Go through the analysis in detail - discuss all tasks:
+
+Meta info
+
+Predominantly level 1 classifications are found. The basic reason for this classification, found in all level 1 data
+sets, is the absence of a StandardLevel description as requested in [IMAGCDF]. This information is missing for all
+IAGA-2002 submissions. StandardLevel description supports two inputs: **full** or **partial**. In case of **partial**,
+details on the standard levels are required. A full list is provided in the [IMBOT 1s report]. In order to deal with
+this issue, the observatory just needs to fill out the provided template, which is sent out with the report. After
+uploading the meta template to the submission directory the data set is re-evaluated. This way, most of the level 1
+submissions will get re-evaluated for level 2 with minimal workload and data transfer. The second most important reason
+for level one is usually an incomplete December record with one second missing on 31 December. Uploading this data file
+with a complete amount of seconds will also trigger a re-evaluation.
+
+
+Contents and coverage
+
+When looking at the file coverage it is found that about 20% of the submissions do not cover the expected time range.
+These files usually contain one second of the previous month and end at 23:59:58 of the last day in the month. When
+it comes to expected meta information, requested information is missing in more than 75% of all submissions.
+Nevertheless, most of these issues are not difficult to solve, although they would require a significant amount of
+discussion between data checker and submitting institute.
+
+
+The most common reason for level 0 is a missing record for one month although an empty data file is provided. The most
+likely cause for this observation is a corrupted file structure. Details are provided in the [IMBOT 1s report].
+Uploading the data file again and checking its size will most likely solve this issue. In one case, indications for
+many duplicates are found within the file structure for a few months.
+Overall, all submissions have been carefully prepared and submitted data generally is of high quality.
+
+
+Table with all results for appendix
+
+OBSCODE | Level |  sub. DataFormat | IMBOT vers |   Level 0 problem   |    Level 1 problem   |   Other issue
+------- | ----- | ---------------- | ---------- | ------------------- | -------------------- | ------------------
+ABK     |   2   |   IMAGCDF 1.2    |    0.9.1   |                     |                      |
+ASP     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
+BDV     |   0   |   IMAGCDF 1.1    |    0.9.1   |   Duplicates        |                      |
+BEL     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
+BOU     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
+BRW     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
+BSL     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
+CKI     |   2   |   IMAGCDF 1.1    |    0.9.1   |                     |                      |
+CMO     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
+CNB     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev              |
+CSY     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev              |
+CTA     |   0   |   IMAGCDF 1.1    |    0.9.1   |  Month missing      |                      |
+DED     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
+EBR     |   0   |   IMAGCDF 1.1    |    0.9.1   |  Month missing      |                      |
+FRD     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
+FRN     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |  7z, very high noise level?
+GNG     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
+HER     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev              |
+HLP     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
+HON     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |  7z
+HRN     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
+KAK     |   2   |   IMAGCDF 1.x    |    0.9.1   |                     |                      |  min with 0.9.7
+KDU     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
+KNY     |   1   |   IMAGCDF 1.x    |    0.9.1   |                     |  Amount6,7           |  memory issue (firefox?)
+LRM     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev              |
+LYC     |   2   |   IMAGCDF 1.2    |    0.9.1   |                     |                      |
+MAW     |   1   |   IMAGCDF 1.1    |    0.9.1   |                     |  StdLev, Amount12    |
+MCQ     |   2   |   IMAGCDF 1.1    |    0.9.1   |                     |                      |
+MMB     |   2   |   IMAGCDF 1.x    |    0.9.1   |                     |                      |  min with 0.9.7
+NEW     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |  7z
+SHU     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |
+SIT     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |      
+SJG     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |      
+TUC     |   1   |   IAGA-2002      |    0.9.1   |                     |  StdLev              |      
+UPS     |   2   |   IMAGCDF 1.2    |    0.9.1   |                     |                      |      
+WIC     |   2   |   IMAGCDF 1.2    |    0.9.1   |                     |                      |
+
