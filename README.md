@@ -721,7 +721,7 @@ Scheduled jobs in the following order:
    - TODO step3 minute
    - TODO step2 second requires an rsync process as new data is uploaded and referee reports are downloaded
    - TODO monitor these jobs
-2. scan.py is called to update local memory basaed on download folders
+2. scan.py is called to update local memory based on download folders
    - creates a local memory file with all step and analysis information for all data sets
    - TODO require a backup of the memory (weekly)
    - TODO monitor

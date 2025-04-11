@@ -204,6 +204,7 @@ def main(argv):
                     #try:
                     tablelist = []
                     secana = second.second_definitive(input=dataset)
+                    secana.logdict['Level'] = 2
                     datelist = secana.get_months()
                     secana.logdict['MagPyVersion'] = magpyversion
                     dataformat = ""
@@ -216,18 +217,24 @@ def main(argv):
                         dataformat = data.header.get("DataFormat")
                         if len(data) > 0:
                             month = (data.start() + timedelta(days=10)).strftime("%m (%b)")
-                            secana.delta_f_test(data)
-                            mtable = secana.check_standard_level(data, partialcheck=methods.partialcheck_v1, debug=False)
-                            quietdays = secana.check_diff_to_minute(data, daterange=dates, debug=False)
-                            daystreams.extend(secana.extract_selected_days(data, dates,
-                                                                       selecteddays=quietdays, dayformat='text',
-                                                                       debug=False))
-                            secana.export_month(data, allcontents, debug=False)
+                            data = data._remove_nancolumns()
+                            if len(data) > 0:
+                                secana.delta_f_test(data)
+                                mtable = secana.check_standard_level(data, partialcheck=methods.partialcheck_v1, debug=False)
+                                quietdays = secana.check_diff_to_minute(data, daterange=dates, debug=False)
+                                daystreams.extend(secana.extract_selected_days(data, dates,
+                                                                           selecteddays=quietdays, dayformat='text',
+                                                                           debug=False))
+                                secana.export_month(data, allcontents, debug=False)
+                            else:
+                                print("  only missing data flags found ")
+                                secana.logdict[month]['Warnings']['Missing Data'] = "only missing data flags"
                         else:
                             print ("  no data found - either missing or corrupt file ")
-                        if len(secana.logdict.get(month).get('Issues')) > 0 and not secana.logdict.get('Level') == 0:
+                            month = ''
+                        if month and len(secana.logdict.get(month).get('Issues')) > 0 and not secana.logdict.get('Level') == 0:
                             secana.logdict['Level'] = 1
-                        if debug:
+                        if debug and month:
                             print(secana.logdict.get(month).get('Issues'))
                             print(secana.logdict.get(month).get('Warnings'))
                     print("   month second analysis finished")

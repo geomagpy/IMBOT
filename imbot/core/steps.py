@@ -268,11 +268,15 @@ class botstatus(object):
                 contentname = "step{}date".format(step)
                 if not imolayer.get(contentname, ''):
                     imolayer[contentname] = datetime.now().strftime("%Y-%m-%d")
-                    imolayer['maximum_minute_step'] = "step{}".format(step)
-                    imolayer['modification'] = "added to step{}".format(step)
-                    # IMPORTANT: get the filetyp of the highest available step so that correct mindata is loaded
-                    # Min data in step3 is usually zipped (unlike step1 or step2)
-                    imolayer['maximum_step_filetype'] = typ
+                    cms = imolayer.get('maximum_minute_step','step0')[-1]
+                    if not int(cms) > int(step):
+                        # check whether a higher step is already existing
+                        # important as step3 is analyzed before step2
+                        imolayer['maximum_minute_step'] = "step{}".format(step)
+                        # IMPORTANT: get the filetyp of the highest available step so that correct mindata is loaded
+                        # Min data in step3 is usually zipped (unlike step1 or step2)
+                        imolayer['maximum_step_filetype'] = typ
+                        imolayer['modification'] = "added to step{}".format(step)
                 if debug:
                     print("Found files in step{}:{}".format(step, files))
                 if step == 2:
@@ -921,7 +925,7 @@ class TestImbotStep(unittest.TestCase):
         imostatus = imostatus.set_modification(set='', year=2021, resolution='minute', obscode='KOU')
 
         # now add meta_IMO.txt, remove blv file and modify README
-        shutil.copy(os.path.join(basepath,'examples','meta_OBSCODE.txt'), "/tmp/imbottest/step1/Mag2021/KOU/meta_KOU.txt")
+        shutil.copy(os.path.join(basepath,'imbot','templates','meta_OBSCODE.txt'), "/tmp/imbottest/step1/Mag2021/KOU/meta_KOU.txt")
         from pathlib import Path
         for p in Path("/tmp/imbottest/step1/Mag2021/KOU").glob("*.blv"):
             p.unlink()
