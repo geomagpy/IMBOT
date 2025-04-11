@@ -618,7 +618,6 @@ intention to describe IMBOT and all methods as good as possible. The source code
 evaluation process is transparent both for submitters and end users.
 
 
-
    [INTERMAGNET]: <https://intermagnet.github.io/>
    [IMAGCDF]: <https://www.intermagnet.org/publications/im_tn_8_ImagCDF.pdf>
    [MagPy]: <https://github.com/geomagpy/magpy>
@@ -638,6 +637,11 @@ Acknowledgments:
 
 Sergey Komoutov
 
+## To be added
+
+- Report example with some explanations
+- meta file with instructions
+- threholds
 
 ## Appendix 1: Installation instructions
 
@@ -646,12 +650,20 @@ was tested on Ubuntu 22.04 but will work in future versions provided the underly
 Before installing and using imbot as described in this manuscript you need to install the following additional
 packages:
 
-       sudo apt-get install wget curlftpfs p7zip-full p7zip-rar wine python3-environment
+       sudo apt-get install wget curlftpfs p7zip-full p7zip-rar wine python3-virtualenv
 
 These packages are used to access data sources, unpack compressed data and make use of the well established 
 check1min routine for one-minute data checking. Then create a separate python environment for imbot.
 
-       env 
+       virtualenv ~/env/imbot 
+
+Active the new environment:
+
+       source ~/env/imbot/bin/activate
+
+Install MagPy which provides the libraries for file recognition and some analysis tools
+
+       pip install geomagpy
 
 Finally install imbot. The installation process will also create a .imbot directory in your home folder containing a
 number of templates and skeletons for configuration files.
@@ -660,35 +672,6 @@ number of templates and skeletons for configuration files.
 
 Continue with imbot configuration in appendix 2.
 
-
-## Appendix 1: Detailed workflow of secondanalysis.py
-
-please note:
-secondanalysis makes use of a local copy of the step3 folder created by minuteanalysis
-
-before secondanalysis:
-- define source and destination directories
-- define a list of days for power analysis (quiet days)
-- define a mountcode to avoid unmounting issues due to overlapping running times
-- mount 1sec-step1 directory
-- mount minute directores 1min-step1, 1min-step2
-- create a telegram note if mounting was successful (keep in memory - only change if failing)
-
-run secondanalysis:
-- get gin DIRECTORIES for one second
-- determine state of one-minute submissions and get the highest available step
-- determine new 1sec submissions
-- copy new 1sec submissions to temporary local directory
-- read an randomly selected file of all available data files (if debug is selected only this month will be analyzed)
-- 
-
-after secondanalysis:
-- successful messages
-- unmount 1min-step1, 1min-step2, 1sec-step1
-- find records with level2 records
-(POSSIBLE ISSUE: if a records had level2 and after updates only reaches level1. New update is not considered.)
-- mount 1sec-step2
-- upload data with local level2 reports based on rsync
 
 ## Appendix 2: Defining Referee and Observatory mailing lists
 
@@ -701,12 +684,12 @@ necessary to change rename the file extension from "cfg" to "bak".
 
 Mailing addresses for IMOs are obtained in the following order:
 
-1. mailinglist.cfg
-2. localmailrep.json
+1. conf/mailinglist.cfg
+2. memory/memory_email.json (addresses extracted earlier from READMEs)
 3. mail addresses extracted from the one-minute submissions (readme file)
 
 Mailing addresses extracted from the one-minute submissions are also stored locally in a json file called 
-localmailrep.json. This is important as step3 one-minute data has no readme files any more.  
+memory/memory_emails.json. This is important as step3 one-minute data has no readme files any more.  
 
 Fallback addresses, i.e. data checker if observatory has not yet been assigned to a specific data checker, the 
 address of the system administrator and imbots mailingaddress are part of the general configuration file.
@@ -718,27 +701,25 @@ Scheduled jobs in the following order:
 1. download/sync data sources to local harddrive
    - scheduled jon of download_min and download_sec which are both making use of wget
    - step1, step2 minute; step1 second are copied to the harddisk
-   - TODO step3 minute
-   - TODO step2 second requires an rsync process as new data is uploaded and referee reports are downloaded
+   - step3 minute plus conversion
+   - step2 second requires an rsync process as new data is uploaded and referee reports are downloaded
    - TODO monitor these jobs
-2. scan.py is called to update local memory based on download folders
+2. imbot_scan.py is called to update local memory based on download folders
    - creates a local memory file with all step and analysis information for all data sets
-   - TODO require a backup of the memory (weekly)
-   - TODO monitor
+   - require a backup of the memory (weekly) - using MARTAS
+   - monitor using MARTAS
 3. analysis.py is called to extract modified data from memory and run min/sec analysis
    - run the jobs and create mails
-   - TODO send mails to receivers
+   - send mails to receivers
    - TODO create reports and send via messenger and mail
    - monitor successful completion of analysis
-
-REMOVE password for data access in download tool
 
 ## Appendix 4: setting up an IMBOT server from scratch
 
 ### Installing packages based on Ubunutu >= 20.04
 
 - install magpy>=2.0 (follow the magpy installation instructions, used for read/write)
-- get MARTAS and install a dummy martas job, telegram (used for monitoring)
+- get MARTAS and install a dummy martas job, telegram (used for monitoring and backup)
 - sudo apt-get install curlftpfs (mounting external devices)
 - sudo apt install p7zip-full p7zip-rar (unpacking second data)
 - sudo apt install wine (for check1min dos program)
@@ -746,9 +727,13 @@ REMOVE password for data access in download tool
 
        pip install imbot...
 
+### Empty/New system and ONLY there
+
+Run initialization script to create configuration scripts and templates 
+
 ### Configuring all packages
 
-1) configuring wine for check1min analysis
+#### configuring wine for check1min analysis
 
 Copy check1min.exe to your homedirectory. Then do an initial test run with wine
 
@@ -766,21 +751,28 @@ Create a data directory under drive_c:
 
 Update imbot.cfg. Modify the inputs for "winepath" with /home/USER/.wine/drive_c/.
 
-2) configuring imbot
+#### configuring imbot
 
-go to ~/.imbot and copy the following files to the main directory
+go to ~/.imbot and copy the following files to the main directory if not there
+1) download_min.sh: edit to download one-minute data from GIN
+2) download_min.sh: edit to download one-second data from GIN
+3) ginsource.sh: edit for GIN credentials
+4) scan.sh: edit to run scan and analysis job
 
-        $ cd ~/.imbot
-        $ cp config/imbot.cfg .
-        $ cp config/telegram_imbot.cfg .
-        $ cp bash/*.sh .
-        $ cp bash/update_list.bash .
+modify/edit the following files:
+1) conf/imbot.cfg
+2) conf/refereelist_minute.cfg
+3) conf/refereelist_second.cfg
+4) conf/mailinglist.cfg
 
 
-3) configuring MARTAS applications
+#### configuring MARTAS applications
 
+1) monitor: monitor disk space and scan file logs
+2) backup: add ~/.imbot to the backup routine
+3) activate cleanup to clear temporary directory without restart
 
-#### #Typical example of a meta_OBSCODE.txt file
+##  Appendix 5: example for a meta_OBSCODE.txt
 
 ```sh
 ## Parameter sheet for additional/missing metainformation
@@ -804,10 +796,7 @@ TermsOfUse  :  Do whatever you want with my data
 #MissingData  :  ignore
 ```
 
-
-#### Using meta_OBSCODE.txt with original submission
-
-## Appendix 5: useful bash commands on te linux IMBOT server
+## Appendix 6: useful bash commands on te linux IMBOT server (outdated)
 
 Count the amount of subdirectories in a specific folder (i.e. get number of submissions):
 
