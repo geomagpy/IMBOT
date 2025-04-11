@@ -101,11 +101,14 @@ class botstatus(object):
                 return True
         return False
 
-    def _get_step1_information(self, imolayer, obscode='XXX', checkrange=0, debug=False):
+    def _get_step1_information(self, imolayer, obscode='XXX', checkrange=2, debug=False):
         """
         DESCRIPTION:
             Method will check directory structure
             It will extract directory, amount of files, filetype, and last modification date
+        VARIABLES:
+            checkrange : int  time in hours which the youngest file in a directory needs to be old to be analyzed
+                              - is used to prevent analysis if incomplete uploads
         RETURN:
             result dictionary extended for directory content information if step1
             or review state if step2
