@@ -287,22 +287,29 @@ def main(argv):
         if debug:
             print(" Found the following mod:", dataset.get('modification'))
             print(dataset)
+        admin = imostatus.config.get('sysadmin')
+        adminmail = [admin.get(n) for n in admin][0]
         if dataset.get('modification') in ['updated but already accepted']:
             pass
         elif dataset.get('modification') in ['added to step2']:
-            contacts = imostatus.get_contact_mails(obscode=dataset.get('obscode'), year=dataset.get('year'))
-            managers = imostatus.get_manager_mails()
-            receivers = contacts + managers
-            maildict = {'subject': "Submission one-{} {}, {} moved to step2".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
-                        'text': "Dear data provider\nyour data submission has been moved to step2.\nSincerely,\n     IMBOT",
-                        'to': receivers}
-            if debug or nomail:
-                print(maildict)
+            # only send step2 reports for one-minute as one-second is automatically transferred to step2
+            if dataset.get('resolution') in ['minute']:
+                contacts = imostatus.get_contact_mails(obscode=dataset.get('obscode'), year=dataset.get('year'), debug=debug)
+                managers = imostatus.get_manager_mails()
+                receivers = contacts + managers
+                maildict = {'subject': "Submission one-{} {}, {} moved to step2".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
+                            'text': "Dear data provider\nyour data submission has been moved to step2.\nSincerely,\n     IMBOT",
+                            'to': receivers, 'from': [adminmail] }
+                if debug or nomail:
+                    print(maildict)
+                else:
+                    if test:
+                        maildict['to'] = maildict.get('from')
+                    methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
             else:
-                if test:
-                    maildict['to'] = maildict.get('from')
-                methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
-            imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
+                print(" found added to step2 in one-second data of {},{}".format(dataset.get('obscode'), dataset.get('year')))
+            if not debug and not test:
+                imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
                                                    year=dataset.get('year'), resolution=dataset.get('resolution'))
         elif dataset.get('modification') in ['added to step3']:
             contacts = imostatus.get_contact_mails(obscode=dataset.get('obscode'), year=dataset.get('year'))
@@ -310,28 +317,30 @@ def main(argv):
             receivers = contacts + managers
             maildict = {'subject': "Submission one-{} {}, {} moved to step3".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
                         'text': "Dear data provider\nyour data submission has been moved to step3 and will be published soon.\nSincerely,\n     IMBOT",
-                        'to': receivers}
+                        'to': receivers, 'from': [adminmail] }
             if debug or nomail:
                 print(maildict)
             else:
                 if test:
                     maildict['to'] = maildict.get('from')
                 methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
-            imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
+            if not debug and not test:
+                imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
                                                    year=dataset.get('year'), resolution=dataset.get('resolution'))
         elif dataset.get('modification') in ['step2 reviewed']:
             managers = imostatus.get_manager_mails()
             receivers = managers
             maildict = {'subject': "Submission one-{} {}, {} has been reviewed".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
                         'text': "Dear managers\na step2 data has been reviewed and is ready for final decisions.\nSincerely,\n     IMBOT",
-                        'to': receivers}
+                        'to': receivers, 'from': [adminmail] }
             if debug or nomail:
                 print(maildict)
             else:
                 if test:
                     maildict['to'] = maildict.get('from')
                 methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
-            imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
+            if not debug and not test:
+                imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
                                                    year=dataset.get('year'), resolution=dataset.get('resolution'))
 
     if not debug and not test:
