@@ -468,7 +468,7 @@ class botstatus(object):
         mails = obsdict.get(obscode, [])
         managers = obsdict.get('managers', [])
         if debug:
-            print("A) Mails from provided maillinglist", mails)
+            print("A) Mails from provided mailinglist", mails)
 
         if not len(mails) > 0:
             # B) Local memory with yearly reference

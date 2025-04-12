@@ -463,8 +463,9 @@ def sendmail(dic, credentials="webmail", debug=False):
         dic : dict with 'subject', 'from', 'to', 'text', 'attachment'
     """
 
-    #if not smtpserver:
-    #    smtpserver = 'smtp.web.de'
+    if debug:
+        print ("sendmail - input dictionary: ", dic)
+
     if 'attachment' in dic and isinstance(dic.get('attachment',[]), (list,tuple)):
         files = dic.get('attachment',[])
     else:
