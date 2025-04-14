@@ -58,6 +58,7 @@ class botstatus(object):
 |  imbot_steps     |  get_data_checker |     2.0.0 |      yes      |             |         | set_contacts |
 |  imbot_steps     |  get_imo         |      2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  get_modified    |      2.0.0 |      yes      |             |         |           |
+|  imbot_steps     |  referee_assignment |   2.0.0 |               |             |         |           |
 |  imbot_steps     |  set_contacts    |      2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  set_modification |     2.0.0 |      yes      |             |         |           |
 |  imbot_steps     |  update_level    |      2.0.0 |      yes      |             |         |           |
@@ -693,6 +694,38 @@ class botstatus(object):
         return self
 
 
+    def referee_assignment(self, startyear=2016, resolution='second', referee='assign'):
+        """
+        DESCRIPTION
+            Method to investigate data submissions and assignment of data checkers.
+            Will scan through all submission since a given start year and find assigend referees.
+            By defaukt will return IMOs with no refree assigned.
+            You can also return observatories for any specific data checker by using variable referee
+        REQUIRES
+            yearly_stats
+        APPLICATION
+            {name : obslist} = imostatus.referee_assignment(stats, startyear=2016, resolution='second', referee='Roman')
+        """
+        stats = self.yearly_stats(resolution=resolution)
+        fullobslist = []
+        reslist = []
+        outname = ''
+        for year in stats:
+            if int(year) >= startyear:
+                l = stats.get(str(year)).get('LevelDetails')
+                obslist = collections.OrderedDict(sorted(l.items()))
+                obslist = [e for e in l]
+                fullobslist.extend(obslist)
+        fullobslist = sorted(list(set(fullobslist)))
+        for obs in fullobslist:
+            dc = self.get_data_checker(obscode=obs, resolution=resolution)
+            name = [name for name in dc][0]
+            if name.find(referee) >= 0:
+                reslist.append(obs)
+                outname = name
+        return {outname: reslist}
+
+
     def set_modification(self, set='', year=None, resolution=None, obscode='ZYX'):
         """
         DESCRIPTION:
@@ -789,6 +822,7 @@ class botstatus(object):
         statsdict = {}
         for year in result:
             step3list = []
+            lastmodlist = []
             step2reviewlist = []
             step2list = []
             step1list = []
@@ -819,6 +853,8 @@ class botstatus(object):
                     noisedict[imo] = noise
                 if imocontent.get('dataformat'):
                     dataformats.append(imocontent.get('dataformat').upper())
+                if imocontent.get('lastmodified'):
+                    lastmodlist.append(imocontent.get('lastmodified'))
             contdict = {i:dataformats.count(i) for i in dataformats}
             contdict["N_step3"] = len(step3list)
             contdict["N_step2accepted"] = len(step2reviewlist)
@@ -827,6 +863,8 @@ class botstatus(object):
             contdict["N_total"] = len(totallist)
             contdict["LevelDetails"] = leveldict
             contdict["NoiseLevel"] = noisedict
+            if len(lastmodlist) > 0:
+                contdict["Latest_upload"] = sorted(lastmodlist)[-1]
             tmpdict = {i:levellist.count(i) for i in levellist}
             for el in tmpdict:
                 contdict["Level"+str(el)] = tmpdict[el]
