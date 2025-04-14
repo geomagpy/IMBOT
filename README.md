@@ -9,13 +9,9 @@ Contact: R. Leonhardt, GeoSphere Austria, Conrad Observatory, Vienna
 
 ## Abstract
 
-A peer review system is widely considered as essential to ensure the quality and accuracy of scientific research  by 
-allowing experts in the field to evaluate and provide feedback on the work before it is published. Such reviews help to
-identify and correct errors, inconsistencies, or gaps in methodology, analysis, or interpretation, thus improving the 
-overall reliability of the research. Although a peer-review system is widely used for scientific publications, pure 
-data products are typically not reviewed by the science community. INTERMAGNET, a network of geomagnetic observatories,
-however, based their data publications ultimately on a international peer review system. A group of volunteering data
-checkers is evaluating each data submission. Beside the obligatory 1-min data products, INTERMAGNET accepts 1Hz data
+INTERMAGNET, a network of geomagnetic observatories, publishes so called "definitive" data products, which are subjected
+to an international peer-review system. Geomagnetic data is submitted by about 100 observatories all over the world. 
+Beside the obligatory 1-min data products, INTERMAGNET accepts 1Hz data
 products since 10 years now. The amount of data to be checked thus has dramatically increased making it more and more
 difficult to perform data checks in its classic form. The INTERMAGNET ROBOT (short IMBOT) has been developed to provide
 some general initial automatic routines to convert and evaluate INTERMAGNET (IM) data submissions. The primary aims of
@@ -23,18 +19,21 @@ IMBOT are to (1) simplify one-second and one-minute data submissions for data pr
 process significantly, (3) to consider current IM archive formats and meta information (e.g. on leap seconds), (4) to
 simplify and speed up the peer-review process and finally (5) to reduce the workload of human data checkers. Detailed
 reports are automatically produced and send out along with templates for corrections to the submitting institute.
-Notifications of human referees is also performed by IMBOT and any re-evaluation is triggered automatically when
-updating data or any information in the submission directory. This automated 
+Notification of data providers and human referees is also performed by IMBOT and any re-evaluation is triggered 
+automatically when updating data or any information in the submission directory. This automated 
 system makes data review faster and more reliable, providing high-quality data for the geomagnetic community.
 
 
 ## 1. Introduction
 
-A peer-review system is widely used for scientific publications, and is generally accepted as being essential for 
-providíng objective results in a transparent way. Data products are typically not reviewed by
-the science community. INTERMAGNET, a network of geomagnetic observatories, however, based their data publications since
-2010 ultimately on a international peer review system. A group of volunteering data checkers is evaluating each data 
-submission. Initially INTERMAGNET applied this peer review system to  obligatory 1-min data products, which are used
+A peer review system is widely considered as essential to ensure the quality and accuracy of scientific research  by 
+allowing experts in the field to evaluate and provide feedback on the work before it is published. Such reviews help to
+identify and correct errors, inconsistencies, or gaps in methodology, analysis, or interpretation, thus improving the 
+overall reliability of the research. Although a peer-review system is widely used for scientific publications, pure 
+data products are typically not reviewed by the science community. INTERMAGNET, a network of geomagnetic observatories,
+however, based their data publications ultimately on a international peer review system. 
+A group of volunteering data checkers is evaluating each data submission. 
+Initially INTERMAGNET applied this peer review system to  obligatory 1-min data products, which are used
 to evaluate the quality of observatory data and whether this observatory meets the strict standards of INTERMAGNET.
 Since 2014 [INTERMAGNET] welcomes submissions of data products with one-second resolution. For effective archiving of 
 such data sets a new data format, [IMAGCDF], has been introduced. All INTERMAGNET observatories are invited to submit 
@@ -60,7 +59,7 @@ In this article we briefly summarize general aspects of a data reviewing process
 to be performed and possible issues with data submissions, specifically submission of one-second data
 to INTERMAGNET, although such issues might generally affect any other data submission. We will introduce an automatic
 routine to assist the peer review process by taking over a significant amount of checking tasks. The principle idea of 
-IMBOT, this automatic data checker, is to minimize the work load on both sides, data supplier and 
+IMBOT, the automatic data checker, is to minimize the work load on both sides, data supplier and 
 data checker, and provide data as fast as possible to end-users.
 For demonstration and testing purpose we are analyzing one-second submissions for two years, one shortly after 
 introducing one-second data to INTERMAGNET (2016) and a recent submission year for which the call-of data deadline 
@@ -75,21 +74,21 @@ research, although there are some parallels. Generally speaking, a data product 
 entity aimed at transforming data into actionable insights for users (citation). In order to accomplish this task 
 INTERMAGNET provides strict rules rules on data files, formats, contents, thresholds and meta information to be obeyed. 
 Thus the review task can be structured in a number of important bullet points to test for these criteria. 
-The role of the data reviewing is to ensure that the submitted definitive data meets INTERMAGNET standards in 
+The role of data reviewing is to ensure that the submitted definitive data meets INTERMAGNET standards in 
 all of the following aspects and eventually to provide recommendations for improvement. Although minor correction to
 meta information and file structure are possible from the referees side (as decided by IM definitive committee in 2024),
 provided an approval by the data provider,
 modifications on data contents are solely performed by the submitting entity. This procedure is similar to the review 
 process of scientific work, where layout changes and type errors can be corrected in the editorial process, requiring 
 the acceptance (proof reading) of the authors. Suggestions on scientific contents however need to be implemented by 
-the authors themselfs. Thus both an automatic and human reviewing process needs to preserve data contents in its original  
-state. When it come to publication through data portals of INTERMAGNET it is important to note that the data provider, 
-then denoted as a INTERMAGNET observatory (IMO), retains ownership of its data. 
+the authors themself. Thus both an automatic and human reviewing process needs to preserve data contents in its 
+original state. When it come to publication through data portals of INTERMAGNET it is important to note that the data
+provider, then denoted as a INTERMAGNET observatory (IMO), retains ownership of its data. 
 
 ### 2.1. Task 1: Correct amount of obligatory files and validity of formats
 
 The first reviewing task will always be the verification of the general contents of the submitted data product. This 
-task involves the check whether the data products contains the correct amount of data files, whether naming principles
+task involves a check whether the data products contains the correct amount of data files, whether naming principles
 are obeyed and whether the supplied formats are correct. In terms of a INTERMAGNET one-minute data product, the
 obligatory files comprise 12 binary data files with monthly coverage, 1 ascii data file containing baseline data, 1 
 readme file and a file containing yearly means for the observatory. There are also non-obligatory files, at least for
@@ -111,7 +110,7 @@ for INTERMAGNET is described in the technical manual (citation) and specific for
 ### 2.3. Task 3: Data contents
 
 When it comes to data contents it is firstly necessary to check whether each data file covers the projected time range
-and and missing data set is marked with appropriate flags. It is further necessary to check whether all components are
+and missing data is marked with appropriate flags. It is further necessary to check whether all components are
 present and whether these columns contain appropriate data. The given components as defined in the meta information
 need to be present in the data file and be included according to the underlying format description. In terms of 
 geomagnetic data, vectorial information can be provided in various different coordinate systems, spherical, cylindrical,
@@ -135,7 +134,7 @@ established data from a nearby location.
 ### 2.5. Data quality
 
 The final task of a data review process concerns data quality. Overall, a unique measure of data quality is not easy to 
-access in geomagnetic data as many typically used parameters like noise level, signal amplitudes are strongly dependent
+obtain in geomagnetic data as many typically used parameters like noise level, signal amplitudes are strongly dependent
 on latitude, background geology, vicinity to oceans and so on. Nevertheless, the data should be free of anthropogenic
 disturbances. Nearby magnetic disturbances are typically investigated by analysis of sensor differences of two
 sensors, often provided as delta F between a continuous vectorial F and continuous scalar F sensor. Frequency 
@@ -158,16 +157,16 @@ steps, which are also characterized by different data archives provided by INTER
 
 ### 3.1. Step 1 - submission and review
 
-Step 1 is related to the submission process of the data provider and the also comprises any updates and or corrections 
+Step 1 is related to the submission process of the data provider and also comprises any updates and/or corrections 
 of submitted data products. Whenever data products are submitted to INTERMAGNET they are uploaded to a
 geomagnetic information nodes (GIN). The step 1 GIN is hosted by CNRS in Paris. Observatories/Institutes will 
 obtain connection details after initial approval by INTERMAGNET officers. There are two different step 1 archives on the
 GIN, one for one-minute data, the other for one-second data. The have a common structure, namely a yearly directory
 organization and will always host solely original raw data as uploaded by the submitting entity. IMBOT is permanently
 scanning these archives and an automatic analysis is triggered when ever new data is uploaded or data has been modified
-whithin the step 1 directory. IMBOT version 2 is scanning the directory structure every second day starting in the night
+within the step 1 directory. IMBOT is scanning the directory structure every day starting in the night
 (central european time) and will analyze data sets which have modified/created since its last scan. It will exclude data modified within the
-last two hours to prevent the analysis of yet unfinished upload processes. After performing the automatic tests the
+last two hours to prevent the analysis of yet unfinished upload processes. After performing automatic tests the
 ongoing procedure is slightly different for one-minute data products and one-second data products.
 For one-minute data products, the data provider as well as the assigned data checker will receive an automatic notification
 including review report from the automatic process. Then the human referee is performing a review and discussing
@@ -181,7 +180,7 @@ the data provider will be informed and receive a preliminary automatic review re
 performed whenever data is modified/uploaded to step 1, and also if the one-minute data product reaches a new step. 
 The human data checker however will only be informed as soon as the one-minute data is finally accepted for publication
 (step 3). The second reason for differences, is the great variety of format type and versions plus packing tools which 
-have been used to upload one-second data to step 1, as you will in the following sections. This would render a data
+have been used to upload one-second data to step 1. This would render a data
 review very difficult as various different software products and operating system related tools are necessary to even
 read such data products. Thus the automatic process is also trying to extract the data structures and reformat the
 files into latest versions of INTERMAGNET recommended IMAGCDF archives covering monthly data sets. This process needs
@@ -194,7 +193,7 @@ the human referee is uploading a review report to step 2.
 Step 2 can be described as the editorial task of the review process. Whenever one-minute data is uploaded to step 2 or 
 final review reports are uploaded to the one-second step 2 archive, then IMBOT, also scanning step 2 directories will 
 automatically inform data providers and the chairs of the INTERMAGNET definitive data committee (IM-DD) that the main review 
-process is finished. The next step can be compared to a editorial task in scientific publications. The chairs of (IM-DD)
+process is finished. The next step can be compared to a editorial task in scientific publications. The chairs of IM-DD
 will read review reports and eventually cross check some evaluations. If coming to a positive conclusion, data will be
 finally accepted and made available on step 3 which is then accessed by the definitive data portals of INTERMAGNET.   
 
@@ -205,15 +204,14 @@ data providers are automatically informed that there data has been finally accep
 
 ## 4. IMBOT application
 
-IMBOT is running on a Linux server, which currently is a POC120 industrial computer, located in southern 
-Germany, hereinafter denoted as IMBOT server. The IMBOT server is maintained by an observer, the IMBOT manager, who 
-monitors run time and data processing on the machine. The IMBOT server accesses periodically, e.g. every second day, the 
-INTERMAGNET GIN in Paris, and donwloads any new data sets. Every other day it then scans all downloaded submission 
-directories for new and modified files and directories. This process covers all repositories, namely STEP1, STEP2 and 
-STEP3 directories, for one-minute and one-second data. New or modified files within the STEP1 directories are identified
-by their creation and modification time, and by comparing this information with an "already processed" memory on the IMBOT
-server which is updated during every scan. If a new directory or new data is found within an observatories directory at 
-the GIN, which has not changed for at least 2 hours, then data within is directory will be analyzed.
+IMBOT is running on a Linux server, currently a KATOM industrial computer, hereinafter denoted as IMBOT server. The 
+IMBOT server is maintained by an observer, the IMBOT manager, who monitors run time and data processing on the machine.
+The IMBOT server accesses periodically, i.e. every day, the INTERMAGNET GIN in Paris, and downloads any new data sets.
+Also every day it then all downloaded submission directories for new and modified files and directories. This process
+covers all repositories, namely STEP1, STEP2 and STEP3 directories, for one-minute and one-second data. New or modified
+files within the STEP1 directories are identified by their creation and modification time, by comparing this
+information with an "already processed" memory on the IMBOT server. If a new directory or new data is found at 
+the GIN then data within this directory will be analyzed.
 Reading and writing processes are relying on the MagPy2.0 (citation) library, which supports all data formats currently
 used in the geomagnetic community and is able to support future modifications. 
 IMBOT consists of three separate applications: The first application, IMBOT_convert, will download data products from 
@@ -424,13 +422,12 @@ including review protocols of IMBOT and the human data checker.
 | 2019 | 50        | 40        | 4        |
 | 2020 | 43        | 35        | 8        |
 | 2021 | 32        | 28        | 4        |
-| 2022 | 29        | 25*       | 2        |
+| 2022 | 29        | 26*       | 2        |
 | 2023 | 20        | 11*       | 0        |
 | 2024 | 0         | 0         | -        |  
 
-*Should be 28 for 2022 (but i.e. FUR leads to memory failure in old IMBOT) and likely also higher for 2023 (check).
-Old versions reports level1 for BOU (dF/G), SIT (df/G) and HER and aborts analysis for FUR
-
+Table 5.1: Current submissions and their review state. IMBOT is running only for submission from 2019 onwards. The 
+human cross-checking process is currently beginning.
 
 ### 5.2. In-depth analysis of submitted data sets 
 
@@ -451,7 +448,9 @@ mostly of daily files, compressed in gnuzip or zips or just
 combined into tar archives. Monthly IMAGCDF files without any additional compression as requested in 2016 by
 INTERMAGNET are provided by a few observatories only.  
 
-Figure 5.1a: ![5.1a](./imbot/documentation/pie_2016_formats.png "Underlying data formats for 2016.")
+![5.1a](./imbot/documentation/pie_2016_formats.png "Underlying data formats for 2016.")
+Figure 5.1a: Distribution of data formats submitted in 2016. Later submissions mainly used the IMAGCDF1.2 format.
+About 1/3 of the submission still use IAGA-2002 with limited 10pT resolution.
 
 Since 2016 INTERMAGNET and several observatories provided new tools for IMAGCDF export and also the official CDF 
 tools improved. When looking at the submission status for 2022, the proportion of correct submissions using a 
@@ -461,7 +460,10 @@ in-official version number 1.3, which will hereinafter denoted as version 1.2.1.
 one minute data product is not available (ABK, DED, HRN). Therefore, these data sets are missing in the analyses of 
 5.3 onwards. 
 
-Figure 5.1b: ![5.1b](./imbot/documentation/pie_2022_formats.png "Underlying data formats for 2022.")
+![5.1b](./imbot/documentation/pie_2022_formats.png "Underlying data formats for 2022.")
+Figure 5.1b: Distribution of data formats submitted in 2022. Only a few IAGA-2002 submissions remain. Some submissions
+use an experimental IMAGCDF version including flagging information.
+
 
 The automatic analysis routine IMBOT is able to extract data from all compression and archiving formats used so far 
 in data submission. It further can handle all different file formats and their underlying versions and data coverages.
@@ -486,8 +488,10 @@ oppose 26 level 2 data sets. For 2016 there were 21 level 1 and two level 0 data
 The main reason for level 0, only observed in old 2016 submissions are missing data or individual unreadable, likely 
 corrupted data files.
 
-Figure 5.2: ![5.2](./imbot/documentation/bar_levels.png "IMBOT level assignments during the automatic data checking process. In 2022 the majority of
-data sets fulfilles all testing criteria.")
+![5.2](./imbot/documentation/bar_levels.png "IMBOT level assignments during the automatic data checking process. In 2022 the majority of
+data sets fulfills all testing criteria.")
+Figure 5.2: MBOT level assignments during the automatic data checking process. In 2022 the majority of
+data sets fulfills all testing criteria.
 
 The main reason of level 1 products in 2016 is missing meta information, and missing data due insufficient file 
 coverage is the second most important. For 2022 only the second reason remains, as the data supplier improved their own
@@ -495,7 +499,8 @@ data production strategy and for several submissions use the meta template provi
 The main reason for two level 1 data products in 2022 is related to significant disturbances of delta F values, the 
 difference between a continuous scalar F and the vector F, observed for a single month (Figure 5.3).
 
-Figure 5.3: ![5.3](./imbot/documentation/level1_BOU_df.png "Strong deviations in delta F (G) will trigger a level reduction")
+![5.3](./imbot/documentation/level1_BOU_df.png "Strong deviations in delta F (G) will trigger a level reduction")
+Figure 5.3: Strong deviations in delta F (G) will trigger a level reduction
 
 The example of Figure 5.3 indicates likely a problem of baseline adoption for two days. As the data supplier obtains 
 details on the failure and its specific month, they can quickly react and correct the issue.  
@@ -536,7 +541,8 @@ even below 20pT/$\sqrt{Hz}$ for half of the data suppliers for 2016. For 2022 th
 of submissions are characterized by noise levels below 20pT/$\sqrt{Hz}$ (Figure 5.4). For two data sets noise levels exceeding 
 100pT/$\sqrt{Hz}$ are found of which one has the correct corresponding IMOS-11 input. 
 
-Figure 5.4: ![5.4](./imbot/documentation/noiselevel_2022.png "Median noise level for all IMOs submitting data in 2022")
+![5.4](./imbot/documentation/noiselevel_2022.png "Median noise level for all IMOs submitting data in 2022")
+Figure 5.4: Median noise level for all IMOs submitting data in 2022
 
 The noise level and a comparison to other observatories might be helpful when planing instrument and installation 
 upgrades. Nevertheless, data suppliers and data checkers might test the power spectral density function for identifying 
