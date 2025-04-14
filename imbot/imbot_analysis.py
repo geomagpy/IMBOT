@@ -16,6 +16,7 @@ from imbot.analysis import minute
 from imbot.analysis import second
 from datetime import timedelta
 import shutil
+import gc
 import getopt
 import sys
 import os
@@ -202,6 +203,7 @@ def main(argv):
                 ok = True
                 if ok:
                     #try:
+                    gc.collect()
                     tablelist = []
                     secana = second.second_definitive(input=dataset)
                     secana.logdict['Level'] = 2
@@ -216,7 +218,7 @@ def main(argv):
                         data, allcontents = secana.read_month(dates, debug=False)
                         dataformat = data.header.get("DataFormat")
                         if len(data) > 0:
-                            month = (data.start() + timedelta(days=10)).strftime("%m (%b)")
+                            month = (data.start() + timedelta(days=3)).strftime("%m (%b)")
                             data = data._remove_nancolumns()
                             if len(data) > 0:
                                 secana.delta_f_test(data)
@@ -298,7 +300,7 @@ def main(argv):
                 managers = imostatus.get_manager_mails()
                 receivers = contacts + managers
                 maildict = {'subject': "Submission one-{} {}, {} moved to step2".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
-                            'text': "Dear data provider\nyour data submission has been moved to step2.\nSincerely,\n     IMBOT",
+                            'text': "Dear data provider,\nyour data submission has been moved to step2.\nSincerely,\n     IMBOT",
                             'to': receivers, 'from': [adminmail] }
                 if debug or nomail:
                     print(maildict)
@@ -316,7 +318,7 @@ def main(argv):
             managers = imostatus.get_manager_mails()
             receivers = contacts + managers
             maildict = {'subject': "Submission one-{} {}, {} moved to step3".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
-                        'text': "Dear data provider\nyour data submission has been moved to step3 and will be published soon.\nSincerely,\n     IMBOT",
+                        'text': "Dear data provider,\nyour data submission has been moved to step3 and will be published soon.\nSincerely,\n     IMBOT",
                         'to': receivers, 'from': [adminmail] }
             if debug or nomail:
                 print(maildict)
@@ -331,7 +333,7 @@ def main(argv):
             managers = imostatus.get_manager_mails()
             receivers = managers
             maildict = {'subject': "Submission one-{} {}, {} has been reviewed".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
-                        'text': "Dear managers\na step2 data has been reviewed and is ready for final decisions.\nSincerely,\n     IMBOT",
+                        'text': "Dear managers,\na one-second data product on step2 has been reviewed by an INTERMAGNET data checker and is ready for final decisions.\nSincerely,\n     IMBOT",
                         'to': receivers, 'from': [adminmail] }
             if debug or nomail:
                 print(maildict)

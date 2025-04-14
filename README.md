@@ -810,8 +810,9 @@ Get all human referee reports:
 
           find . -print | grep -i accept
 
+Delete old cdf form names
 
-
+          find . -name "*_000000_PT1S_4.cdf" -exec rm -f {} \;
 
 
 
