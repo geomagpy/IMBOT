@@ -9,6 +9,7 @@ shutil.copyfile('imbot/imbot_init.py','scripts/imbot_init')
 shutil.copyfile('imbot/imbot_scan.py','scripts/imbot_scan')
 shutil.copyfile('imbot/imbot_analysis.py','scripts/imbot_analysis')
 shutil.copyfile('imbot/imbot_convert.py','scripts/imbot_convert')
+shutil.copyfile('imbot/imbot_report.py','scripts/imbot_report')
 
 install_requires=[
             "geomagpy > 1.1.9",
@@ -24,7 +25,7 @@ setup(
     author='R. Leonhardt',
     author_email='roman.leonhardt@geosphere.at',
     packages=['imbot', 'imbot.analysis', 'imbot.core', 'imbot.documentation', 'imbot.bash', 'imbot.config', 'imbot.templates'],
-    scripts=['scripts/imbot_scan','scripts/imbot_analysis', 'scripts/imbot_init', 'scripts/imbot_convert'],
+    scripts=['scripts/imbot_scan','scripts/imbot_analysis', 'scripts/imbot_init', 'scripts/imbot_convert', 'scripts/imbot_report'],
     url='',
     license='LICENSE.txt',
     description='INTERMAGNET automatic data checker',

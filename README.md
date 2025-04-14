@@ -645,6 +645,8 @@ Sergey Komoutov
 
 ## Appendix 1: Installation instructions
 
+### Required software
+
 IMBOT is a python project specifically developed and tested in debian like Linux environments. The recommended setup
 was tested on Ubuntu 22.04 but will work in future versions provided the underlying packages are still available.
 Before installing and using imbot as described in this manuscript you need to install the following additional
@@ -671,6 +673,64 @@ number of templates and skeletons for configuration files.
        pip install imbot
 
 Continue with imbot configuration in appendix 2.
+
+### On a empty/new system and ONLY there
+
+Run initialization script to create configuration scripts and templates 
+
+       imbot_init 
+
+### Configuring all packages
+
+#### configuring wine for check1min analysis
+
+Copy check1min.exe to your homedirectory. Then do an initial test run with wine
+
+       $ wine start check1min.exe
+
+The above command will create a .wine folder in your home directory. After ending the
+test run move the check1min program to /home/USER/.wine/drive_c/
+
+       $ mv check1min.exe /home/USER/.wine/drive_c/
+
+Create a data directory under drive_c:
+
+       $ cd /home/USER/.wine/drive_c/
+       $ mkdir data
+
+Update imbot.cfg. Modify the inputs for "winepath" with /home/USER/.wine/drive_c/.
+
+#### configuring imbot
+
+go to ~/.imbot and copy the following files to the main directory if not there
+1) download_min.sh: edit to download one-minute data from GIN
+2) download_min.sh: edit to download one-second data from GIN
+3) ginsource.sh: edit for GIN credentials
+4) scan.sh: edit to run scan and analysis job
+4) report.sh: edit to run regular reporting jobs
+
+modify/edit the following files:
+1) conf/imbot.cfg
+2) conf/refereelist_minute.cfg
+3) conf/refereelist_second.cfg
+4) conf/mailinglist.cfg
+
+
+#### configuring MARTAS applications
+
+1) monitor: monitor disk space and scan file logs
+2) backup: add ~/.imbot to the backup routine
+3) activate cleanup to clear temporary directory without restart
+
+#### schedule the imbot jobs in crontab
+
+1) download_min
+2) download_sec
+
+3) scan 
+    scan and analysis
+4) report
+    imbot_report -c config -j disk,last 
 
 
 ## Appendix 2: Defining Referee and Observatory mailing lists
@@ -711,66 +771,9 @@ Scheduled jobs in the following order:
 3. analysis.py is called to extract modified data from memory and run min/sec analysis
    - run the jobs and create mails
    - send mails to receivers
-   - TODO create reports and send via messenger and mail
+   - create reports and send via messenger and mail
    - monitor successful completion of analysis
 
-## Appendix 4: setting up an IMBOT server from scratch
-
-### Installing packages based on Ubunutu >= 20.04
-
-- install magpy>=2.0 (follow the magpy installation instructions, used for read/write)
-- get MARTAS and install a dummy martas job, telegram (used for monitoring and backup)
-- sudo apt-get install curlftpfs (mounting external devices)
-- sudo apt install p7zip-full p7zip-rar (unpacking second data)
-- sudo apt install wine (for check1min dos program)
-- install imbot 
-
-       pip install imbot...
-
-### Empty/New system and ONLY there
-
-Run initialization script to create configuration scripts and templates 
-
-### Configuring all packages
-
-#### configuring wine for check1min analysis
-
-Copy check1min.exe to your homedirectory. Then do an initial test run with wine
-
-       $ wine start check1min.exe
-
-The above command will create a .wine folder in your home directory. After ending the the
-test run mv the check1min program to /home/USER/.wine/drive_c/
-
-       $ mv check1min.exe /home/USER/.wine/drive_c/
-
-Create a data directory under drive_c:
-
-       $ cd /home/USER/.wine/drive_c/
-       $ mkdir data
-
-Update imbot.cfg. Modify the inputs for "winepath" with /home/USER/.wine/drive_c/.
-
-#### configuring imbot
-
-go to ~/.imbot and copy the following files to the main directory if not there
-1) download_min.sh: edit to download one-minute data from GIN
-2) download_min.sh: edit to download one-second data from GIN
-3) ginsource.sh: edit for GIN credentials
-4) scan.sh: edit to run scan and analysis job
-
-modify/edit the following files:
-1) conf/imbot.cfg
-2) conf/refereelist_minute.cfg
-3) conf/refereelist_second.cfg
-4) conf/mailinglist.cfg
-
-
-#### configuring MARTAS applications
-
-1) monitor: monitor disk space and scan file logs
-2) backup: add ~/.imbot to the backup routine
-3) activate cleanup to clear temporary directory without restart
 
 ##  Appendix 5: example for a meta_OBSCODE.txt
 

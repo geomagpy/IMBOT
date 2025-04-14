@@ -88,6 +88,14 @@ def main(argv):
     if "disk" in jobs:
         telmsg += report.imbot_disk_usage(archive="/srv/imbot", warnlevel=20, critlevel=10)
         telmsg += "\n"
+    if "last" in jobs:
+        telmsg += "Last uploads:\n"
+        telmsg += "\nMinute | Date\n"
+        telmsg += "------ | ----\n"
+        telmsg += report.get_last_updates(minstats, startyear=year)
+        telmsg += "\nSecond | Date\n"
+        telmsg += "------ | ----\n"
+        telmsg += report.get_last_updates(secstats, startyear=year)
     if year:
         if "secondlevel" in jobs:
             telmsg += report.observatory_list(secstats, year=year, levels=True)
@@ -98,14 +106,6 @@ def main(argv):
             telmsg += "Second:\n"
             telmsg += report.observatory_list(secstats, year=year, levels=False)
             telmsg += "\n"
-        if "last" in jobs:
-            telmsg += "Last uploads:\n"
-            telmsg += "\nMinute | Date\n"
-            telmsg += "------ | ----\n"
-            telmsg += report.get_last_updates(minstats, startyear=year)
-            telmsg += "\nSecond | Date\n"
-            telmsg += "------ | ----\n"
-            telmsg += report.get_last_updates(secstats, startyear=year)
     else:
         print ("Your selected job requires a year -  please provide")
 
