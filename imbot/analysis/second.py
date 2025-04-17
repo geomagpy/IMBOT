@@ -83,6 +83,7 @@ class second_definitive(object):
         year = self.input.get('year')
         obscode = self.input.get('obscode')
         self.step2folder = os.path.join(step2folder, year, obscode)
+        print ("Exporting to", self.step2folder)
 
         if not self.input:
             self.report.append("second_analysis: no data provided - aborting")

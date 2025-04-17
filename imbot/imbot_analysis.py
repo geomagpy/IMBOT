@@ -170,7 +170,7 @@ def main(argv):
         if dataset.get('modification') in ['new', 'updated']:  # don't analyse "updated but already accepted"
             if dataset.get('resolution') == 'minute' and resolution in ['','minute']:
                 try:
-                    minana = minute.minute_definitive(input=dataset)
+                    minana = minute.minute_definitive(input=dataset, config=imostatus.config)
                     reportpath = minana.DOS_check1min(debug=False)
                     level = minana.MagPy_check1min(debug=False)
                     imodict = imostatus.get_imo(obscode=minana.input.get('obscode'), year=minana.input.get('year'),
@@ -200,12 +200,12 @@ def main(argv):
                 except:
                     failedmin.append(dataset.get('obscode'))
             elif dataset.get('resolution') == 'second' and resolution in ['','second']:
-                ok = True
-                if ok:
-                    #try:
+                #ok = True
+                #if ok:
+                try:
                     gc.collect()
                     tablelist = []
-                    secana = second.second_definitive(input=dataset)
+                    secana = second.second_definitive(input=dataset,config=imostatus.config)
                     secana.logdict['Level'] = 2
                     datelist = secana.get_months()
                     secana.logdict['MagPyVersion'] = magpyversion
@@ -282,8 +282,8 @@ def main(argv):
                         successsecnew.append(dataset.get('obscode'))
                     else:
                         successsecupd.append(dataset.get('obscode'))
-                #except:
-                #    failedsec.append(dataset.get('obscode'))
+                except:
+                    failedsec.append(dataset.get('obscode'))
 
     for dataset in modlist:
         if debug:

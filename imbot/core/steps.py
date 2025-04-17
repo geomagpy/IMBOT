@@ -96,7 +96,7 @@ class botstatus(object):
 
     def _find_exclude(self, filename, excludelist=None):
         if not excludelist:
-            excludelist = ['.listing', 'cln.zip']
+            excludelist = ['.listing', 'cln.zip', 'report']
         for ex in excludelist:
             if filename.find(ex) > -1:
                 return True
