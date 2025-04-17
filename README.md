@@ -690,9 +690,10 @@ Run initialization script to create configuration scripts and templates
 
 #### configuring wine for check1min analysis
 
-Copy check1min.exe to your homedirectory. Then do an initial test run with wine
+Copy check1min.exe to your homedirectory. Then do an initial test run with wine. Please note: wine requires X86 and
+check1min will run only in win32.
 
-       $ wine start check1min.exe
+       $ wine check1min.exe
 
 The above command will create a .wine folder in your home directory. After ending the
 test run move the check1min program to /home/USER/.wine/drive_c/
