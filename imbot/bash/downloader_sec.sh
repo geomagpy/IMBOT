@@ -23,7 +23,8 @@ curlftpfs -o user=$SECSTEP2FULL,allow_other $GINIP $MOUNTLEVEL
 mkdir -p $STEP2DIR
 
 if grep -qs "$MOUNTLEVEL" /proc/mounts; then
-  $RSYNC -avz -T "/tmp/" --exclude .snapshot --no-perms --no-owner --no-group $MOUNTLEVEL/ $STEP2DIR
+  $RSYNC -auvz -T "/tmp/" --exclude .snapshot --no-perms --no-owner --no-group $MOUNTLEVEL/ $STEP2DIR
+  $RSYNC -avz -T "/tmp/" --exclude .snapshot --no-perms --no-owner --no-group $STEP2DIR/ $MOUNTLEVEL
   umount $MOUNTLEVEL
   echo "GIN level unmounted"
 fi

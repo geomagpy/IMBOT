@@ -479,6 +479,9 @@ def sendmail(dic, credentials="webmail", debug=False):
     port = cred.lc(credentials,'port')
     if port:
         port = int(port)
+    if not smtpserver:
+        print ("sendmail: will not work. Please check your credentials and mailserver defintion")
+        return
 
     msg = MIMEMultipart()
     msg['From'] = user #dic.get('from')

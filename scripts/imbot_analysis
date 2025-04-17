@@ -173,6 +173,9 @@ def main(argv):
                     minana = minute.minute_definitive(input=dataset, config=imostatus.config)
                     reportpath = minana.DOS_check1min(debug=False)
                     level = minana.MagPy_check1min(debug=False)
+                    print ("  Obtained minute level", level)
+                    imostatus = imostatus.add_content(obscode=minana.input.get('obscode'), year=minana.input.get('year'),
+                                                      resolution='minute', name='imbot_level', content=level)
                     imodict = imostatus.get_imo(obscode=minana.input.get('obscode'), year=minana.input.get('year'),
                                                 resolution='minute')
                     maildict = minana.minute_mail_text(level, imodict, reportpath=reportpath)
@@ -253,7 +256,7 @@ def main(argv):
                     # write the report (mtable is just needed once)
                     print ("  Writing report...")
                     level = secana.write_report(tablelist=tablelist, debug=False)
-                    print ("  Obtained level", level)
+                    print ("  Obtained second level", level)
                     imostatus = imostatus.add_content(obscode=secana.input.get('obscode'), year=secana.input.get('year'),
                                                       resolution='second', name='imbot_level', content=level)
                     imodict = imostatus.get_imo(obscode=secana.input.get('obscode'), year=secana.input.get('year'),

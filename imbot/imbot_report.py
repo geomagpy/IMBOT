@@ -107,8 +107,10 @@ def main(argv):
         if "obslist" in jobs:
             telmsg += "Minute:\n"
             telmsg += report.observatory_list(minstats, year=year, levels=False)
+            telmsg += "\n"
             telmsg += "Second:\n"
             telmsg += report.observatory_list(secstats, year=year, levels=False)
+            telmsg += "\n"
             telmsg += "\n"
     else:
         print ("Your selected job requires a year -  please provide")
