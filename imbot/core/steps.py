@@ -381,7 +381,7 @@ class botstatus(object):
             dl = [len(el) for el in dirs]
             if len(dl) > 0:
                 dominant_length = max(set(dl), key=dl.count)
-                if dominant_length == 3 and not len(obslist) > 0:
+                if dominant_length == 3:
                     if debug:
                         print("Found IMO level")
                     # get year from root
@@ -395,7 +395,8 @@ class botstatus(object):
                         useyear = fyear[0]
                     elif not len(fyear) > 0:
                         print("No year found - doing nothing")
-                    obslist = [el for el in dirs if len(el) == 3]
+                    newlist = [el for el in dirs if len(el) == 3]
+                    obslist.extend(newlist)
                     if debug:
                         print ("Obtained obslist", obslist)
             if useyear and len(obslist) > 0 and lastpart in obslist:
