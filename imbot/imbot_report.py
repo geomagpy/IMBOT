@@ -49,10 +49,11 @@ def main(argv):
             print ('-c            : imbot config file')
             print ('-j            : report jobs:')
             print ('              : disk  ->  disk space of server')
+            print ('              : log  ->  check whether log files finished wit SUCCESS')
+            print ('              : last  ->  last modified submission ')
             print ('              : the following jobs require -y year')
             print ('              : obslist  ->  all observatories')
             print ('              : secondlevel  ->  current level ')
-            print ('              : last  ->  last modified submission ')
             print ('-y            : year')
             print ('-------------------------------------')
             print ('Example of memory:')
@@ -87,6 +88,9 @@ def main(argv):
 
     if "disk" in jobs:
         telmsg += report.imbot_disk_usage(archive="/srv/imbot", warnlevel=20, critlevel=10)
+        telmsg += "\n"
+    if "log" in jobs:
+        telmsg += report.log_check(logdir=imostatus.config.get("logpath","/tmp"))
         telmsg += "\n"
     if "last" in jobs:
         telmsg += "Last uploads:\n"

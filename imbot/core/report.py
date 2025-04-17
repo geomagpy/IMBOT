@@ -10,6 +10,7 @@ import numpy as np
 import unittest
 import shutil
 import collections
+import pathlib
 
 import copy
 # Remove that
@@ -24,6 +25,7 @@ plotting functions are untested
 |**core.report** |     |        |               |                     |  | |
 |    | _transform_name  | 2.0.0 |               |                     |        | pie chart |
 |    | get_last_updates | 2.0.0 |  yes          | yes                 |        | |
+|    | log_check        | 2.0.0 |  yes          | yes                 |        | |
 |    | imbot_disk_usage | 2.0.0 |  yes          | yes                 |        | |
 |    | noiselevel_plot  | 2.0.0 |               |                     |        | |
 |    | observatory_list | 2.0.0 |  yes          | yes                 |        | |
@@ -88,6 +90,34 @@ def imbot_disk_usage(archive="/srv/imbot", warnlevel=20, critlevel=10, debug=Fal
     return telmsg
 
 
+def log_check(logdir="/home/cobs/.imbot/log"):
+    """
+    DESCRIPTION
+        Checks whether all log files finished with SUCCESS
+    """
+    result = {}
+    lst = []
+    n = 5
+    search = "SUCCESS"
+    telmsg = "process | status\n"
+    telmsg += "----- | ----------\n"
+    # get all files ending with .log in logdir
+    for log_file in pathlib.Path(logdir).glob('*.log'):
+        master = "Failure"
+        with open(log_file) as lf:
+            lst = lf.readlines()
+        lastlines = lst[-n:]
+        for line in lastlines:
+            if search in line:
+                master = 'Success'
+        result[os.path.basename(log_file)[:-4]] = master
+
+    for key in result:
+        telmsg += "{} | {}\n".format(key, result[key])
+
+    return telmsg
+
+
 def noiselevel_plot(stats, year=2016, debug=False):
     """
     DESCRIPTION
@@ -143,7 +173,7 @@ def observatory_list(stats,year=2016, levels=False):
     return telmsg
 
 
-def pie_chart(stats, year=2016, displaylist=["Level0","Level1","Level2"]):
+def pie_chart(stats, year=2016, displaylist=None):
     """
     DESCRIPTION
         Create a pie chart of contents in stats, depending on the provided displaylist
@@ -157,6 +187,8 @@ def pie_chart(stats, year=2016, displaylist=["Level0","Level1","Level2"]):
         stats = imostatus.yearly_stats(resolution='second')
         result = pie_chart(stats, year=2022, displaylist='steps')
     """
+    if not displaylist:
+        displaylist = ["Level0","Level1","Level2"]
     fig, ax = plt.subplots()
     counts = []
     disp = []
@@ -212,6 +244,10 @@ class TestImbotStep(unittest.TestCase):
         imostatus = steps.botstatus(config=config)
         stats = imostatus.yearly_stats(resolution='second')
         l = get_last_updates(stats, startyear=1777)
+        self.assertTrue(l)
+
+    def test_log_check(self):
+        l = log_check(logdir="/tmp")
         self.assertTrue(l)
 
     def test_imbot_disk_usage(self):
