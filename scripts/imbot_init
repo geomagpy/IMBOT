@@ -55,6 +55,7 @@ def main(argv):
         os.makedirs(os.path.join(homedir,".imbot"), exist_ok=True)
         # create sudirs
         os.makedirs(os.path.join(homedir,".imbot","log"), exist_ok=True)
+        os.makedirs(os.path.join(homedir, ".imbot", "notebook"), exist_ok=True)
     #
     # copy files into subdirs
     if not os.path.isdir(os.path.join(homedir,".imbot","conf")):
