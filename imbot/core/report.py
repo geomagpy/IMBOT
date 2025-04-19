@@ -60,7 +60,7 @@ def get_last_updates(stats, startyear=1777, defaultrange=5):
         if int(year) >= startyear:
             cont = stats.get(year)
             datum = cont.get('Latest_upload',' ')
-            telmsg += "{} | {}\n".format(year, datum)
+            telmsg += "| {} | {} |\n".format(year, datum)
     return telmsg
 
 def imbot_disk_usage(archive="/srv/imbot", warnlevel=20, critlevel=10, debug=False):
@@ -72,8 +72,8 @@ def imbot_disk_usage(archive="/srv/imbot", warnlevel=20, critlevel=10, debug=Fal
     percm, perca = 100., 100.
     totalm, usedm, freem = shutil.disk_usage("/")
     percm = freem/totalm*100.
-    telmsg = "IMBOT | disk-usage\n"
-    telmsg += "----- | ----------\n"
+    telmsg = "| IMBOT | disk-usage |\n"
+    telmsg += "| ----- | ---------- |\n"
     result["/"] = "Free: {}GiB ({:.1f}%)".format((freem // (2**30)), percm)
     if archive and os.path.isdir(archive):
         totala, useda, freea = shutil.disk_usage(archive)
@@ -85,7 +85,7 @@ def imbot_disk_usage(archive="/srv/imbot", warnlevel=20, critlevel=10, debug=Fal
         result["disk space"] = "warning"
 
     for key in result:
-        telmsg += "{} | {}\n".format(key, result[key])
+        telmsg += "| {} | {} |\n".format(key, result[key])
 
     return telmsg
 
@@ -99,8 +99,8 @@ def log_check(logdir="/home/cobs/.imbot/log"):
     lst = []
     n = 5
     search = "SUCCESS"
-    telmsg = "process | status\n"
-    telmsg += "----- | ----------\n"
+    telmsg = "| process | status |\n"
+    telmsg += "| ------- | ------ |\n"
     # get all files ending with .log in logdir
     for log_file in pathlib.Path(logdir).glob('*.log'):
         master = "Failure"
@@ -113,7 +113,7 @@ def log_check(logdir="/home/cobs/.imbot/log"):
         result[os.path.basename(log_file)[:-4]] = master
 
     for key in result:
-        telmsg += "{} | {}\n".format(key, result[key])
+        telmsg += "| {} | {} |\n".format(key, result[key])
 
     return telmsg
 
@@ -160,11 +160,11 @@ def observatory_list(stats,year=2016, levels=False):
     """
     l = stats.get(str(year)).get('LevelDetails')
     if levels:
-        telmsg = "IMO | Level\n"
-        telmsg += "--- | -----\n"
+        telmsg = "| IMO | Level |\n"
+        telmsg += "| --- | ----- |\n"
         obslist = collections.OrderedDict(sorted(l.items()))
         for key in obslist:
-            telmsg += "{} | {}\n".format(key, obslist[key])
+            telmsg += "| {} | {} |\n".format(key, obslist[key])
 
     else:
         obslist = sorted([e for e in l])

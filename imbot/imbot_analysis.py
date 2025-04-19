@@ -155,10 +155,13 @@ def main(argv):
     # update one-second input for efficient analysis and necessary one-minute step information
     modificationlist = imostatus.add_minute_state(modificationlist, debug=False)
     if len(modificationlist) > maxamount:
-        print("It is very unlikely that more than 40 data sets have been uploaded in one day")
-        print("Abort and inform sysadmin")
-        telmsg = 'More than 40 records found to be analyzed - seems unlikely, aborting'
+        print("It is very unlikely that more than {} data sets have been uploaded in one day  - found {} modifications!".format(maxamount,len(modificationlist)))
+        print("Abort and inform sysadmin.")
+        print("Note: you can chang ethe maximal accepted amount using the -m option")
+        telmsg = 'More than {} records found to be analyzed - seems unlikely, aborting'.format(maxamount)
         methods.sendtelegram(telmsg, imostatus.config.get('telegramconfig'))
+        print("FAILURE")  # used for monitoring of logfile
+        sys.exit()
 
     modificationlist = methods.limit_second_obs(modificationlist, limit=seclimit, debug=False)
 
@@ -295,7 +298,20 @@ def main(argv):
         admin = imostatus.config.get('sysadmin')
         adminmail = [admin.get(n) for n in admin][0]
         if dataset.get('modification') in ['updated but already accepted']:
-            pass
+            receivers = managers
+            maildict = {'subject': "Submission one-{} {}, {} updated although accepted already".format(dataset.get('resolution'),
+                                                                                    dataset.get('obscode'),
+                                                                                    dataset.get('year')),
+                        'text': "Dear managers,\na atep 1 data set was updated although it was already accepted.\nSincerely,\n     IMBOT",
+                        'to': receivers, 'from': [adminmail]}
+            if debug or nomail:
+                print(maildict)
+            else:
+                if test:
+                    maildict['to'] = maildict.get('from')
+            if not debug and not test:
+                imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
+                                                   year=dataset.get('year'), resolution=dataset.get('resolution'))
         elif dataset.get('modification') in ['added to step2']:
             # only send step2 reports for one-minute as one-second is automatically transferred to step2
             if dataset.get('resolution') in ['minute']:

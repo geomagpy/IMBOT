@@ -94,11 +94,11 @@ def main(argv):
         telmsg += "\n"
     if "last" in jobs:
         telmsg += "Last uploads:\n"
-        telmsg += "\nMinute | Date\n"
-        telmsg += "------ | ----\n"
+        telmsg += "\n| Minute | Date |\n"
+        telmsg += "| ------ | ---- |\n"
         telmsg += report.get_last_updates(minstats, startyear=year)
-        telmsg += "\nSecond | Date\n"
-        telmsg += "------ | ----\n"
+        telmsg += "\n| Second | Date |\n"
+        telmsg += "| ------ | ---- |\n"
         telmsg += report.get_last_updates(secstats, startyear=year)
     if year:
         if "secondlevel" in jobs:
