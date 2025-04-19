@@ -31,6 +31,6 @@ setup(
     description='INTERMAGNET automatic data checker',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    package_data={'imbot': ['documentation/*.pdf', 'bash/*.sh', 'bash/*.bash', 'config/*.cfg', 'templates/*']  },
+    package_data={'imbot': ['documentation/*.pdf', 'documentation/*.ipynb', 'bash/*.sh', 'bash/*.bash', 'config/*.cfg', 'templates/*']  },
     install_requires=install_requires,
 )
