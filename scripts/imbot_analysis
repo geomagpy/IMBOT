@@ -298,6 +298,7 @@ def main(argv):
         admin = imostatus.config.get('sysadmin')
         adminmail = [admin.get(n) for n in admin][0]
         if dataset.get('modification') in ['updated but already accepted']:
+            managers = imostatus.get_manager_mails()
             receivers = managers
             maildict = {'subject': "Submission one-{} {}, {} updated although accepted already".format(dataset.get('resolution'),
                                                                                     dataset.get('obscode'),

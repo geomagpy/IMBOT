@@ -18,14 +18,15 @@ import os
 def main(argv):
     debug = False
     config = {}
+    startyear = 1777
     confpath = ''
     firstrun = False
 
 
     try:
-        opts, args = getopt.getopt(argv,"hc:FD",["config=","firstrun=","debug=",])
+        opts, args = getopt.getopt(argv,"hc:y:FD",["config=","startyear","firstrun=","debug=",])
     except getopt.GetoptError:
-        print ('imbot_scan.py -c <config> -F <firstrun>')
+        print ('imbot_scan.py -c <config> -y <startyear> -F <firstrun>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
@@ -44,6 +45,7 @@ def main(argv):
             print ('-------------------------------------')
             print ('Options:')
             print ('-c            : imbot config file')
+            print ('-y            : ignore/reset all modifications before this startyear')
             print ('-------------------------------------')
             print ('Example of memory:')
             print ('-------------------------------------')
@@ -53,6 +55,8 @@ def main(argv):
             sys.exit()
         elif opt in ("-c", "--config"):
             confpath = os.path.abspath(arg)
+        elif opt in ("-y", "--startyear"):
+            startyear = int(arg)
         elif opt in ("-F", "--firstrun"):
             firstrun = True
         elif opt in ("-D", "--debug"):
@@ -91,6 +95,11 @@ def main(argv):
                     if firstrun:
                         # reset all inputs, remove "new" flags
                         imostatus = imostatus.set_modification(set='', year=year, resolution=restype, obscode=obs)
+                    if startyear and not startyear == 1777:
+                        if int(year) < int(startyear):
+                            # ignore/reset all modifications for years before startyear
+                            imostatus = imostatus.set_modification(set='', year=year, resolution=restype, obscode=obs)
+
                 #imostatus = imostatus.update_validity(year=year, resolution=restype, excludeobs=['CNB', 'XYZ'])
 
     methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'), debug=debug)

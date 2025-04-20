@@ -470,6 +470,8 @@ class botstatus(object):
         if os.path.isfile(config.get('mailinglist')):
             obsdict = methods.get_conf(config.get('mailinglist'))
         mails = obsdict.get(obscode, [])
+        if mails and not isinstance(mails, (list,tuple)):
+            mails = mails.split(",")
         managers = obsdict.get('managers', [])
         if debug:
             print("A) Mails from provided mailinglist", mails)
