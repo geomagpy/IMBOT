@@ -478,7 +478,7 @@ the latter including review protocols of IMBOT and the human data checker.
 | 2020 | 43        | 35        | 8        |
 | 2021 | 32        | 28        | 4        |
 | 2022 | 29        | 26        | 2        |
-| 2023 | 20        | 11*       | 0        |
+| 2023 | 20        | 14*       | 0        |
 | 2024 | 0         | 0         | -        |  
 
 *Table 5.1: Current submissions and their review state. IMBOT is running only for submission from 2019 onwards. The 
