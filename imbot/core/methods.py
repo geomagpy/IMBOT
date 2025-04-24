@@ -520,7 +520,7 @@ def sendmail(dic, credentials="webmail", debug=False):
     smtp.ehlo()
     if user and not user in ['None','False']:
         smtp.login(user, pwd)
-    smtp.sendmail(user, send_to, msg.as_string())
+    smtp.send_message(msg)
     smtp.close()
 
 
