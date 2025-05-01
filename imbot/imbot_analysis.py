@@ -303,7 +303,7 @@ def main(argv):
             maildict = {'subject': "Submission one-{} {}, {} updated although accepted already".format(dataset.get('resolution'),
                                                                                     dataset.get('obscode'),
                                                                                     dataset.get('year')),
-                        'text': "Dear managers,\na atep 1 data set was updated although it was already accepted.\nSincerely,\n     IMBOT",
+                        'text': "Dear managers,\na step 1 data set was updated although it was already accepted.\nSincerely,\n     IMBOT",
                         'to': receivers, 'from': [adminmail]}
             if debug or nomail:
                 print(maildict)
