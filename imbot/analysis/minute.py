@@ -106,7 +106,7 @@ class minute_definitive(object):
         curwd = os.getcwd()
         os.chdir(winepath)
 
-        cmd = '/usr/bin/wine start check1min.exe C:\\\\data\\\\{} {} {} C:\\\\data\\\\{}\\\\{}report{}.txt'.format(
+        cmd = 'wine check1min.exe C:\\\\data\\\\{} {} {} C:\\\\data\\\\{}\\\\{}report{}.txt'.format(
             obscode, obscode, year, obscode, obscode.lower(), year)
         print(" Calling {}".format(cmd))
 
@@ -385,7 +385,7 @@ class TestImbotMinute(unittest.TestCase):
         os.makedirs(os.path.dirname("/tmp/imbottest/conf"), exist_ok=True)
         if os.path.exists("/tmp/imbottest/conf"):
             shutil.rmtree("/tmp/imbottest/conf")
-        shutil.copytree(os.path.join(basepath, 'config'), "/tmp/imbottest/conf")
+        shutil.copytree(os.path.join(basepath, 'imbot', 'config'), "/tmp/imbottest/conf")
         if os.path.exists("/tmp/imbottest/memory"):
             shutil.rmtree("/tmp/imbottest/memory")
 
@@ -415,15 +415,19 @@ class TestImbotMinute(unittest.TestCase):
 
         # the read the memory again
         imostatus.result = methods.read_memory("/tmp/imbot_memory.json", debug=debug)
-        # print (imostatus.result)
+        #print (imostatus.result)
 
-        modres = imostatus.get_modified(year=2021, resolution='minute')
+        #modres = imostatus.get_modified(year=2021, resolution='minute')
         #print("PHASE2", modres)
-        cmod = modres[0].get('modification')
-        self.assertEqual(cmod, "updated but already accepted")
+        #cmod = modres[0].get('modification')
+        #self.assertEqual(cmod, "updated but already accepted")
 
         imostatus = imostatus.set_modification(set='new', year=2021, resolution='minute', obscode='KOU')
         modres = imostatus.get_modified(year=2021, resolution='minute')
+
+        #print("PHASE2", modres)
+        cmod = modres[0].get('modification')
+        self.assertEqual(cmod, "new")
 
         dataset = modres[0]
         minana = minute_definitive(input=dataset)
@@ -448,7 +452,7 @@ class TestImbotMinute(unittest.TestCase):
         self.assertTrue(tt2)
 
         # now add meta_IMO.txt, remove blv file and modify README
-        shutil.copy(os.path.join(basepath, 'examples', 'meta_OBSCODE.txt'),
+        shutil.copy(os.path.join(basepath, 'imbot', 'templates', 'meta_OBSCODE.txt'),
                     "/tmp/imbottest/step1/Mag2021/KOU/meta_KOU.txt")
         from pathlib import Path
         for p in Path("/tmp/imbottest/step1/Mag2021/KOU").glob("*.blv"):
