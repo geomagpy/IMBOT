@@ -2,6 +2,23 @@
 # An automatic data checker for one second data.
 -------------------------------------------------
 
+####<2.1.0>, <2025-xx-xx> --
+
+2.0.1 additions:
+    + addflags permanently enabled in write
+
+####<2.0.0>, <2025-05-01> --
+
+This is a new start.
+
+2.0.0 changes:
+    + numerous major changes in how IMBOT is installed and working
+    + current status is described in IMBOT Readme
+    + making use of ImagCDF 1.3 for step2
+
+
+
+
 ####<1.0.7>, <2023-01-23> --
 
 1.0.7 additions:
