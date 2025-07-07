@@ -782,7 +782,7 @@ class second_definitive(object):
 
         return dailystreamlist
 
-    def export_month(self, data, allcontents, debug=False):
+    def export_month(self, data, allcontents, addflags=True, debug=False):
         """
         DESCRIPTION
             exporting final data to an monthly IMAGCDF file
@@ -804,7 +804,7 @@ class second_definitive(object):
             data.header['FileContents'] = None
         try:
             success = data.write(destinationpath, coverage='month', format_type='IMAGCDF', scalar=scalar,
-                                 temperature1=temp1, temperature2=temp2)
+                                 temperature1=temp1, temperature2=temp2, addflags=addflags)
             del data
             del allcontents
         except:
