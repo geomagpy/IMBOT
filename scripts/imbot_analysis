@@ -227,9 +227,16 @@ def main(argv):
                             month = (data.start() + timedelta(days=3)).strftime("%m (%b)")
                             data = data._remove_nancolumns()
                             if len(data) > 0:
-                                secana.delta_f_test(data)
+                                if data.header.get("DataFlags"):
+                                    tdata = data.copy()
+                                    fl = data.header.get("DataFlags")
+                                    if fl:
+                                        tdata = fl.apply_flags(data, mode="drop")
+                                else:
+                                    tdata = data
+                                secana.delta_f_test(tdata)
                                 mtable = secana.check_standard_level(data, partialcheck=methods.partialcheck_v1, debug=False)
-                                quietdays = secana.check_diff_to_minute(data, daterange=dates, debug=False)
+                                quietdays = secana.check_diff_to_minute(tdata, daterange=dates, debug=False)
                                 daystreams.extend(secana.extract_selected_days(data, dates,
                                                                            selecteddays=quietdays, dayformat='text',
                                                                            debug=False))
