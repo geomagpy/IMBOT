@@ -385,7 +385,7 @@ def main(argv):
         imodict = imostatus.get_imo(year=ye, resolution='minute', obscode=imo)
         lm = testtime(imodict.get('lastmodified', datetime.now()))
         #print(lm)
-        if int((datetime.now() - lm).total_seconds() / 86400.) >= 62:
+        if int((datetime.now() - lm).total_seconds() / 86400.) == 62:
             msg = "Dear data checker, this is an automatic information message. For {a} {b} there are no updates in step1 for more than 2 months and data has not yet been accepted for step2.\n\n  IMBOT".format(
                 a=imo, b=year)
             # Send this mail to data checker
