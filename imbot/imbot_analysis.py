@@ -171,6 +171,7 @@ def main(argv):
             print("Running analysis for {},{} with {} resolution".format(dataset.get("obscode"), dataset.get("year"),
                                                                          dataset.get("resolution")))
         if dataset.get('modification') in ['new', 'updated']:  # don't analyse "updated but already accepted"
+            succont = "{}{}".format(dataset.get('obscode'), dataset.get('year'))
             if dataset.get('resolution') == 'minute' and resolution in ['','minute']:
                 try:
                     minana = minute.minute_definitive(input=dataset, config=imostatus.config)
@@ -200,11 +201,11 @@ def main(argv):
                     if os.path.exists(mintempdir):
                         shutil.rmtree(mintempdir)
                     if dataset.get('modification') in ['new']:
-                        successminnew.append(dataset.get('obscode'))
+                        successminnew.append(succont)
                     else:
-                        successminupd.append(dataset.get('obscode'))
+                        successminupd.append(succont)
                 except:
-                    failedmin.append(dataset.get('obscode'))
+                    failedmin.append(succont)
             elif dataset.get('resolution') == 'second' and resolution in ['','second']:
                 #ok = True
                 #if ok:
@@ -292,11 +293,11 @@ def main(argv):
                     if os.path.exists(sectempdir):
                         shutil.rmtree(sectempdir)
                     if dataset.get('modification') in ['new']:
-                        successsecnew.append(dataset.get('obscode'))
+                        successsecnew.append(succont)
                     else:
-                        successsecupd.append(dataset.get('obscode'))
+                        successsecupd.append(succont)
                 except:
-                    failedsec.append(dataset.get('obscode'))
+                    failedsec.append(succont)
 
     for dataset in modlist:
         if debug:
