@@ -255,6 +255,7 @@ class botstatus(object):
         # This function is incredibly slow - check - leon 2023-12-11
         for root, dirs, files in os.walk(sourcepath):
             level = root.replace(sourcepath, '').count(os.sep)
+            typ = None
             t1 = datetime.now(timezone.utc)
             if level == 0:  # ignore any subdirectories
                 if debug:
@@ -268,9 +269,10 @@ class botstatus(object):
                 filedict = {}
                 files = [f for f in files if not self._find_exclude(f)]
                 extlist = [os.path.splitext(fi)[1] for fi in files]
-                typ = max(extlist, key=extlist.count)
+                if extlist and len(extlist) > 0:
+                    typ = max(extlist, key=extlist.count)
                 contentname = "step{}date".format(step)
-                if not imolayer.get(contentname, ''):
+                if not imolayer.get(contentname, '') and typ:
                     imolayer[contentname] = datetime.now().strftime("%Y-%m-%d")
                     cms = imolayer.get('maximum_minute_step','step0')[-1]
                     if not int(cms) > int(step):
