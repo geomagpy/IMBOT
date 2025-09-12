@@ -14,7 +14,9 @@ from imbot.core import steps
 from imbot.core import methods
 from imbot.analysis import minute
 from imbot.analysis import second
-from datetime import timedelta
+from datetime import datetime, timedelta
+from magpy.core.methods import testtime
+
 import shutil
 import gc
 import getopt
@@ -299,12 +301,15 @@ def main(argv):
                 except:
                     failedsec.append(succont)
 
+    admin = imostatus.config.get('sysadmin')
+    adminmail = [admin.get(n) for n in admin][0]
+
     for dataset in modlist:
         if debug:
             print(" Found the following mod:", dataset.get('modification'))
             print(dataset)
-        admin = imostatus.config.get('sysadmin')
-        adminmail = [admin.get(n) for n in admin][0]
+        #admin = imostatus.config.get('sysadmin')
+        #adminmail = [admin.get(n) for n in admin][0]
         if dataset.get('modification') in ['updated but already accepted']:
             managers = imostatus.get_manager_mails()
             receivers = managers
@@ -372,6 +377,32 @@ def main(argv):
             if not debug and not test:
                 imostatus = imostatus.set_modification(set='', obscode=dataset.get('obscode'),
                                                    year=dataset.get('year'), resolution=dataset.get('resolution'))
+
+    # Send out reminders after two months
+    ye = datetime.now().year-1 # only for submissions of last year
+    step1list = imostatus.get_step(step=1, year=ye)
+    for imo in step1list:
+        imodict = imostatus.get_imo(year=ye, resolution='minute', obscode=imo)
+        lm = testtime(imodict.get('lastmodified', datetime.now()))
+        #print(lm)
+        if int((datetime.now() - lm).total_seconds() / 86400.) >= 62:
+            msg = "Dear data checker, this is an automatic information message. For {a} {b} there are no updates in step1 for more than 2 months and data has not yet been accepted for step2.\n\n  IMBOT".format(
+                a=imo, b=year)
+            # Send this mail to data checker
+            # If rejected use 'maximum_minute_step' : 'rejected'
+            #print(msg)
+            dc = imostatus.get_data_checker(imo, ye, resolution='minute')
+            receivers = [dc.get(el) for el in dc]
+            #print(receivers)
+            maildict = {'subject': "Reminder for one-minute {}, {}".format(imo,ye),
+                        'text': msg,
+                        'to': receivers, 'from': [adminmail] }
+            if debug or nomail:
+                print(maildict)
+            else:
+                if test:
+                    maildict['to'] = maildict.get('from')
+                methods.sendmail(maildict, credentials=imostatus.config.get('emailcredentials'))
 
     if not debug and not test:
         methods.write_memory(imostatus.result, path=imostatus.config.get('memory_directory_analysis'),
