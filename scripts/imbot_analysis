@@ -392,7 +392,7 @@ def main(argv):
             # If rejected use 'maximum_minute_step' : 'rejected'
             #print(msg)
             dc = imostatus.get_data_checker(imo, ye, resolution='minute')
-            receivers = [dc.get(el) for el in dc]
+            receivers = [dc.get(el) for el in dc] + [adminmail]
             #print(receivers)
             maildict = {'subject': "Reminder for one-minute {}, {}".format(imo,ye),
                         'text': msg,
