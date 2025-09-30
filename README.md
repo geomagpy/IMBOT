@@ -196,3 +196,22 @@ MissingData  :  confirmed
 TermsOfUse   :  CC-BY4.0
 ```
 
+IMBOT is ready for a number of future challenges. It can treat data which includes flagging information. IMBOT
+one-minute is already capable of reading and analyzing other $D_{min}$ formats i.e. like a yearly IMAGCDF one-minute 
+data file (IMO\_2016\_PT1M.cdf). At the current state only basic read tests, verifying correct data formats and general 
+readability are performed. This one-minute test module can, however, be extended for more intense data checking similar 
+to check1min. Although IMBOT has been created for definitive $D_{sec}$ it can also be modified and used for other data 
+sets as well. A possible application would be high resolution variation data which could be quickly checked with such
+routine and provided as a tested data product by INTERMAGNET basically on the fly. Further data sources might also be 
+included \added[id=ref2]{, as long as the data formats are supported by MagPy \citep{Leonhardt2025} which is used a 
+format interpreter for IMBOT. As the main developer of MagPy is involved in IMBOT and also in the INTERMAGNET definitive
+data committee, any format changes are quickly included.} IMBOT is written completely modular. Each checking technique 
+is described and coded in an individual module. Thus, IMBOT can be simply extended or modified towards other tests and 
+data sets  \added[id=ref2]{and its methods might be applied to completely different projects. The IMBOT repository with
+all modules and methods is available on GitHUB under MIT licence (https://github.com/geomagpy/IMBOT). It is possible
+to fork this repository and adapt it to other data sources. The repository is actively maintained by the authors. 
+Updates are only included upon request by the INTERMANGET definitive data committee, which meets at least once per year.
+A quick and easy way for reporting problems makes use of the GitHUB issues, so that the authors are automatically 
+informed. When adapting this project on other data sets you have to consider that all data quality testing routines have
+been developed for geomagnetic data. As long as the underlying data formats are supported by MagPy, the effort to adapt 
+the tools for your data set is relatively small.} 

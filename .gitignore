@@ -10,4 +10,5 @@ build
 dist
 dist/*.egg
 .idea
+imbot.egg-info/
 
