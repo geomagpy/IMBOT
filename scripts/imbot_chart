@@ -63,8 +63,12 @@ def main(argv):
             print ('-------------------------------------')
             print ('Application:')
             print ('-------------------------------------')
-            print ('- debug mode - will not send reports but print them to stdout, no memory update')
-            print ('python3 imbot_analysis.py -c ~/imbot.cfg -D')
+            print ('- request memory information for a specific imo')
+            print ('python3 imbot_chart.py -c /home/leon/.imbot/conf/imbot.cfg -t imo -i DOU -y 2022 -r minute')
+            print ('- bar chart - for the last five years')
+            print ('python3 imbot_chart.py -c /home/leon/.imbot/conf/imbot.cfg -t bar -r second')
+            print ('- observatory list for 2023')
+            print ('python3 imbot_chart.py -c /home/leon/.imbot/conf/imbot.cfg -t list -y 2023 -r second')
             sys.exit()
 
         elif opt in ("-c", "--config"):

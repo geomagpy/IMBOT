@@ -109,7 +109,7 @@ def main(argv):
         #plt.show()
         plt.savefig("/tmp/bar_levels.png")
     elif typ == 'imo':
-        text = imostatus.get_imo(year=year, resolution=res, obscode='WIC')
+        text = imostatus.get_imo(year=year, resolution=res, obscode=imo)
         fi = text.get('files')
         text['files'] = list(fi.keys())[0]
         import pandas as pd
