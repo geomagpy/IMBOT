@@ -2,7 +2,13 @@
 # An automatic data checker for one second data.
 -------------------------------------------------
 
-####<2.1.0>, <2025-xx-xx> --
+####<2.0.3>, <2025-09-30> --
+
+2.0.3 additions:
+    + corrected and updated README and publication links
+
+2.0.2 additions:
+    + updated reporting
 
 2.0.1 additions:
     + addflags permanently enabled in write
