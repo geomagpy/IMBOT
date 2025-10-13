@@ -366,7 +366,7 @@ def main(argv):
             managers = imostatus.get_manager_mails()
             receivers = managers
             maildict = {'subject': "Submission one-{} {}, {} has been reviewed".format(dataset.get('resolution'),dataset.get('obscode'),dataset.get('year')),
-                        'text': "Dear managers,\n\na one-second data product on step2 has been reviewed by an INTERMAGNET data checker and is ready for final decisions.\nSincerely,\n     IMBOT",
+                        'text': "Dear managers,\n\na one-{} data product on step2 has been reviewed by an INTERMAGNET data checker and is ready for final decisions.\nSincerely,\n     IMBOT".format(dataset.get('resolution')),
                         'to': receivers, 'from': [adminmail] }
             if debug or nomail:
                 print(maildict)

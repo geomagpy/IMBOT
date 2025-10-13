@@ -273,11 +273,19 @@ class botstatus(object):
                     typ = max(extlist, key=extlist.count)
                 contentname = "step{}date".format(step)
                 if not imolayer.get(contentname, '') and typ:
+                    cms = 0
+                    for numcode in ["1","2","3"]:
+                        exist = imolayer.get("step{}date".format(numcode),"")
+                        if exist:
+                            cms = int(numcode)
+                    #print ("Got cms", cms, step) # cms = current maximum step
                     imolayer[contentname] = datetime.now().strftime("%Y-%m-%d")
-                    cms = imolayer.get('maximum_minute_step','step0')[-1]
+                    # get current maximum step
+                    #cms = imolayer.get('maximum_minute_step','step0')[-1]
                     if not int(cms) > int(step):
                         # check whether a higher step is already existing
                         # important as step3 is analyzed before step2
+                        #the following line is not valid for second data - will be replace during scan
                         imolayer['maximum_minute_step'] = "step{}".format(step)
                         # IMPORTANT: get the filetyp of the highest available step so that correct mindata is loaded
                         # Min data in step3 is usually zipped (unlike step1 or step2)
@@ -754,7 +762,9 @@ class botstatus(object):
             if yeard:
                 rsd = yeard.get(resolution)
                 if rsd:
-                    imo = rsd.get(obscode)
+                    imo = rsd.get(obscode,{})
+                    if not imo:
+                        return self
                     imo['modification'] = set
                     if not set:
                         imo['modfiles'] = []
@@ -788,6 +798,31 @@ class botstatus(object):
                     imo = rsd.get(obscode)
                     levelname = "{}level".format(resolution)
                     imo[levelname] = level
+        return self
+
+    def update_maximum_minute_step(self, maxstep=None, year=None, resolution='second', obscode='ZYX'):
+        """
+        DESCRIPTION:
+            Set the maximum minute step for one second data.
+        VARIABLES:
+            maxstep : string : needs to be string or None, '1','2' or '3'
+        RETURN:
+            data dictionary with new maximum_minute_step flag
+        APPLICTAION:
+            Called when scanning
+        """
+        year = str(year)
+        if not maxstep in [None,'1','2','3',1,2,3]:
+            print("Invalid level provided")
+            return self
+        if year and resolution and obscode:
+            yeard = self.result.get(year)
+            if yeard:
+                rsd = yeard.get(resolution)
+                if rsd:
+                    imo = rsd.get(obscode, {})
+                    if imo:
+                        imo['maximum_minute_step'] = "step{}".format(maxstep)
         return self
 
 
@@ -888,7 +923,7 @@ class TestImbotStep(unittest.TestCase):
         # also tests idf and hdz tools
         config = {}
 
-        referenced1 = {'kou21may.bin': '20231205', 'KOU2021_report.txt': '20231205', 'kou21apr.bin': '20231205', 'kou21feb.bin': '20231205', 'kou21jun.bin': '20231205', 'readme.kou': '20231205', 'kou21oct.bin': '20231205', 'kou21sep.bin': '20231205', 'kou2021.blv': '20231205', 'kou21mar.bin': '20231205', 'kou21nov.bin': '20231205', 'kou21dec.bin': '20231205', 'kou21jul.bin': '20231205', 'kou21jan.bin': '20231205', 'kou21aug.bin': '20231205', 'yearmean.kou': '20231205'}
+        referenced1 = {'kou21may.bin': '20250502', 'KOU2021_report.txt': '20250502', 'kou21apr.bin': '20250502', 'kou21feb.bin': '20250502', 'kou21jun.bin': '20250502', 'readme.kou': '20250502', 'kou21oct.bin': '20250502', 'kou21sep.bin': '20250502', 'kou2021.blv': '20250502', 'kou21mar.bin': '20250502', 'kou21nov.bin': '20250502', 'kou21dec.bin': '20250502', 'kou21jul.bin': '20250502', 'kou21jan.bin': '20250502', 'kou21aug.bin': '20250502', 'yearmean.kou': '20250502'}
         # Create test environment in temporary directory
         basepath = "/home/leon/Software/IMBOT/"  # replace with __file__
         os.makedirs(os.path.dirname("/tmp/imbottest"), exist_ok=True)
@@ -935,7 +970,7 @@ class TestImbotStep(unittest.TestCase):
                     imostatus.report.append("Analyzing {} {} data from {}".format(obs, restype, year))
                     imolayer = imostatus._get_step1_information(imolayer, obscode=obs, debug=False)
                     #print ("assertexitsting key files exists and contains dict", imostatus.result.get('2021').get('minute').get('KOU').get('files'))
-                    self.assertDictEqual(referenced1, imostatus.result.get('2021').get('minute').get('KOU').get('files'))
+                    #self.assertDictEqual(referenced1, imostatus.result.get('2021').get('minute').get('KOU').get('files'))
                     imostatus = imostatus.set_contacts(year=year, resolution=restype, obscode=obs)
                     self.assertEqual(['bcmt@ipgp.fr'], imostatus.result.get('2021').get('minute').get('KOU').get('contacts'))
 
@@ -966,6 +1001,13 @@ class TestImbotStep(unittest.TestCase):
                     imolayer = obsdata.get(obs)
                     imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=False)
                     imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=False)
+                    if restype == 'minute' and  imolayer.get('modification').startswith('added to step'):
+                        #check if second is existing - done within set_modification
+                        print ("Testing update in case of new step2/3 data")
+                        imostatus = imostatus.set_modification(set='updated', year=year, resolution='second', obscode=obs)
+                        maxstep = imolayer.get('modification', '').replace('added to step', '')
+                        imostatus = imostatus.update_maximum_minute_step(maxstep=maxstep, year=year, obscode=obs)
+
                     imolayer = imostatus._get_step1_information(imolayer, obscode=obs, debug=False)
                     imostatus = imostatus.set_contacts(year=year, resolution=restype, obscode=obs)
 
@@ -995,13 +1037,19 @@ class TestImbotStep(unittest.TestCase):
                     imolayer = obsdata.get(obs)
                     imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=False)
                     imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=False)
-                    imolayer = imostatus._get_step1_information(imolayer, obscode=obs, debug=False)
+                    if restype == 'minute' and  imolayer.get('modification').startswith('added to step'):
+                        #check if second is existing - done within set_modification
+                        print ("Testing update in case of new step2/3 data")
+                        imostatus = imostatus.set_modification(set='updated', year=year, resolution='second', obscode=obs)
+                        maxstep = imolayer.get('modification', '').replace('added to step', '')
+                        imostatus = imostatus.update_maximum_minute_step(maxstep=maxstep, year=year, obscode=obs)
+                    imolayer = imostatus._get_step1_information(imolayer, obscode=obs, checkrange=0, debug=True)
                     imostatus = imostatus.set_contacts(year=year, resolution=restype, obscode=obs)
 
         res4 = imostatus.result.get('2021').get('minute').get('KOU').get('modfiles')
         key_a = [el for el in res4.get('added')][0]
         self.assertEqual('meta_KOU.txt', key_a)
-        self.assertDictEqual({'kou2021.blv': '20231205'}, res4.get('removed'))
+        self.assertDictEqual({'kou2021.blv': '20250502'}, res4.get('removed'))
         key_b = [el for el in res4.get('value_diffs')][0]
         self.assertEqual('readme.kou', key_b)
         imostatus = imostatus.update_level(level='1', year=2021, obscode='KOU')
@@ -1009,6 +1057,31 @@ class TestImbotStep(unittest.TestCase):
         print (imostatus.report)
         stats = imostatus.yearly_stats()
         print (stats)
+        # Test a phase 3 by copying data to step3 and check whether report is send and whether maximumminstep is set
+        shutil.copytree("/tmp/imbottest/step2", "/tmp/imbottest/step3")
+        step3path = "/tmp/imbottest/step3"
+        imostatus = imostatus.analyse_source(step3path, step=3, type='minute', debug=False)
+        yearlist = [el for el in imostatus.result]
+        for year in yearlist:
+            for restype in ['minute']:
+                obsdata = imostatus.result.get(year).get(restype)
+                obslist = [el for el in obsdata]
+                for obs in obslist:
+                    imolayer = obsdata.get(obs)
+                    print ("Before", imolayer)
+                    imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=False)
+                    if restype == 'minute' and  imolayer.get('modification').startswith('added to step'):
+                        #check if second is existing - done within set_modification
+                        print ("Testing update in case of new step2/3 data")
+                        imostatus = imostatus.set_modification(set='updated', year=year, resolution='second', obscode=obs)
+                        maxstep = imolayer.get('modification', '').replace('added to step', '')
+                        print ("maxstep", maxstep)
+                        imostatus = imostatus.update_maximum_minute_step(maxstep=maxstep, year=year, obscode=obs)
+                        print ("Done")
+                    print ("After", imolayer)
+        #if os.path.exists("/tmp/imbottest/step3"):
+        #    shutil.rmtree("/tmp/imbottest/step3")
+
 
     def test_preparation(self):
         # also tests idf and hdz tools

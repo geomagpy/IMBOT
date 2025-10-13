@@ -203,6 +203,9 @@ class second_definitive(object):
             print("  -> got {} values for {}".format(len(data), data._get_key_headers()))
             self.logdict['Stationname'] = data.header.get('StationName')
             # drop flagged data
+            if data.header.get('DataLocationReference'):
+                # no location reference field in ImagCDF - drop it to prevent unintended conversions when saving step2
+                data.header['DataLocationReference'] = ""
             if data.header.get('DataFlags'):
                 print("Found flagging information - flagging contents updated for MagPy2.0 compatibility")
                 #fl = data.header.get('DataFlags')

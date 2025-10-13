@@ -88,6 +88,12 @@ def main(argv):
                     imolayer = obsdata.get(obs)
                     imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=debug)
                     imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=debug)
+                    # in case of "added to step2, step3" in minute data set a modification to corresponding second data
+                    if restype == 'minute' and  imolayer.get('modification',"").startswith('added to step'):
+                        #check if second is existing - done within set_modification
+                        imostatus = imostatus.set_modification(set='updated', year=year, resolution='second', obscode=obs)
+                        maxstep = imolayer.get('modification','').replace('added to step','')
+                        imostatus = imostatus.update_maximum_minute_step(maxstep=maxstep, year=year, obscode=obs)
                     imolayer = imostatus._get_step1_information(imolayer, obscode=obs, debug=debug)
                     #imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=debug)
                     #imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=debug)

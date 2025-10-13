@@ -2,7 +2,15 @@
 # An automatic data checker for one second data.
 -------------------------------------------------
 
-####<2.0.3>, <2025-09-30> --
+####<2.0.6>, <2025-10-13> --
+2.0.6 corrections:
+    + correcting "maximum_step_number" in second memory
+    + no mails when moving to step3
+    + reanalysis of one-second when minute reaches new step
+    + dropped LocationReference from file if existing (only WIC) to prevent erroneous EPSG conversion
+
+2.0.5 corrections:
+    + empty directory on GIN causes aborts
 
 2.0.3 additions:
     + corrected and updated README and publication links
