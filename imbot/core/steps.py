@@ -613,7 +613,7 @@ class botstatus(object):
             resd = self.result.get(ye).get(resolution)
             for el in resd:
                 obsd = self.result.get(ye).get(resolution).get(el)
-                st = obsd.get('maximum_{}_step'.format(resolution))
+                st = obsd.get('maximum_{}_step'.format(resolution),"")
                 if st.endswith(str(step)):
                     obslist.append(el)
         return obslist
