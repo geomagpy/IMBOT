@@ -1070,6 +1070,7 @@ class TestImbotStep(unittest.TestCase):
                     imolayer = obsdata.get(obs)
                     print ("Before", imolayer)
                     imolayer = imostatus._get_step_information(imolayer, step=3, obscode=obs, debug=False)
+                    imolayer = imostatus._get_step_information(imolayer, step=2, obscode=obs, debug=False)
                     if restype == 'minute' and  imolayer.get('modification').startswith('added to step'):
                         #check if second is existing - done within set_modification
                         print ("Testing update in case of new step2/3 data")
