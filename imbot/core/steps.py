@@ -614,6 +614,8 @@ class botstatus(object):
             for el in resd:
                 obsd = self.result.get(ye).get(resolution).get(el)
                 st = obsd.get('maximum_{}_step'.format(resolution),"")
+                if not st:
+                    print ("Did not find maximum minute step:", obsd)
                 if st.endswith(str(step)):
                     obslist.append(el)
         return obslist
