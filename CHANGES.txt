@@ -2,6 +2,10 @@
 # An automatic data checker for one second data.
 -------------------------------------------------
 
+####<2.0.7>, <2026-07-17> --
+2.0.7 corrections:
+    + updated step3 accepted message
+
 ####<2.0.6>, <2025-10-13> --
 2.0.6 corrections:
     + correcting "maximum_step_number" in second memory
