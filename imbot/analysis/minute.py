@@ -269,7 +269,7 @@ class minute_definitive(object):
         referee = imodict.get('referee')
         modfiles = imodict.get('modfiles')
         contacts = imodict.get('contacts', [])
-        imbotmanagers = imodict.get('manager', [])
+        imbotmanagers = imodict.get('managers', [])
         receivers = contacts
         nameofdatachecker = [n for n in referee][0]
         adminmail = [admin.get(n) for n in admin][0]

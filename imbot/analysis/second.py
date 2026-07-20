@@ -1256,7 +1256,7 @@ class second_definitive(object):
 
         referee = imodict.get('referee')
         contacts = imodict.get('contacts', [])
-        imbotmanagers = imodict.get('manager', [])
+        imbotmanagers = imodict.get('managers', [])
         destinationpath = self.step2folder
 
         attachfilelist = glob.glob(os.path.join(destinationpath, "*.txt"))

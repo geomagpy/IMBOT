@@ -210,7 +210,7 @@ is described and coded in an individual module. Thus, IMBOT can be simply extend
 data sets  \added[id=ref2]{and its methods might be applied to completely different projects. The IMBOT repository with
 all modules and methods is available on GitHUB under MIT licence (https://github.com/geomagpy/IMBOT). It is possible
 to fork this repository and adapt it to other data sources. The repository is actively maintained by the authors. 
-Updates are only included upon request by the INTERMANGET definitive data committee, which meets at least once per year.
+Updates are only included upon request by the INTERMAGNET definitive data committee, which meets at least once per year.
 A quick and easy way for reporting problems makes use of the GitHUB issues, so that the authors are automatically 
 informed. When adapting this project on other data sets you have to consider that all data quality testing routines have
 been developed for geomagnetic data. As long as the underlying data formats are supported by MagPy, the effort to adapt 
