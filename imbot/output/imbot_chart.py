@@ -26,7 +26,7 @@ def main(argv):
     typ = "bar"
     res = 'second'
     imo = "WIC"
-    year = year = datetime.now().year - 1
+    year = datetime.now().year - 1
     levels = False
 
     try:
@@ -80,7 +80,7 @@ def main(argv):
         elif opt in ("-t", "--type"):
             typ = arg
         elif opt in ("-y", "--year"):
-            year = arg
+            year = int(arg)
         elif opt in ("-D", "--debug"):
             debug = True
 
